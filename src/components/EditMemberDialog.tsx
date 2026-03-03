@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { Member } from "@/types/member";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
+import type { Tables } from "@/integrations/supabase/types";
+
+type Profile = Tables<"profiles">;
 
 const KYU_DAN_OPTIONS = [
   "10. kyu", "9. kyu", "8. kyu", "7. kyu", "6. kyu",
@@ -15,10 +17,10 @@ const KYU_DAN_OPTIONS = [
 ];
 
 interface EditMemberDialogProps {
-  member: Member | null;
+  member: Profile | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (id: string, updates: Partial<Member>) => void;
+  onSave: (id: string, updates: Partial<Profile>) => void;
 }
 
 export default function EditMemberDialog({ member, open, onOpenChange, onSave }: EditMemberDialogProps) {
@@ -26,7 +28,7 @@ export default function EditMemberDialog({ member, open, onOpenChange, onSave }:
     meno: "",
     priezvisko: "",
     stupen: "",
-    datumNarodenia: "",
+    datum_narodenia: "",
     vyska: "",
     vaha: "",
     kata: false,
@@ -40,7 +42,7 @@ export default function EditMemberDialog({ member, open, onOpenChange, onSave }:
         meno: member.meno,
         priezvisko: member.priezvisko,
         stupen: member.stupen,
-        datumNarodenia: member.datumNarodenia,
+        datum_narodenia: member.datum_narodenia ?? "",
         vyska: member.vyska?.toString() ?? "",
         vaha: member.vaha?.toString() ?? "",
         kata: member.kata,
@@ -57,7 +59,7 @@ export default function EditMemberDialog({ member, open, onOpenChange, onSave }:
       meno: form.meno,
       priezvisko: form.priezvisko,
       stupen: form.stupen,
-      datumNarodenia: form.datumNarodenia,
+      datum_narodenia: form.datum_narodenia || null,
       vyska: form.vyska ? Number(form.vyska) : null,
       vaha: form.vaha ? Number(form.vaha) : null,
       kata: form.kata,
@@ -99,7 +101,7 @@ export default function EditMemberDialog({ member, open, onOpenChange, onSave }:
           </div>
           <div className="space-y-1.5">
             <Label>Dátum narodenia</Label>
-            <Input type="date" value={form.datumNarodenia} onChange={(e) => setForm({ ...form, datumNarodenia: e.target.value })} />
+            <Input type="date" value={form.datum_narodenia} onChange={(e) => setForm({ ...form, datum_narodenia: e.target.value })} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">

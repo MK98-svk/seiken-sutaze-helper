@@ -1,81 +1,108 @@
-import { Member, Competition, CompetitionEntry } from "@/types/member";
-import { useState, useEffect, useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useCallback } from "react";
 
-const MEMBERS_KEY = "seiken_members";
-const COMPETITIONS_KEY = "seiken_competitions";
-const ENTRIES_KEY = "seiken_entries";
+export function useProfiles() {
+  const queryClient = useQueryClient();
 
-function load<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch {
-    return fallback;
-  }
-}
+  const { data: profiles = [], isLoading } = useQuery({
+    queryKey: ["profiles"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("profiles").select("*").order("priezvisko");
+      if (error) throw error;
+      return data;
+    },
+  });
 
-function save<T>(key: string, data: T) {
-  localStorage.setItem(key, JSON.stringify(data));
-}
+  const updateProfile = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Record<string, any> }) => {
+      const { error } = await supabase.from("profiles").update(updates).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["profiles"] }),
+  });
 
-export function useMembers() {
-  const [members, setMembers] = useState<Member[]>(() => load(MEMBERS_KEY, []));
+  const deleteProfile = useMutation({
+    mutationFn: async (id: string) => {
+      // Delete the auth user (cascades to profile via FK)
+      const { error } = await supabase.from("profiles").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["profiles"] }),
+  });
 
-  useEffect(() => save(MEMBERS_KEY, members), [members]);
-
-  const addMember = useCallback((member: Omit<Member, "id">) => {
-    setMembers((prev) => [...prev, { ...member, id: crypto.randomUUID() }]);
-  }, []);
-
-  const updateMember = useCallback((id: string, updates: Partial<Member>) => {
-    setMembers((prev) => prev.map((m) => (m.id === id ? { ...m, ...updates } : m)));
-  }, []);
-
-  const deleteMember = useCallback((id: string) => {
-    setMembers((prev) => prev.filter((m) => m.id !== id));
-  }, []);
-
-  return { members, addMember, updateMember, deleteMember };
+  return { profiles, isLoading, updateProfile, deleteProfile };
 }
 
 export function useCompetitions() {
-  const [competitions, setCompetitions] = useState<Competition[]>(() => load(COMPETITIONS_KEY, []));
+  const queryClient = useQueryClient();
 
-  useEffect(() => save(COMPETITIONS_KEY, competitions), [competitions]);
+  const { data: competitions = [], isLoading } = useQuery({
+    queryKey: ["competitions"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("competitions").select("*").order("datum");
+      if (error) throw error;
+      return data;
+    },
+  });
 
-  const addCompetition = useCallback((comp: Omit<Competition, "id">) => {
-    setCompetitions((prev) => [...prev, { ...comp, id: crypto.randomUUID() }]);
-  }, []);
+  const addCompetition = useMutation({
+    mutationFn: async (comp: { nazov: string; datum: string }) => {
+      const { error } = await supabase.from("competitions").insert(comp);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["competitions"] }),
+  });
 
-  const deleteCompetition = useCallback((id: string) => {
-    setCompetitions((prev) => prev.filter((c) => c.id !== id));
-  }, []);
+  const deleteCompetition = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("competitions").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["competitions"] }),
+  });
 
-  return { competitions, addCompetition, deleteCompetition };
+  return { competitions, isLoading, addCompetition, deleteCompetition };
 }
 
 export function useCompetitionEntries() {
-  const [entries, setEntries] = useState<CompetitionEntry[]>(() => load(ENTRIES_KEY, []));
+  const queryClient = useQueryClient();
 
-  useEffect(() => save(ENTRIES_KEY, entries), [entries]);
+  const { data: entries = [] } = useQuery({
+    queryKey: ["competition_entries"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("competition_entries").select("*");
+      if (error) throw error;
+      return data;
+    },
+  });
 
-  const toggleEntry = useCallback((memberId: string, competitionId: string) => {
-    setEntries((prev) => {
-      const existing = prev.find((e) => e.memberId === memberId && e.competitionId === competitionId);
+  const toggleEntry = useMutation({
+    mutationFn: async ({ profileId, competitionId }: { profileId: string; competitionId: string }) => {
+      const existing = entries.find(
+        (e) => e.profile_id === profileId && e.competition_id === competitionId
+      );
       if (existing) {
-        return prev.map((e) =>
-          e.memberId === memberId && e.competitionId === competitionId
-            ? { ...e, registered: !e.registered }
-            : e
-        );
+        const { error } = await supabase
+          .from("competition_entries")
+          .update({ registered: !existing.registered })
+          .eq("id", existing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("competition_entries")
+          .insert({ profile_id: profileId, competition_id: competitionId, registered: true });
+        if (error) throw error;
       }
-      return [...prev, { memberId, competitionId, registered: true }];
-    });
-  }, []);
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["competition_entries"] }),
+  });
 
   const isRegistered = useCallback(
-    (memberId: string, competitionId: string) => {
-      return entries.some((e) => e.memberId === memberId && e.competitionId === competitionId && e.registered);
+    (profileId: string, competitionId: string) => {
+      return entries.some(
+        (e) => e.profile_id === profileId && e.competition_id === competitionId && e.registered
+      );
     },
     [entries]
   );

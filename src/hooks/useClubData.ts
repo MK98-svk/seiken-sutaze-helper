@@ -1,105 +1,202 @@
 import { Member, Competition, CompetitionEntry } from "@/types/member";
-import { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
+import { toast } from "sonner";
 
-const MEMBERS_KEY = "seiken_members";
-const COMPETITIONS_KEY = "seiken_competitions";
-const ENTRIES_KEY = "seiken_entries";
+// The "members" and "member_competition_entries" tables are new and may not be
+// in the auto-generated types yet, so we cast through `any` where needed.
 
-const DEFAULT_COMPETITIONS: Competition[] = [
-  { id: "sp2-pezinok", nazov: "2. kolo SP – Pezinok", datum: "2026-03-14" },
-  { id: "wukf-british-open", nazov: "WUKF British Open", datum: "2026-03-21" },
-  { id: "wukf-north-american", nazov: "WUKF North American Open", datum: "2026-04-03" },
-  { id: "cyprus-international", nazov: "Cyprus International Championships", datum: "2026-04-18" },
-  { id: "sp3-dubnica", nazov: "3. kolo SP – Dubnica", datum: "2026-04-25" },
-  { id: "rovne-cup", nazov: "Rovne Cup 2026", datum: "2026-05-09" },
-  { id: "slovakia-open", nazov: "XXIX Slovakia Open", datum: "2026-05-23" },
-  { id: "wukf-scottish-open", nazov: "WUKF Scottish Open", datum: "2026-06-06" },
-  { id: "ms-wukf-cluj", nazov: "14. MS WUKF – Cluj-Napoca", datum: "2026-07-22" },
-  { id: "kanzen-cup", nazov: "12. Kanzen Cup", datum: "2026-09-05" },
-  { id: "sp4-prievidza", nazov: "4. kolo SP – Prievidza Cup", datum: "2026-09-26" },
-  { id: "baltic-open", nazov: "Baltic Open WUKF Championship", datum: "2026-09-26" },
-  { id: "transylvania-cup", nazov: "Transylvania WUKF World Cup", datum: "2026-12-12" },
-];
-
-function load<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function save<T>(key: string, data: T) {
-  localStorage.setItem(key, JSON.stringify(data));
-}
+// ─── Members ───────────────────────────────────────────
 
 export function useMembers() {
-  const [members, setMembers] = useState<Member[]>(() => load(MEMBERS_KEY, []));
+  const qc = useQueryClient();
 
-  useEffect(() => save(MEMBERS_KEY, members), [members]);
-
-  const addMember = useCallback((member: Omit<Member, "id">) => {
-    setMembers((prev) => [...prev, { ...member, id: crypto.randomUUID() }]);
-  }, []);
-
-  const updateMember = useCallback((id: string, updates: Partial<Member>) => {
-    setMembers((prev) => prev.map((m) => (m.id === id ? { ...m, ...updates } : m)));
-  }, []);
-
-  const deleteMember = useCallback((id: string) => {
-    setMembers((prev) => prev.filter((m) => m.id !== id));
-  }, []);
-
-  return { members, addMember, updateMember, deleteMember };
-}
-
-export function useCompetitions() {
-  const [competitions, setCompetitions] = useState<Competition[]>(() => {
-    const stored = load<Competition[]>(COMPETITIONS_KEY, []);
-    if (stored.length === 0) {
-      save(COMPETITIONS_KEY, DEFAULT_COMPETITIONS);
-      return DEFAULT_COMPETITIONS;
-    }
-    return stored;
+  const { data: members = [], isLoading } = useQuery({
+    queryKey: ["members"],
+    queryFn: async (): Promise<Member[]> => {
+      const { data, error } = await (supabase as any)
+        .from("members")
+        .select("*")
+        .order("priezvisko");
+      if (error) throw error;
+      return (data ?? []).map((r: any) => ({
+        id: r.id,
+        meno: r.meno,
+        priezvisko: r.priezvisko,
+        stupen: r.stupen,
+        datumNarodenia: r.datum_narodenia ?? "",
+        vyska: r.vyska ? Number(r.vyska) : null,
+        vaha: r.vaha ? Number(r.vaha) : null,
+        kata: r.kata,
+        kobudo: r.kobudo,
+        kumite: r.kumite,
+        zlato: r.zlato ?? 0,
+        striebro: r.striebro ?? 0,
+        bronz: r.bronz ?? 0,
+      }));
+    },
   });
 
-  useEffect(() => save(COMPETITIONS_KEY, competitions), [competitions]);
+  const addMutation = useMutation({
+    mutationFn: async (member: Omit<Member, "id">) => {
+      const { error } = await (supabase as any).from("members").insert({
+        meno: member.meno,
+        priezvisko: member.priezvisko,
+        stupen: member.stupen,
+        datum_narodenia: member.datumNarodenia || null,
+        vyska: member.vyska,
+        vaha: member.vaha,
+        kata: member.kata,
+        kobudo: member.kobudo,
+        kumite: member.kumite,
+        zlato: member.zlato,
+        striebro: member.striebro,
+        bronz: member.bronz,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["members"] }),
+    onError: (e: any) => toast.error("Chyba pri pridávaní: " + e.message),
+  });
 
-  const addCompetition = useCallback((comp: Omit<Competition, "id">) => {
-    setCompetitions((prev) => [...prev, { ...comp, id: crypto.randomUUID() }]);
-  }, []);
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Member> }) => {
+      const dbUpdates: Record<string, unknown> = {};
+      if (updates.meno !== undefined) dbUpdates.meno = updates.meno;
+      if (updates.priezvisko !== undefined) dbUpdates.priezvisko = updates.priezvisko;
+      if (updates.stupen !== undefined) dbUpdates.stupen = updates.stupen;
+      if (updates.datumNarodenia !== undefined) dbUpdates.datum_narodenia = updates.datumNarodenia || null;
+      if (updates.vyska !== undefined) dbUpdates.vyska = updates.vyska;
+      if (updates.vaha !== undefined) dbUpdates.vaha = updates.vaha;
+      if (updates.kata !== undefined) dbUpdates.kata = updates.kata;
+      if (updates.kobudo !== undefined) dbUpdates.kobudo = updates.kobudo;
+      if (updates.kumite !== undefined) dbUpdates.kumite = updates.kumite;
+      if (updates.zlato !== undefined) dbUpdates.zlato = updates.zlato;
+      if (updates.striebro !== undefined) dbUpdates.striebro = updates.striebro;
+      if (updates.bronz !== undefined) dbUpdates.bronz = updates.bronz;
+      const { error } = await (supabase as any).from("members").update(dbUpdates).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["members"] }),
+    onError: (e: any) => toast.error("Chyba pri aktualizácii: " + e.message),
+  });
 
-  const deleteCompetition = useCallback((id: string) => {
-    setCompetitions((prev) => prev.filter((c) => c.id !== id));
-  }, []);
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await (supabase as any).from("members").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["members"] }),
+    onError: (e: any) => toast.error("Chyba pri mazaní: " + e.message),
+  });
 
-  return { competitions, addCompetition, deleteCompetition };
+  const addMember = useCallback((m: Omit<Member, "id">) => addMutation.mutate(m), [addMutation]);
+  const updateMember = useCallback((id: string, updates: Partial<Member>) => updateMutation.mutate({ id, updates }), [updateMutation]);
+  const deleteMember = useCallback((id: string) => deleteMutation.mutate(id), [deleteMutation]);
+
+  return { members, isLoading, addMember, updateMember, deleteMember };
 }
 
+// ─── Competitions ──────────────────────────────────────
+
+export function useCompetitions() {
+  const qc = useQueryClient();
+
+  const { data: competitions = [], isLoading } = useQuery({
+    queryKey: ["competitions"],
+    queryFn: async (): Promise<Competition[]> => {
+      const { data, error } = await supabase
+        .from("competitions")
+        .select("*")
+        .order("datum");
+      if (error) throw error;
+      return (data ?? []).map((r) => ({
+        id: r.id,
+        nazov: r.nazov,
+        datum: r.datum,
+      }));
+    },
+  });
+
+  const addMutation = useMutation({
+    mutationFn: async (comp: Omit<Competition, "id">) => {
+      const { error } = await supabase.from("competitions").insert({
+        nazov: comp.nazov,
+        datum: comp.datum,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["competitions"] }),
+    onError: (e: any) => toast.error("Chyba: " + e.message),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("competitions").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["competitions"] }),
+    onError: (e: any) => toast.error("Chyba: " + e.message),
+  });
+
+  const addCompetition = useCallback((c: Omit<Competition, "id">) => addMutation.mutate(c), [addMutation]);
+  const deleteCompetition = useCallback((id: string) => deleteMutation.mutate(id), [deleteMutation]);
+
+  return { competitions, isLoading, addCompetition, deleteCompetition };
+}
+
+// ─── Competition Entries ───────────────────────────────
+
 export function useCompetitionEntries() {
-  const [entries, setEntries] = useState<CompetitionEntry[]>(() => load(ENTRIES_KEY, []));
+  const qc = useQueryClient();
 
-  useEffect(() => save(ENTRIES_KEY, entries), [entries]);
+  const { data: entries = [] } = useQuery({
+    queryKey: ["member_competition_entries"],
+    queryFn: async (): Promise<CompetitionEntry[]> => {
+      const { data, error } = await (supabase as any)
+        .from("member_competition_entries")
+        .select("*");
+      if (error) throw error;
+      return (data ?? []).map((r: any) => ({
+        memberId: r.member_id,
+        competitionId: r.competition_id,
+        registered: r.registered,
+      }));
+    },
+  });
 
-  const toggleEntry = useCallback((memberId: string, competitionId: string) => {
-    setEntries((prev) => {
-      const existing = prev.find((e) => e.memberId === memberId && e.competitionId === competitionId);
+  const toggleMutation = useMutation({
+    mutationFn: async ({ memberId, competitionId }: { memberId: string; competitionId: string }) => {
+      const existing = entries.find(
+        (e) => e.memberId === memberId && e.competitionId === competitionId
+      );
       if (existing) {
-        return prev.map((e) =>
-          e.memberId === memberId && e.competitionId === competitionId
-            ? { ...e, registered: !e.registered }
-            : e
-        );
+        const { error } = await (supabase as any)
+          .from("member_competition_entries")
+          .update({ registered: !existing.registered })
+          .eq("member_id", memberId)
+          .eq("competition_id", competitionId);
+        if (error) throw error;
+      } else {
+        const { error } = await (supabase as any)
+          .from("member_competition_entries")
+          .insert({ member_id: memberId, competition_id: competitionId, registered: true });
+        if (error) throw error;
       }
-      return [...prev, { memberId, competitionId, registered: true }];
-    });
-  }, []);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["member_competition_entries"] }),
+    onError: (e: any) => toast.error("Chyba: " + e.message),
+  });
+
+  const toggleEntry = useCallback(
+    (memberId: string, competitionId: string) => toggleMutation.mutate({ memberId, competitionId }),
+    [toggleMutation]
+  );
 
   const isRegistered = useCallback(
-    (memberId: string, competitionId: string) => {
-      return entries.some((e) => e.memberId === memberId && e.competitionId === competitionId && e.registered);
-    },
+    (memberId: string, competitionId: string) =>
+      entries.some((e) => e.memberId === memberId && e.competitionId === competitionId && e.registered),
     [entries]
   );
 

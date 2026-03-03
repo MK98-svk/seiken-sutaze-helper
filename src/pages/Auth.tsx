@@ -1,0 +1,71 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import { Navigate } from "react-router-dom";
+import { motion } from "framer-motion";
+
+export default function Auth() {
+  const { user, loading, signIn, signUp } = useAuth();
+  const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Načítavam…</div>;
+  if (user) return <Navigate to="/" replace />;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    if (isLogin) {
+      const { error } = await signIn(email, password);
+      if (error) toast.error(error.message);
+    } else {
+      const { error } = await signUp(email, password);
+      if (error) toast.error(error.message);
+      else toast.success("Registrácia úspešná! Skontrolujte email pre overenie.");
+    }
+    setSubmitting(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+        <Card className="w-full max-w-sm">
+          <CardHeader className="text-center">
+            <div className="mx-auto h-12 w-12 rounded-lg bg-primary flex items-center justify-center mb-2">
+              <span className="text-primary-foreground font-display font-bold text-xl">S</span>
+            </div>
+            <CardTitle className="font-display text-xl">{isLogin ? "Prihlásenie" : "Registrácia"}</CardTitle>
+            <p className="text-xs text-muted-foreground">KK SEIKEN • Checklist súťaží</p>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label>Email</Label>
+                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Heslo</Label>
+                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+              </div>
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? "Čakajte…" : isLogin ? "Prihlásiť sa" : "Zaregistrovať sa"}
+              </Button>
+            </form>
+            <button
+              onClick={() => setIsLogin(!isLogin)}
+              className="mt-4 text-sm text-muted-foreground hover:text-primary transition-colors w-full text-center"
+            >
+              {isLogin ? "Nemáte účet? Zaregistrujte sa" : "Už máte účet? Prihláste sa"}
+            </button>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </div>
+  );
+}

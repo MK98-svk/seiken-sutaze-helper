@@ -19,6 +19,7 @@ interface MemberTableProps {
   onDeleteCompetition: (id: string) => void;
   isRegistered: (memberId: string, competitionId: string) => boolean;
   onToggleEntry: (memberId: string, competitionId: string) => void;
+  isAdmin?: boolean;
 }
 
 export default function MemberTable({
@@ -29,6 +30,7 @@ export default function MemberTable({
   onDeleteCompetition,
   isRegistered,
   onToggleEntry,
+  isAdmin = false,
 }: MemberTableProps) {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [selectedCompId, setSelectedCompId] = useState<string>("all");
@@ -47,7 +49,6 @@ export default function MemberTable({
 
   return (
     <div className="space-y-4">
-      {/* Competition filter */}
       <div className="flex items-center gap-3 flex-wrap">
         <span className="text-sm text-muted-foreground font-medium">Súťaž:</span>
         <Select value={selectedCompId} onValueChange={setSelectedCompId}>
@@ -64,20 +65,14 @@ export default function MemberTable({
             ))}
           </SelectContent>
         </Select>
-        {selectedComp && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onDeleteCompetition(selectedComp.id)}
-            className="text-xs text-muted-foreground hover:text-destructive"
-          >
-            <Trash2 className="h-3 w-3 mr-1" />
-            Zmazať súťaž
+        {selectedComp && isAdmin && (
+          <Button variant="ghost" size="sm" onClick={() => onDeleteCompetition(selectedComp.id)}
+            className="text-xs text-muted-foreground hover:text-destructive">
+            <Trash2 className="h-3 w-3 mr-1" /> Zmazať súťaž
           </Button>
         )}
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto rounded-lg border border-border">
         <Table>
           <TableHeader>
@@ -106,7 +101,7 @@ export default function MemberTable({
                   <div className="text-xs font-normal text-muted-foreground">{formatDate(comp.datum)}</div>
                 </TableHead>
               ))}
-              <TableHead className="w-10" />
+              {isAdmin && <TableHead className="w-10" />}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -140,30 +135,44 @@ export default function MemberTable({
                       <TableCell key={d} className="text-center">
                         <Checkbox
                           checked={member[d]}
-                          onCheckedChange={(v) => onUpdateMember(member.id, { [d]: !!v })}
+                          onCheckedChange={(v) => isAdmin && onUpdateMember(member.id, { [d]: !!v })}
+                          disabled={!isAdmin}
                         />
                       </TableCell>
                     ))}
                     <TableCell className="text-center">
-                      <Input type="number" min={0} value={member.zlato ?? 0}
-                        onChange={(e) => onUpdateMember(member.id, { zlato: Number(e.target.value) || 0 })}
-                        className="w-14 h-8 text-center mx-auto" />
+                      {isAdmin ? (
+                        <Input type="number" min={0} value={member.zlato ?? 0}
+                          onChange={(e) => onUpdateMember(member.id, { zlato: Number(e.target.value) || 0 })}
+                          className="w-14 h-8 text-center mx-auto" />
+                      ) : (
+                        <span className="text-sm">{member.zlato ?? 0}</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-center">
-                      <Input type="number" min={0} value={member.striebro ?? 0}
-                        onChange={(e) => onUpdateMember(member.id, { striebro: Number(e.target.value) || 0 })}
-                        className="w-14 h-8 text-center mx-auto" />
+                      {isAdmin ? (
+                        <Input type="number" min={0} value={member.striebro ?? 0}
+                          onChange={(e) => onUpdateMember(member.id, { striebro: Number(e.target.value) || 0 })}
+                          className="w-14 h-8 text-center mx-auto" />
+                      ) : (
+                        <span className="text-sm">{member.striebro ?? 0}</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-center">
-                      <Input type="number" min={0} value={member.bronz ?? 0}
-                        onChange={(e) => onUpdateMember(member.id, { bronz: Number(e.target.value) || 0 })}
-                        className="w-14 h-8 text-center mx-auto" />
+                      {isAdmin ? (
+                        <Input type="number" min={0} value={member.bronz ?? 0}
+                          onChange={(e) => onUpdateMember(member.id, { bronz: Number(e.target.value) || 0 })}
+                          className="w-14 h-8 text-center mx-auto" />
+                      ) : (
+                        <span className="text-sm">{member.bronz ?? 0}</span>
+                      )}
                     </TableCell>
                     {selectedComp && (
                       <TableCell className="text-center">
                         <Checkbox
                           checked={isRegistered(member.id, selectedComp.id)}
-                          onCheckedChange={() => onToggleEntry(member.id, selectedComp.id)}
+                          onCheckedChange={() => isAdmin && onToggleEntry(member.id, selectedComp.id)}
+                          disabled={!isAdmin}
                           className="data-[state=checked]:bg-success data-[state=checked]:border-success"
                         />
                       </TableCell>
@@ -172,23 +181,26 @@ export default function MemberTable({
                       <TableCell key={comp.id} className="text-center">
                         <Checkbox
                           checked={isRegistered(member.id, comp.id)}
-                          onCheckedChange={() => onToggleEntry(member.id, comp.id)}
+                          onCheckedChange={() => isAdmin && onToggleEntry(member.id, comp.id)}
+                          disabled={!isAdmin}
                           className="data-[state=checked]:bg-success data-[state=checked]:border-success"
                         />
                       </TableCell>
                     ))}
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => setEditingMember(member)}
-                          className="h-8 w-8 text-muted-foreground hover:text-primary">
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => onDeleteMember(member.id)}
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+                    {isAdmin && (
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon" onClick={() => setEditingMember(member)}
+                            className="h-8 w-8 text-muted-foreground hover:text-primary">
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => onDeleteMember(member.id)}
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    )}
                   </motion.tr>
                 ))
               )}
@@ -200,7 +212,6 @@ export default function MemberTable({
                 <TableCell colSpan={6} className="text-right text-xs uppercase tracking-wider text-muted-foreground">
                   Súčet
                 </TableCell>
-                {/* kata, kobudo, kumite – count of checked */}
                 {(["kata", "kobudo", "kumite"] as const).map((d) => (
                   <TableCell key={d} className="text-center text-sm font-bold text-foreground">
                     {members.filter((m) => m[d]).length}
@@ -225,17 +236,19 @@ export default function MemberTable({
                     {members.filter((m) => isRegistered(m.id, comp.id)).length}
                   </TableCell>
                 ))}
-                <TableCell />
+                {isAdmin && <TableCell />}
               </tr>
             </tfoot>
           )}
         </Table>
-        <EditMemberDialog
-          member={editingMember}
-          open={!!editingMember}
-          onOpenChange={(open) => !open && setEditingMember(null)}
-          onSave={onUpdateMember}
-        />
+        {isAdmin && (
+          <EditMemberDialog
+            member={editingMember}
+            open={!!editingMember}
+            onOpenChange={(open) => !open && setEditingMember(null)}
+            onSave={onUpdateMember}
+          />
+        )}
       </div>
     </div>
   );

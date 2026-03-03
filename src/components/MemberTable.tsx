@@ -20,6 +20,7 @@ interface MemberTableProps {
   isRegistered: (memberId: string, competitionId: string) => boolean;
   onToggleEntry: (memberId: string, competitionId: string) => void;
   isAdmin?: boolean;
+  currentUserId?: string | null;
 }
 
 export default function MemberTable({
@@ -31,6 +32,7 @@ export default function MemberTable({
   isRegistered,
   onToggleEntry,
   isAdmin = false,
+  currentUserId,
 }: MemberTableProps) {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [selectedCompId, setSelectedCompId] = useState<string>("all");
@@ -129,17 +131,37 @@ export default function MemberTable({
                       </span>
                     </TableCell>
                     <TableCell className="text-sm">{formatDate(member.datumNarodenia)}</TableCell>
-                    <TableCell className="text-center text-sm">{member.vyska ? `${member.vyska} cm` : "—"}</TableCell>
-                    <TableCell className="text-center text-sm">{member.vaha ? `${member.vaha} kg` : "—"}</TableCell>
-                    {(["kata", "kobudo", "kumite"] as const).map((d) => (
-                      <TableCell key={d} className="text-center">
-                        <Checkbox
-                          checked={member[d]}
-                          onCheckedChange={(v) => isAdmin && onUpdateMember(member.id, { [d]: !!v })}
-                          disabled={!isAdmin}
-                        />
-                      </TableCell>
-                    ))}
+                    {(() => {
+                      const canEditSelf = !isAdmin && currentUserId != null && member.userId === currentUserId;
+                      const canEdit = isAdmin || canEditSelf;
+                      return (
+                        <>
+                          <TableCell className="text-center text-sm">
+                            {canEditSelf ? (
+                              <Input type="number" min={0} value={member.vyska ?? ""} placeholder="cm"
+                                onChange={(e) => onUpdateMember(member.id, { vyska: e.target.value ? Number(e.target.value) : null })}
+                                className="w-16 h-8 text-center mx-auto" />
+                            ) : member.vyska ? `${member.vyska} cm` : "—"}
+                          </TableCell>
+                          <TableCell className="text-center text-sm">
+                            {canEditSelf ? (
+                              <Input type="number" min={0} value={member.vaha ?? ""} placeholder="kg"
+                                onChange={(e) => onUpdateMember(member.id, { vaha: e.target.value ? Number(e.target.value) : null })}
+                                className="w-16 h-8 text-center mx-auto" />
+                            ) : member.vaha ? `${member.vaha} kg` : "—"}
+                          </TableCell>
+                          {(["kata", "kobudo", "kumite"] as const).map((d) => (
+                            <TableCell key={d} className="text-center">
+                              <Checkbox
+                                checked={member[d]}
+                                onCheckedChange={(v) => canEdit && onUpdateMember(member.id, { [d]: !!v })}
+                                disabled={!canEdit}
+                              />
+                            </TableCell>
+                          ))}
+                        </>
+                      );
+                    })()}
                     <TableCell className="text-center">
                       {isAdmin ? (
                         <Input type="number" min={0} value={member.zlato ?? 0}

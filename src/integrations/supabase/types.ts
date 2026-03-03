@@ -121,6 +121,7 @@ export type Database = {
           striebro: number
           stupen: string
           updated_at: string
+          user_id: string | null
           vaha: number | null
           vyska: number | null
           zlato: number
@@ -138,6 +139,7 @@ export type Database = {
           striebro?: number
           stupen?: string
           updated_at?: string
+          user_id?: string | null
           vaha?: number | null
           vyska?: number | null
           zlato?: number
@@ -155,6 +157,7 @@ export type Database = {
           striebro?: number
           stupen?: string
           updated_at?: string
+          user_id?: string | null
           vaha?: number | null
           vyska?: number | null
           zlato?: number

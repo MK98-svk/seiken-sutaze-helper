@@ -34,6 +34,7 @@ export function useMembers() {
         zlato: r.zlato ?? 0,
         striebro: r.striebro ?? 0,
         bronz: r.bronz ?? 0,
+        userId: r.user_id ?? null,
       }));
     },
   });
@@ -75,6 +76,7 @@ export function useMembers() {
       if (updates.zlato !== undefined) dbUpdates.zlato = updates.zlato;
       if (updates.striebro !== undefined) dbUpdates.striebro = updates.striebro;
       if (updates.bronz !== undefined) dbUpdates.bronz = updates.bronz;
+      if (updates.userId !== undefined) dbUpdates.user_id = updates.userId;
       const { error } = await (supabase as any).from("members").update(dbUpdates).eq("id", id);
       if (error) throw error;
     },

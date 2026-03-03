@@ -12,6 +12,7 @@ export interface Member {
   zlato: number;
   striebro: number;
   bronz: number;
+  userId: string | null;
 }
 
 export interface Competition {

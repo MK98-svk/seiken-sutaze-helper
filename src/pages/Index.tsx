@@ -73,11 +73,12 @@ const Index = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6"
+          className="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-6"
         >
           {[
             { label: "Členov", value: members.length },
             { label: "Kata", value: members.filter((m) => m.kata).length },
+            { label: "Kobudo", value: members.filter((m) => m.kobudo).length },
             { label: "Kumite", value: members.filter((m) => m.kumite).length },
             { label: "Súťaží", value: competitions.length },
           ].map((stat) => (

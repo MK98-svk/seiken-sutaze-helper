@@ -103,7 +103,7 @@ export default function MemberTable({
                   <div className="text-xs font-normal text-muted-foreground">{formatDate(comp.datum)}</div>
                 </TableHead>
               ))}
-              {isAdmin && <TableHead className="w-10" />}
+              {(isAdmin || currentUserId) && <TableHead className="w-10" />}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -209,17 +209,19 @@ export default function MemberTable({
                         />
                       </TableCell>
                     ))}
-                    {isAdmin && (
+                    {(isAdmin || (currentUserId && member.userId === currentUserId)) && (
                       <TableCell>
                         <div className="flex gap-1">
                           <Button variant="ghost" size="icon" onClick={() => setEditingMember(member)}
                             className="h-8 w-8 text-muted-foreground hover:text-primary">
                             <Pencil className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => onDeleteMember(member.id)}
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          {isAdmin && (
+                            <Button variant="ghost" size="icon" onClick={() => onDeleteMember(member.id)}
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     )}
@@ -258,19 +260,17 @@ export default function MemberTable({
                     {members.filter((m) => isRegistered(m.id, comp.id)).length}
                   </TableCell>
                 ))}
-                {isAdmin && <TableCell />}
+                {(isAdmin || currentUserId) && <TableCell />}
               </tr>
             </tfoot>
           )}
         </Table>
-        {isAdmin && (
-          <EditMemberDialog
-            member={editingMember}
-            open={!!editingMember}
-            onOpenChange={(open) => !open && setEditingMember(null)}
-            onSave={onUpdateMember}
-          />
-        )}
+        <EditMemberDialog
+          member={editingMember}
+          open={!!editingMember}
+          onOpenChange={(open) => !open && setEditingMember(null)}
+          onSave={onUpdateMember}
+        />
       </div>
     </div>
   );

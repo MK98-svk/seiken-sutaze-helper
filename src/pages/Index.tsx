@@ -1,6 +1,7 @@
 import { useMembers, useCompetitions, useCompetitionEntries } from "@/hooks/useClubData";
 import { useAuth } from "@/hooks/useAuth";
 import AddMemberDialog from "@/components/AddMemberDialog";
+import AddSelfDialog from "@/components/AddSelfDialog";
 import AddCompetitionDialog from "@/components/AddCompetitionDialog";
 import MemberTable from "@/components/MemberTable";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,9 @@ const Index = () => {
   const { members, isLoading: membersLoading, addMember, updateMember, deleteMember } = useMembers();
   const { competitions, isLoading: compsLoading, addCompetition, deleteCompetition } = useCompetitions();
   const { isRegistered, toggleEntry } = useCompetitionEntries();
+
+  // Check if current user already has a member record
+  const userHasMemberRecord = members.some((m) => m.userId === user?.id);
 
   if (authLoading) {
     return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Načítavam…</div>;
@@ -52,6 +56,9 @@ const Index = () => {
                 <AddCompetitionDialog onAdd={addCompetition} />
                 <AddMemberDialog onAdd={addMember} />
               </>
+            )}
+            {!isAdmin && !userHasMemberRecord && user && (
+              <AddSelfDialog onAdd={addMember} userId={user.id} />
             )}
             <Button variant="ghost" size="icon" onClick={signOut} title="Odhlásiť sa">
               <LogOut className="h-4 w-4" />

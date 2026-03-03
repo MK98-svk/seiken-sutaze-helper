@@ -144,33 +144,20 @@ export default function MemberTable({
                         />
                       </TableCell>
                     ))}
-                    {/* Medal columns */}
                     <TableCell className="text-center">
-                      <Input
-                        type="number"
-                        min={0}
-                        value={member.zlato ?? 0}
+                      <Input type="number" min={0} value={member.zlato ?? 0}
                         onChange={(e) => onUpdateMember(member.id, { zlato: Number(e.target.value) || 0 })}
-                        className="w-14 h-8 text-center mx-auto"
-                      />
+                        className="w-14 h-8 text-center mx-auto" />
                     </TableCell>
                     <TableCell className="text-center">
-                      <Input
-                        type="number"
-                        min={0}
-                        value={member.striebro ?? 0}
+                      <Input type="number" min={0} value={member.striebro ?? 0}
                         onChange={(e) => onUpdateMember(member.id, { striebro: Number(e.target.value) || 0 })}
-                        className="w-14 h-8 text-center mx-auto"
-                      />
+                        className="w-14 h-8 text-center mx-auto" />
                     </TableCell>
                     <TableCell className="text-center">
-                      <Input
-                        type="number"
-                        min={0}
-                        value={member.bronz ?? 0}
+                      <Input type="number" min={0} value={member.bronz ?? 0}
                         onChange={(e) => onUpdateMember(member.id, { bronz: Number(e.target.value) || 0 })}
-                        className="w-14 h-8 text-center mx-auto"
-                      />
+                        className="w-14 h-8 text-center mx-auto" />
                     </TableCell>
                     {selectedComp && (
                       <TableCell className="text-center">
@@ -192,20 +179,12 @@ export default function MemberTable({
                     ))}
                     <TableCell>
                       <div className="flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setEditingMember(member)}
-                          className="h-8 w-8 text-muted-foreground hover:text-primary"
-                        >
+                        <Button variant="ghost" size="icon" onClick={() => setEditingMember(member)}
+                          className="h-8 w-8 text-muted-foreground hover:text-primary">
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => onDeleteMember(member.id)}
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                        >
+                        <Button variant="ghost" size="icon" onClick={() => onDeleteMember(member.id)}
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -215,6 +194,41 @@ export default function MemberTable({
               )}
             </AnimatePresence>
           </TableBody>
+          {members.length > 0 && (
+            <tfoot>
+              <tr className="border-t-2 border-border bg-secondary/60 font-semibold">
+                <TableCell colSpan={6} className="text-right text-xs uppercase tracking-wider text-muted-foreground">
+                  Súčet
+                </TableCell>
+                {/* kata, kobudo, kumite – count of checked */}
+                {(["kata", "kobudo", "kumite"] as const).map((d) => (
+                  <TableCell key={d} className="text-center text-sm font-bold text-foreground">
+                    {members.filter((m) => m[d]).length}
+                  </TableCell>
+                ))}
+                <TableCell className="text-center text-sm font-bold text-foreground">
+                  {members.reduce((s, m) => s + (m.zlato ?? 0), 0)}
+                </TableCell>
+                <TableCell className="text-center text-sm font-bold text-foreground">
+                  {members.reduce((s, m) => s + (m.striebro ?? 0), 0)}
+                </TableCell>
+                <TableCell className="text-center text-sm font-bold text-foreground">
+                  {members.reduce((s, m) => s + (m.bronz ?? 0), 0)}
+                </TableCell>
+                {selectedComp && (
+                  <TableCell className="text-center text-sm font-bold text-primary">
+                    {members.filter((m) => isRegistered(m.id, selectedComp.id)).length}
+                  </TableCell>
+                )}
+                {showAllComps && competitions.map((comp) => (
+                  <TableCell key={comp.id} className="text-center text-sm font-bold text-primary">
+                    {members.filter((m) => isRegistered(m.id, comp.id)).length}
+                  </TableCell>
+                ))}
+                <TableCell />
+              </tr>
+            </tfoot>
+          )}
         </Table>
         <EditMemberDialog
           member={editingMember}

@@ -1,11 +1,13 @@
+import { useState } from "react";
 import { Member, Competition } from "@/types/member";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Trash2, X } from "lucide-react";
+import { Trash2, X, Pencil } from "lucide-react";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import { motion, AnimatePresence } from "framer-motion";
+import EditMemberDialog from "./EditMemberDialog";
 
 interface MemberTableProps {
   members: Member[];
@@ -26,6 +28,7 @@ export default function MemberTable({
   isRegistered,
   onToggleEntry,
 }: MemberTableProps) {
+  const [editingMember, setEditingMember] = useState<Member | null>(null);
   const formatDate = (d: string) => {
     if (!d) return "—";
     try {
@@ -111,14 +114,24 @@ export default function MemberTable({
                     </TableCell>
                   ))}
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onDeleteMember(member.id)}
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setEditingMember(member)}
+                        className="h-8 w-8 text-muted-foreground hover:text-primary"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onDeleteMember(member.id)}
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </motion.tr>
               ))
@@ -126,6 +139,12 @@ export default function MemberTable({
           </AnimatePresence>
         </TableBody>
       </Table>
+      <EditMemberDialog
+        member={editingMember}
+        open={!!editingMember}
+        onOpenChange={(open) => !open && setEditingMember(null)}
+        onSave={onUpdateMember}
+      />
     </div>
   );
 }

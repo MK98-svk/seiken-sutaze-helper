@@ -32,6 +32,9 @@ export default function EditMemberDialog({ member, open, onOpenChange, onSave }:
     kata: false,
     kobudo: false,
     kumite: false,
+    zlato: "0",
+    striebro: "0",
+    bronz: "0",
   });
 
   useEffect(() => {
@@ -46,6 +49,9 @@ export default function EditMemberDialog({ member, open, onOpenChange, onSave }:
         kata: member.kata,
         kobudo: member.kobudo,
         kumite: member.kumite,
+        zlato: (member.zlato ?? 0).toString(),
+        striebro: (member.striebro ?? 0).toString(),
+        bronz: (member.bronz ?? 0).toString(),
       });
     }
   }, [member]);
@@ -63,6 +69,9 @@ export default function EditMemberDialog({ member, open, onOpenChange, onSave }:
       kata: form.kata,
       kobudo: form.kobudo,
       kumite: form.kumite,
+      zlato: Number(form.zlato) || 0,
+      striebro: Number(form.striebro) || 0,
+      bronz: Number(form.bronz) || 0,
     });
     onOpenChange(false);
   };
@@ -120,6 +129,23 @@ export default function EditMemberDialog({ member, open, onOpenChange, onSave }:
                   <span className="capitalize">{d}</span>
                 </label>
               ))}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label>Medaily</Label>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">🥇 Zlaté</Label>
+                <Input type="number" min={0} value={form.zlato} onChange={(e) => setForm({ ...form, zlato: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">🥈 Strieborné</Label>
+                <Input type="number" min={0} value={form.striebro} onChange={(e) => setForm({ ...form, striebro: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">🥉 Bronzové</Label>
+                <Input type="number" min={0} value={form.bronz} onChange={(e) => setForm({ ...form, bronz: e.target.value })} />
+              </div>
             </div>
           </div>
           <Button type="submit" className="w-full">Uložiť zmeny</Button>

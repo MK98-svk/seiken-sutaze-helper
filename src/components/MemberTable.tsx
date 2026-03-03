@@ -3,6 +3,7 @@ import { Member, Competition } from "@/types/member";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Trash2, Pencil } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
@@ -41,12 +42,13 @@ export default function MemberTable({
     }
   };
 
-  const selectedComp = competitions.find((c) => c.id === selectedCompId);
+  const showAllComps = selectedCompId === "show-all";
+  const selectedComp = !showAllComps ? competitions.find((c) => c.id === selectedCompId) : undefined;
 
   return (
     <div className="space-y-4">
       {/* Competition filter */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
         <span className="text-sm text-muted-foreground font-medium">Súťaž:</span>
         <Select value={selectedCompId} onValueChange={setSelectedCompId}>
           <SelectTrigger className="w-[320px]">
@@ -54,6 +56,7 @@ export default function MemberTable({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Všetky (bez stĺpca súťaže)</SelectItem>
+            <SelectItem value="show-all">📋 Zobraziť všetky súťaže</SelectItem>
             {competitions.map((comp) => (
               <SelectItem key={comp.id} value={comp.id}>
                 {comp.nazov} — {formatDate(comp.datum)}
@@ -88,12 +91,21 @@ export default function MemberTable({
               <TableHead className="font-display font-semibold text-foreground text-center">Kata</TableHead>
               <TableHead className="font-display font-semibold text-foreground text-center">Kobudo</TableHead>
               <TableHead className="font-display font-semibold text-foreground text-center">Kumite</TableHead>
+              <TableHead className="font-display font-semibold text-foreground text-center">🥇</TableHead>
+              <TableHead className="font-display font-semibold text-foreground text-center">🥈</TableHead>
+              <TableHead className="font-display font-semibold text-foreground text-center">🥉</TableHead>
               {selectedComp && (
                 <TableHead className="font-display font-semibold text-primary text-center min-w-[120px]">
                   <div>{selectedComp.nazov}</div>
                   <div className="text-xs font-normal text-muted-foreground">{formatDate(selectedComp.datum)}</div>
                 </TableHead>
               )}
+              {showAllComps && competitions.map((comp) => (
+                <TableHead key={comp.id} className="font-display font-semibold text-primary text-center min-w-[120px]">
+                  <div className="text-xs">{comp.nazov}</div>
+                  <div className="text-xs font-normal text-muted-foreground">{formatDate(comp.datum)}</div>
+                </TableHead>
+              ))}
               <TableHead className="w-10" />
             </TableRow>
           </TableHeader>
@@ -101,7 +113,7 @@ export default function MemberTable({
             <AnimatePresence>
               {members.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={selectedComp ? 11 : 10} className="text-center text-muted-foreground py-12">
+                  <TableCell colSpan={99} className="text-center text-muted-foreground py-12">
                     Zatiaľ žiadni členovia. Pridajte prvého člena klubu.
                   </TableCell>
                 </TableRow>
@@ -132,6 +144,34 @@ export default function MemberTable({
                         />
                       </TableCell>
                     ))}
+                    {/* Medal columns */}
+                    <TableCell className="text-center">
+                      <Input
+                        type="number"
+                        min={0}
+                        value={member.zlato ?? 0}
+                        onChange={(e) => onUpdateMember(member.id, { zlato: Number(e.target.value) || 0 })}
+                        className="w-14 h-8 text-center mx-auto"
+                      />
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Input
+                        type="number"
+                        min={0}
+                        value={member.striebro ?? 0}
+                        onChange={(e) => onUpdateMember(member.id, { striebro: Number(e.target.value) || 0 })}
+                        className="w-14 h-8 text-center mx-auto"
+                      />
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Input
+                        type="number"
+                        min={0}
+                        value={member.bronz ?? 0}
+                        onChange={(e) => onUpdateMember(member.id, { bronz: Number(e.target.value) || 0 })}
+                        className="w-14 h-8 text-center mx-auto"
+                      />
+                    </TableCell>
                     {selectedComp && (
                       <TableCell className="text-center">
                         <Checkbox
@@ -141,6 +181,15 @@ export default function MemberTable({
                         />
                       </TableCell>
                     )}
+                    {showAllComps && competitions.map((comp) => (
+                      <TableCell key={comp.id} className="text-center">
+                        <Checkbox
+                          checked={isRegistered(member.id, comp.id)}
+                          onCheckedChange={() => onToggleEntry(member.id, comp.id)}
+                          className="data-[state=checked]:bg-success data-[state=checked]:border-success"
+                        />
+                      </TableCell>
+                    ))}
                     <TableCell>
                       <div className="flex gap-1">
                         <Button

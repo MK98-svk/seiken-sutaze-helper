@@ -71,6 +71,96 @@ export type Database = {
         }
         Relationships: []
       }
+      member_competition_entries: {
+        Row: {
+          competition_id: string
+          id: string
+          member_id: string
+          registered: boolean
+        }
+        Insert: {
+          competition_id: string
+          id?: string
+          member_id: string
+          registered?: boolean
+        }
+        Update: {
+          competition_id?: string
+          id?: string
+          member_id?: string
+          registered?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_competition_entries_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_competition_entries_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      members: {
+        Row: {
+          bronz: number
+          created_at: string
+          datum_narodenia: string | null
+          id: string
+          kata: boolean
+          kobudo: boolean
+          kumite: boolean
+          meno: string
+          priezvisko: string
+          striebro: number
+          stupen: string
+          updated_at: string
+          vaha: number | null
+          vyska: number | null
+          zlato: number
+        }
+        Insert: {
+          bronz?: number
+          created_at?: string
+          datum_narodenia?: string | null
+          id?: string
+          kata?: boolean
+          kobudo?: boolean
+          kumite?: boolean
+          meno?: string
+          priezvisko?: string
+          striebro?: number
+          stupen?: string
+          updated_at?: string
+          vaha?: number | null
+          vyska?: number | null
+          zlato?: number
+        }
+        Update: {
+          bronz?: number
+          created_at?: string
+          datum_narodenia?: string | null
+          id?: string
+          kata?: boolean
+          kobudo?: boolean
+          kumite?: boolean
+          meno?: string
+          priezvisko?: string
+          striebro?: number
+          stupen?: string
+          updated_at?: string
+          vaha?: number | null
+          vyska?: number | null
+          zlato?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

@@ -9,6 +9,9 @@ export interface Member {
   kata: boolean;
   kobudo: boolean;
   kumite: boolean;
+  zlato: number;
+  striebro: number;
+  bronz: number;
 }
 
 export interface Competition {

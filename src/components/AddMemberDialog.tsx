@@ -46,6 +46,9 @@ export default function AddMemberDialog({ onAdd }: AddMemberDialogProps) {
       kata: form.kata,
       kobudo: form.kobudo,
       kumite: form.kumite,
+      zlato: 0,
+      striebro: 0,
+      bronz: 0,
     });
     setForm({ meno: "", priezvisko: "", stupen: "", datumNarodenia: "", vyska: "", vaha: "", kata: false, kobudo: false, kumite: false });
     setOpen(false);

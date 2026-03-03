@@ -1,13 +1,26 @@
 import { useMembers, useCompetitions, useCompetitionEntries } from "@/hooks/useClubData";
+import { useAuth } from "@/hooks/useAuth";
 import AddMemberDialog from "@/components/AddMemberDialog";
 import AddCompetitionDialog from "@/components/AddCompetitionDialog";
 import MemberTable from "@/components/MemberTable";
+import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { Navigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 
 const Index = () => {
-  const { members, addMember, updateMember, deleteMember } = useMembers();
-  const { competitions, addCompetition, deleteCompetition } = useCompetitions();
+  const { user, loading: authLoading, isAdmin, signOut } = useAuth();
+  const { members, isLoading: membersLoading, addMember, updateMember, deleteMember } = useMembers();
+  const { competitions, isLoading: compsLoading, addCompetition, deleteCompetition } = useCompetitions();
   const { isRegistered, toggleEntry } = useCompetitionEntries();
+
+  if (authLoading) {
+    return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Načítavam…</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -32,10 +45,17 @@ const Index = () => {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex gap-2"
+            className="flex gap-2 items-center"
           >
-            <AddCompetitionDialog onAdd={addCompetition} />
-            <AddMemberDialog onAdd={addMember} />
+            {isAdmin && (
+              <>
+                <AddCompetitionDialog onAdd={addCompetition} />
+                <AddMemberDialog onAdd={addMember} />
+              </>
+            )}
+            <Button variant="ghost" size="icon" onClick={signOut} title="Odhlásiť sa">
+              <LogOut className="h-4 w-4" />
+            </Button>
           </motion.div>
         </div>
       </header>
@@ -61,22 +81,26 @@ const Index = () => {
           ))}
         </motion.div>
 
-        {/* Table */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <MemberTable
-            members={members}
-            competitions={competitions}
-            onUpdateMember={updateMember}
-            onDeleteMember={deleteMember}
-            onDeleteCompetition={deleteCompetition}
-            isRegistered={isRegistered}
-            onToggleEntry={toggleEntry}
-          />
-        </motion.div>
+        {(membersLoading || compsLoading) ? (
+          <div className="text-center text-muted-foreground py-12">Načítavam dáta…</div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <MemberTable
+              members={members}
+              competitions={competitions}
+              onUpdateMember={isAdmin ? updateMember : () => {}}
+              onDeleteMember={isAdmin ? deleteMember : () => {}}
+              onDeleteCompetition={isAdmin ? deleteCompetition : () => {}}
+              isRegistered={isRegistered}
+              onToggleEntry={isAdmin ? toggleEntry : () => {}}
+              isAdmin={isAdmin}
+            />
+          </motion.div>
+        )}
       </div>
     </div>
   );

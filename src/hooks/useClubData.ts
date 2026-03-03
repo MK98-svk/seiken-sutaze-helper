@@ -54,6 +54,7 @@ export function useMembers() {
         zlato: member.zlato,
         striebro: member.striebro,
         bronz: member.bronz,
+        user_id: member.userId,
       });
       if (error) throw error;
     },

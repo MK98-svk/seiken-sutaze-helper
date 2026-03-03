@@ -49,6 +49,7 @@ export default function AddMemberDialog({ onAdd }: AddMemberDialogProps) {
       zlato: 0,
       striebro: 0,
       bronz: 0,
+      userId: null,
     });
     setForm({ meno: "", priezvisko: "", stupen: "", datumNarodenia: "", vyska: "", vaha: "", kata: false, kobudo: false, kumite: false });
     setOpen(false);

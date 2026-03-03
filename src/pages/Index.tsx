@@ -92,12 +92,13 @@ const Index = () => {
             <MemberTable
               members={members}
               competitions={competitions}
-              onUpdateMember={isAdmin ? updateMember : () => {}}
+              onUpdateMember={updateMember}
               onDeleteMember={isAdmin ? deleteMember : () => {}}
               onDeleteCompetition={isAdmin ? deleteCompetition : () => {}}
               isRegistered={isRegistered}
               onToggleEntry={isAdmin ? toggleEntry : () => {}}
               isAdmin={isAdmin}
+              currentUserId={user?.id ?? null}
             />
           </motion.div>
         )}

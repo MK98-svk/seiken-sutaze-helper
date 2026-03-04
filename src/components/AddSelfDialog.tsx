@@ -62,12 +62,12 @@ export default function AddSelfDialog({ onAdd, userId, linkedMembersCount }: Add
       <DialogTrigger asChild>
         <Button className="gap-2">
           <UserPlus className="h-4 w-4" />
-          {linkedMembersCount > 0 ? "Pridať ďalšieho cvičenca" : "Pridať cvičenca"}
+          Pridať ďalšieho cvičenca
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{linkedMembersCount > 0 ? "Pridať ďalšieho cvičenca" : "Pridať cvičenca"}</DialogTitle>
+          <DialogTitle>Pridať ďalšieho cvičenca</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <p className="text-sm text-muted-foreground">Pod jedným prihlásením môžete spravovať aj viac detí. Údaje potom upravíte cez ikonu ceruzky pri danom mene.</p>

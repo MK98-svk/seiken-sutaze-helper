@@ -18,9 +18,10 @@ const KYU_DAN_OPTIONS = [
 interface AddSelfDialogProps {
   onAdd: (member: Omit<Member, "id">) => void;
   userId: string;
+  linkedMembersCount: number;
 }
 
-export default function AddSelfDialog({ onAdd, userId }: AddSelfDialogProps) {
+export default function AddSelfDialog({ onAdd, userId, linkedMembersCount }: AddSelfDialogProps) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     meno: "",
@@ -61,14 +62,15 @@ export default function AddSelfDialog({ onAdd, userId }: AddSelfDialogProps) {
       <DialogTrigger asChild>
         <Button className="gap-2">
           <UserPlus className="h-4 w-4" />
-          Pridať sa do klubu
+          {linkedMembersCount > 0 ? "Pridať ďalšieho cvičenca" : "Pridať cvičenca"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Pridať sa ako člen</DialogTitle>
+          <DialogTitle>{linkedMembersCount > 0 ? "Pridať ďalšieho cvičenca" : "Pridať cvičenca"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <p className="text-sm text-muted-foreground">Pod jedným prihlásením môžete spravovať aj viac detí. Údaje potom upravíte cez ikonu ceruzky pri danom mene.</p>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Meno *</Label>
@@ -117,7 +119,7 @@ export default function AddSelfDialog({ onAdd, userId }: AddSelfDialogProps) {
               ))}
             </div>
           </div>
-          <Button type="submit" className="w-full">Pridať sa</Button>
+          <Button type="submit" className="w-full">Uložiť cvičenca</Button>
         </form>
       </DialogContent>
     </Dialog>

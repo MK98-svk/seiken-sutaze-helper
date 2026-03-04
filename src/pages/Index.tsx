@@ -69,12 +69,8 @@ const Index = () => {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
-            className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"
+            className="flex justify-end rounded-lg border-2 border-primary/60 bg-primary/5 p-3"
           >
-            <div>
-              <p className="text-sm font-medium text-foreground">Správa cvičencov pod jedným účtom</p>
-              <p className="text-sm text-muted-foreground">Po pridaní prvého člena ostáva možnosť pridať ďalšieho stále dostupná.</p>
-            </div>
             <AddSelfDialog onAdd={addMember} userId={user.id} linkedMembersCount={linkedMembersCount} />
           </motion.div>
         )}

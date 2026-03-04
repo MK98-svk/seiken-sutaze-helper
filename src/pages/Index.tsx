@@ -64,7 +64,7 @@ const Index = () => {
       </header>
 
       <div className="container mx-auto px-4 py-6 space-y-6">
-        {!isAdmin && user && (
+        {user && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -73,7 +73,7 @@ const Index = () => {
           >
             <div>
               <p className="text-sm font-medium text-foreground">Správa cvičencov pod jedným účtom</p>
-              <p className="text-sm text-muted-foreground">Po pridaní prvého člena tu ostane aj možnosť pridať ďalšieho.</p>
+              <p className="text-sm text-muted-foreground">Po pridaní prvého člena ostáva možnosť pridať ďalšieho stále dostupná.</p>
             </div>
             <AddSelfDialog onAdd={addMember} userId={user.id} linkedMembersCount={linkedMembersCount} />
           </motion.div>

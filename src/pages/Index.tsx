@@ -15,8 +15,7 @@ const Index = () => {
   const { competitions, isLoading: compsLoading, addCompetition, deleteCompetition } = useCompetitions();
   const { isRegistered, toggleEntry } = useCompetitionEntries();
 
-  // Check if current user already has a member record
-  const userHasMemberRecord = members.some((m) => m.userId === user?.id);
+  const linkedMembersCount = members.filter((m) => m.userId === user?.id).length;
 
   if (authLoading) {
     return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Načítavam…</div>;
@@ -57,8 +56,8 @@ const Index = () => {
                 <AddMemberDialog onAdd={addMember} />
               </>
             )}
-            {!isAdmin && !userHasMemberRecord && user && (
-              <AddSelfDialog onAdd={addMember} userId={user.id} />
+            {!isAdmin && user && (
+              <AddSelfDialog onAdd={addMember} userId={user.id} linkedMembersCount={linkedMembersCount} />
             )}
             <Button variant="ghost" size="icon" onClick={signOut} title="Odhlásiť sa">
               <LogOut className="h-4 w-4" />

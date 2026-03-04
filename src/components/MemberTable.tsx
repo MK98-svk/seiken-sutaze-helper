@@ -88,9 +88,9 @@ export default function MemberTable({
               <TableHead className="font-display font-semibold text-foreground text-center">Kata</TableHead>
               <TableHead className="font-display font-semibold text-foreground text-center">Kobudo</TableHead>
               <TableHead className="font-display font-semibold text-foreground text-center">Kumite</TableHead>
-              <TableHead className="font-display font-semibold text-foreground text-center">🥇</TableHead>
-              <TableHead className="font-display font-semibold text-foreground text-center">🥈</TableHead>
-              <TableHead className="font-display font-semibold text-foreground text-center">🥉</TableHead>
+              <TableHead className="font-display font-semibold text-foreground text-center min-w-[88px]">🥇</TableHead>
+              <TableHead className="font-display font-semibold text-foreground text-center min-w-[88px]">🥈</TableHead>
+              <TableHead className="font-display font-semibold text-foreground text-center min-w-[88px]">🥉</TableHead>
               {selectedComp && (
                 <TableHead className="font-display font-semibold text-primary text-center min-w-[120px]">
                   <div>{selectedComp.nazov}</div>
@@ -166,27 +166,27 @@ export default function MemberTable({
                       {isAdmin ? (
                         <Input type="number" min={0} value={member.zlato ?? 0}
                           onChange={(e) => onUpdateMember(member.id, { zlato: Number(e.target.value) || 0 })}
-                          className="w-14 h-8 text-center mx-auto" />
+                          className="w-20 h-8 text-center mx-auto" />
                       ) : (
-                        <span className="text-sm">{member.zlato ?? 0}</span>
+                        <span className="inline-block min-w-[3ch] text-sm">{member.zlato ?? 0}</span>
                       )}
                     </TableCell>
                     <TableCell className="text-center">
                       {isAdmin ? (
                         <Input type="number" min={0} value={member.striebro ?? 0}
                           onChange={(e) => onUpdateMember(member.id, { striebro: Number(e.target.value) || 0 })}
-                          className="w-14 h-8 text-center mx-auto" />
+                          className="w-20 h-8 text-center mx-auto" />
                       ) : (
-                        <span className="text-sm">{member.striebro ?? 0}</span>
+                        <span className="inline-block min-w-[3ch] text-sm">{member.striebro ?? 0}</span>
                       )}
                     </TableCell>
                     <TableCell className="text-center">
                       {isAdmin ? (
                         <Input type="number" min={0} value={member.bronz ?? 0}
                           onChange={(e) => onUpdateMember(member.id, { bronz: Number(e.target.value) || 0 })}
-                          className="w-14 h-8 text-center mx-auto" />
+                          className="w-20 h-8 text-center mx-auto" />
                       ) : (
-                        <span className="text-sm">{member.bronz ?? 0}</span>
+                        <span className="inline-block min-w-[3ch] text-sm">{member.bronz ?? 0}</span>
                       )}
                     </TableCell>
                     {selectedComp && (

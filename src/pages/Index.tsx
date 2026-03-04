@@ -15,7 +15,9 @@ const Index = () => {
   const { competitions, isLoading: compsLoading, addCompetition, deleteCompetition } = useCompetitions();
   const { isRegistered, toggleEntry } = useCompetitionEntries();
 
-  const linkedMembersCount = members.filter((m) => m.userId === user?.id).length;
+  const linkedMembers = members.filter((m) => m.userId === user?.id);
+  const linkedMembersCount = linkedMembers.length;
+  const visibleMembers = isAdmin ? members : linkedMembers;
 
   if (authLoading) {
     return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Načítavam…</div>;
@@ -56,9 +58,6 @@ const Index = () => {
                 <AddMemberDialog onAdd={addMember} />
               </>
             )}
-            {!isAdmin && user && (
-              <AddSelfDialog onAdd={addMember} userId={user.id} linkedMembersCount={linkedMembersCount} />
-            )}
             <Button variant="ghost" size="icon" onClick={signOut} title="Odhlásiť sa">
               <LogOut className="h-4 w-4" />
             </Button>
@@ -68,6 +67,25 @@ const Index = () => {
 
       {/* Stats */}
       <div className="container mx-auto px-4 py-6">
+        {!isAdmin && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="mb-6 rounded-2xl border border-border bg-card p-5 shadow-sm"
+          >
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="space-y-1">
+                <h2 className="font-display text-lg font-bold text-foreground">Moji cvičenci</h2>
+                <p className="text-sm text-muted-foreground">
+                  Pod jedným prihlásením môžete pridať seba aj ľubovoľný počet detí. Aktuálne máte pridaných {linkedMembersCount} cvičencov.
+                </p>
+              </div>
+              <AddSelfDialog onAdd={addMember} userId={user.id} linkedMembersCount={linkedMembersCount} />
+            </div>
+          </motion.div>
+        )}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -75,10 +93,10 @@ const Index = () => {
           className="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-6"
         >
           {[
-            { label: "Členov", value: members.length },
-            { label: "Kata", value: members.filter((m) => m.kata).length },
-            { label: "Kobudo", value: members.filter((m) => m.kobudo).length },
-            { label: "Kumite", value: members.filter((m) => m.kumite).length },
+            { label: isAdmin ? "Členov" : "Mojich", value: visibleMembers.length },
+            { label: "Kata", value: visibleMembers.filter((m) => m.kata).length },
+            { label: "Kobudo", value: visibleMembers.filter((m) => m.kobudo).length },
+            { label: "Kumite", value: visibleMembers.filter((m) => m.kumite).length },
             { label: "Súťaží", value: competitions.length },
           ].map((stat) => (
             <div key={stat.label} className="bg-card rounded-lg border border-border p-4 text-center">
@@ -97,7 +115,7 @@ const Index = () => {
             transition={{ delay: 0.2 }}
           >
             <MemberTable
-              members={members}
+              members={visibleMembers}
               competitions={competitions}
               onUpdateMember={updateMember}
               onDeleteMember={isAdmin ? deleteMember : () => {}}

@@ -56,6 +56,7 @@ const Index = () => {
                 <AddMemberDialog onAdd={addMember} />
               </>
             )}
+            {user && <AddSelfDialog onAdd={addMember} userId={user.id} linkedMembersCount={linkedMembersCount} />}
             <Button variant="ghost" size="icon" onClick={signOut} title="Odhlásiť sa">
               <LogOut className="h-4 w-4" />
             </Button>
@@ -64,16 +65,6 @@ const Index = () => {
       </header>
 
       <div className="container mx-auto px-4 py-6 space-y-6">
-        {user && (
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-            className="flex justify-end rounded-lg border-2 border-primary/60 bg-primary/5 p-3"
-          >
-            <AddSelfDialog onAdd={addMember} userId={user.id} linkedMembersCount={linkedMembersCount} />
-          </motion.div>
-        )}
 
         {/* Stats */}
         <motion.div

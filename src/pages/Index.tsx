@@ -56,9 +56,6 @@ const Index = () => {
                 <AddMemberDialog onAdd={addMember} />
               </>
             )}
-            {!isAdmin && user && (
-              <AddSelfDialog onAdd={addMember} userId={user.id} linkedMembersCount={linkedMembersCount} />
-            )}
             <Button variant="ghost" size="icon" onClick={signOut} title="Odhlásiť sa">
               <LogOut className="h-4 w-4" />
             </Button>
@@ -66,8 +63,23 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Stats */}
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-6 space-y-6">
+        {!isAdmin && user && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div>
+              <p className="text-sm font-medium text-foreground">Správa cvičencov pod jedným účtom</p>
+              <p className="text-sm text-muted-foreground">Po pridaní prvého člena tu ostane aj možnosť pridať ďalšieho.</p>
+            </div>
+            <AddSelfDialog onAdd={addMember} userId={user.id} linkedMembersCount={linkedMembersCount} />
+          </motion.div>
+        )}
+
+        {/* Stats */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

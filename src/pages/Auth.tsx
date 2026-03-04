@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import seikenLogo from "@/assets/seiken-logo.jpg";
 
 export default function Auth() {
   const { user, loading, signIn, signUp } = useAuth();
@@ -37,9 +38,7 @@ export default function Auth() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <Card className="w-full max-w-sm">
           <CardHeader className="text-center">
-            <div className="mx-auto h-12 w-12 rounded-lg bg-primary flex items-center justify-center mb-2">
-              <span className="text-primary-foreground font-display font-bold text-xl">S</span>
-            </div>
+            <img src={seikenLogo} alt="KK SEIKEN logo" className="mx-auto mb-3 h-16 w-16 rounded-xl object-cover ring-1 ring-primary/30" />
             <CardTitle className="font-display text-xl">{isLogin ? "Prihlásenie" : "Registrácia"}</CardTitle>
             <p className="text-xs text-muted-foreground">KK SEIKEN • Checklist súťaží</p>
           </CardHeader>

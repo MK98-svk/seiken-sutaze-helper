@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Navigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
+import seikenLogo from "@/assets/seiken-logo.jpg";
 
 const Index = () => {
   const { user, loading: authLoading, isAdmin, signOut } = useAuth();
@@ -35,9 +36,7 @@ const Index = () => {
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center gap-3"
           >
-            <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-display font-bold text-lg">S</span>
-            </div>
+            <img src={seikenLogo} alt="KK SEIKEN logo" className="h-12 w-12 rounded-lg object-cover ring-1 ring-primary/30" />
             <div>
               <h1 className="text-xl font-display font-bold tracking-wider text-foreground">
                 KK SEIKEN

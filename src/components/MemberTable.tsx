@@ -137,18 +137,10 @@ export default function MemberTable({
                       return (
                         <>
                           <TableCell className="text-center text-sm">
-                            {canEditSelf ? (
-                              <Input type="number" min={0} value={member.vyska ?? ""} placeholder="cm"
-                                onChange={(e) => onUpdateMember(member.id, { vyska: e.target.value ? Number(e.target.value) : null })}
-                                className="w-16 h-8 text-center mx-auto" />
-                            ) : member.vyska ? `${member.vyska} cm` : "—"}
+                            {member.vyska ? `${member.vyska} cm` : "—"}
                           </TableCell>
                           <TableCell className="text-center text-sm">
-                            {canEditSelf ? (
-                              <Input type="number" min={0} value={member.vaha ?? ""} placeholder="kg"
-                                onChange={(e) => onUpdateMember(member.id, { vaha: e.target.value ? Number(e.target.value) : null })}
-                                className="w-16 h-8 text-center mx-auto" />
-                            ) : member.vaha ? `${member.vaha} kg` : "—"}
+                            {member.vaha ? `${member.vaha} kg` : "—"}
                           </TableCell>
                           {(["kata", "kobudo", "kumite"] as const).map((d) => (
                             <TableCell key={d} className="text-center">

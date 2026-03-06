@@ -146,8 +146,8 @@ export default function MemberTable({
                             <TableCell key={d} className="text-center">
                               <Checkbox
                                 checked={member[d]}
-                                onCheckedChange={(v) => canEdit && onUpdateMember(member.id, { [d]: !!v })}
-                                disabled={!canEdit}
+                                onCheckedChange={(v) => isAdmin && onUpdateMember(member.id, { [d]: !!v })}
+                                disabled={!isAdmin}
                               />
                             </TableCell>
                           ))}

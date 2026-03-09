@@ -139,9 +139,35 @@ export default function MemberTable({
                         <TableCell className="text-center text-sm font-bold">{medals.striebro || "—"}</TableCell>
                         <TableCell className="text-center text-sm font-bold">{medals.bronz || "—"}</TableCell>
                         <TableCell className="text-xs text-muted-foreground">
-                          {medals.results.length > 0
-                            ? medals.results.map((r) => `${r.discipline} (${r.category || "—"}) — ${r.placement}.`).join(", ")
-                            : "—"}
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {medals.results.length > 0
+                              ? medals.results.map((r) => (
+                                <span key={r.id} className="inline-flex items-center gap-0.5 bg-secondary/80 rounded px-1.5 py-0.5">
+                                  <span className="capitalize">{r.discipline}</span>
+                                  {r.category && <span className="text-muted-foreground">({r.category})</span>}
+                                  <span>— {r.placement}.</span>
+                                  {isAdmin && (
+                                    <button
+                                      onClick={async () => {
+                                        try { await deleteResult(r.id); toast.success("Výsledok zmazaný"); }
+                                        catch { toast.error("Chyba pri mazaní"); }
+                                      }}
+                                      className="ml-0.5 text-muted-foreground hover:text-destructive transition-colors"
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </button>
+                                  )}
+                                </span>
+                              ))
+                              : "—"}
+                            {isAdmin && selectedComp && (
+                              <AddResultDialog
+                                competitionId={selectedComp.id}
+                                member={member}
+                                onAdded={invalidateResults}
+                              />
+                            )}
+                          </div>
                         </TableCell>
                       </motion.tr>
                     );

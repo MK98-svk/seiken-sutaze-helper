@@ -30,24 +30,24 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-3"
+            className="flex items-center gap-2 sm:gap-3 min-w-0"
           >
-            <img src={seikenLogo} alt="KK SEIKEN logo" className="h-12 w-12 rounded-lg object-cover ring-1 ring-primary/30" />
-            <div>
-              <h1 className="text-xl font-display font-bold tracking-wider text-foreground">
+            <img src={seikenLogo} alt="KK SEIKEN logo" className="h-9 w-9 sm:h-12 sm:w-12 rounded-lg object-cover ring-1 ring-primary/30 shrink-0" />
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-xl font-display font-bold tracking-wider text-foreground truncate">
                 KK SEIKEN
               </h1>
-              <p className="text-xs text-muted-foreground">Bratislava • Checklist súťaží</p>
+              <p className="text-xs text-muted-foreground hidden sm:block">Bratislava • Checklist súťaží</p>
             </div>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex gap-2 items-center"
+            className="flex gap-1 sm:gap-2 items-center shrink-0"
           >
             {isAdmin && (
               <>
@@ -56,7 +56,7 @@ const Index = () => {
               </>
             )}
             {user && <AddSelfDialog onAdd={addMember} userId={user.id} linkedMembersCount={linkedMembersCount} />}
-            <Button variant="ghost" size="icon" onClick={signOut} title="Odhlásiť sa">
+            <Button variant="ghost" size="icon" onClick={signOut} title="Odhlásiť sa" className="h-8 w-8 sm:h-9 sm:w-9">
               <LogOut className="h-4 w-4" />
             </Button>
           </motion.div>

@@ -14,6 +14,9 @@ import ImportResultsDialog from "./ImportResultsDialog";
 import AddResultDialog from "./AddResultDialog";
 import { useCompetitionResults } from "@/hooks/useCompetitionResults";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileCompetitionView from "./MobileCompetitionView";
+import MobileMemberList from "./MobileMemberList";
 
 interface MemberTableProps {
   members: Member[];
@@ -40,6 +43,7 @@ export default function MemberTable({
 }: MemberTableProps) {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [selectedCompId, setSelectedCompId] = useState<string>("all");
+  const isMobile = useIsMobile();
 
   const formatDate = (d: string) => {
     if (!d) return "—";
@@ -56,14 +60,14 @@ export default function MemberTable({
   // Fetch competition results when a specific competition is selected
   const { getMemberMedals, invalidate: invalidateResults, deleteResult } = useCompetitionResults(selectedComp?.id);
 
-  // When a specific competition is selected, show simplified view
+  // When a specific competition is selected
   if (selectedComp) {
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-3 flex-wrap">
           <span className="text-sm text-muted-foreground font-medium">Súťaž:</span>
           <Select value={selectedCompId} onValueChange={setSelectedCompId}>
-            <SelectTrigger className="w-[320px]">
+            <SelectTrigger className="w-full sm:w-[320px]">
               <SelectValue placeholder="Vybrať súťaž" />
             </SelectTrigger>
             <SelectContent>
@@ -76,130 +80,143 @@ export default function MemberTable({
               ))}
             </SelectContent>
           </Select>
-          {isAdmin && (
-            <>
-              <ImportResultsDialog
-                competitionId={selectedComp.id}
-                competitionName={selectedComp.nazov}
-                members={members}
-                onImported={invalidateResults}
-              />
-              <Button variant="ghost" size="sm" onClick={() => onDeleteCompetition(selectedComp.id)}
-                className="text-xs text-muted-foreground hover:text-destructive">
-                <Trash2 className="h-3 w-3 mr-1" /> Zmazať súťaž
-              </Button>
-            </>
-          )}
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-secondary/50 hover:bg-secondary/50">
-                <TableHead className="font-display font-semibold text-foreground">Meno</TableHead>
-                <TableHead className="font-display font-semibold text-foreground">Priezvisko</TableHead>
-                <TableHead className="font-display font-semibold text-foreground text-center">Účasť</TableHead>
-                <TableHead className="font-display font-semibold text-foreground text-center">🥇</TableHead>
-                <TableHead className="font-display font-semibold text-foreground text-center">🥈</TableHead>
-                <TableHead className="font-display font-semibold text-foreground text-center">🥉</TableHead>
-                <TableHead className="font-display font-semibold text-foreground">Disciplíny</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <AnimatePresence>
-                {members.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground py-12">
-                      Zatiaľ žiadni členovia.
+        {isMobile ? (
+          <MobileCompetitionView
+            competition={selectedComp}
+            members={members}
+            isAdmin={isAdmin}
+            isRegistered={isRegistered}
+            onToggleEntry={onToggleEntry}
+            onDeleteCompetition={onDeleteCompetition}
+            invalidateResults={invalidateResults}
+          />
+        ) : (
+          /* Desktop table - unchanged */
+          <div className="overflow-x-auto rounded-lg border border-border">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-secondary/50 hover:bg-secondary/50">
+                  <TableHead className="font-display font-semibold text-foreground">Meno</TableHead>
+                  <TableHead className="font-display font-semibold text-foreground">Priezvisko</TableHead>
+                  <TableHead className="font-display font-semibold text-foreground text-center">Účasť</TableHead>
+                  <TableHead className="font-display font-semibold text-foreground text-center">🥇</TableHead>
+                  <TableHead className="font-display font-semibold text-foreground text-center">🥈</TableHead>
+                  <TableHead className="font-display font-semibold text-foreground text-center">🥉</TableHead>
+                  <TableHead className="font-display font-semibold text-foreground">Disciplíny</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <AnimatePresence>
+                  {members.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center text-muted-foreground py-12">
+                        Zatiaľ žiadni členovia.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    members.map((member) => {
+                      const medals = getMemberMedals(member.id);
+                      const registered = isRegistered(member.id, selectedComp.id);
+                      return (
+                        <motion.tr
+                          key={member.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, x: -20 }}
+                          className="border-b border-border hover:bg-secondary/30 transition-colors"
+                        >
+                          <TableCell className="font-medium">{member.meno}</TableCell>
+                          <TableCell className="font-medium">{member.priezvisko}</TableCell>
+                          <TableCell className="text-center">
+                            <Checkbox
+                              checked={registered}
+                              onCheckedChange={() => isAdmin && onToggleEntry(member.id, selectedComp.id)}
+                              disabled={!isAdmin}
+                              className="data-[state=checked]:bg-success data-[state=checked]:border-success"
+                            />
+                          </TableCell>
+                          <TableCell className="text-center text-sm font-bold">{medals.zlato || "—"}</TableCell>
+                          <TableCell className="text-center text-sm font-bold">{medals.striebro || "—"}</TableCell>
+                          <TableCell className="text-center text-sm font-bold">{medals.bronz || "—"}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              {medals.results.length > 0
+                                ? medals.results.map((r) => (
+                                  <span key={r.id} className="inline-flex items-center gap-0.5 bg-secondary/80 rounded px-1.5 py-0.5">
+                                    <span className="capitalize">{r.discipline}</span>
+                                    {r.category && <span className="text-muted-foreground">({r.category})</span>}
+                                    <span>— {r.placement}.</span>
+                                    {isAdmin && (
+                                      <button
+                                        onClick={async () => {
+                                          try { await deleteResult(r.id); toast.success("Výsledok zmazaný"); }
+                                          catch { toast.error("Chyba pri mazaní"); }
+                                        }}
+                                        className="ml-0.5 text-muted-foreground hover:text-destructive transition-colors"
+                                      >
+                                        <X className="h-3 w-3" />
+                                      </button>
+                                    )}
+                                  </span>
+                                ))
+                                : "—"}
+                              {isAdmin && selectedComp && (
+                                <AddResultDialog
+                                  competitionId={selectedComp.id}
+                                  competitionDate={selectedComp.datum}
+                                  member={member}
+                                  onAdded={invalidateResults}
+                                />
+                              )}
+                            </div>
+                          </TableCell>
+                        </motion.tr>
+                      );
+                    })
+                  )}
+                </AnimatePresence>
+              </TableBody>
+              {members.length > 0 && (
+                <tfoot>
+                  <tr className="border-t-2 border-border bg-secondary/60 font-semibold">
+                    <TableCell colSpan={2} className="text-right text-xs uppercase tracking-wider text-muted-foreground">
+                      Súčet
                     </TableCell>
-                  </TableRow>
-                ) : (
-                  members.map((member) => {
-                    const medals = getMemberMedals(member.id);
-                    const registered = isRegistered(member.id, selectedComp.id);
-                    return (
-                      <motion.tr
-                        key={member.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        className="border-b border-border hover:bg-secondary/30 transition-colors"
-                      >
-                        <TableCell className="font-medium">{member.meno}</TableCell>
-                        <TableCell className="font-medium">{member.priezvisko}</TableCell>
-                        <TableCell className="text-center">
-                          <Checkbox
-                            checked={registered}
-                            onCheckedChange={() => isAdmin && onToggleEntry(member.id, selectedComp.id)}
-                            disabled={!isAdmin}
-                            className="data-[state=checked]:bg-success data-[state=checked]:border-success"
-                          />
-                        </TableCell>
-                        <TableCell className="text-center text-sm font-bold">{medals.zlato || "—"}</TableCell>
-                        <TableCell className="text-center text-sm font-bold">{medals.striebro || "—"}</TableCell>
-                        <TableCell className="text-center text-sm font-bold">{medals.bronz || "—"}</TableCell>
-                        <TableCell className="text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            {medals.results.length > 0
-                              ? medals.results.map((r) => (
-                                <span key={r.id} className="inline-flex items-center gap-0.5 bg-secondary/80 rounded px-1.5 py-0.5">
-                                  <span className="capitalize">{r.discipline}</span>
-                                  {r.category && <span className="text-muted-foreground">({r.category})</span>}
-                                  <span>— {r.placement}.</span>
-                                  {isAdmin && (
-                                    <button
-                                      onClick={async () => {
-                                        try { await deleteResult(r.id); toast.success("Výsledok zmazaný"); }
-                                        catch { toast.error("Chyba pri mazaní"); }
-                                      }}
-                                      className="ml-0.5 text-muted-foreground hover:text-destructive transition-colors"
-                                    >
-                                      <X className="h-3 w-3" />
-                                    </button>
-                                  )}
-                                </span>
-                              ))
-                              : "—"}
-                            {isAdmin && selectedComp && (
-                              <AddResultDialog
-                                competitionId={selectedComp.id}
-                                competitionDate={selectedComp.datum}
-                                member={member}
-                                onAdded={invalidateResults}
-                              />
-                            )}
-                          </div>
-                        </TableCell>
-                      </motion.tr>
-                    );
-                  })
-                )}
-              </AnimatePresence>
-            </TableBody>
-            {members.length > 0 && (
-              <tfoot>
-                <tr className="border-t-2 border-border bg-secondary/60 font-semibold">
-                  <TableCell colSpan={2} className="text-right text-xs uppercase tracking-wider text-muted-foreground">
-                    Súčet
-                  </TableCell>
-                  <TableCell className="text-center text-sm font-bold text-primary">
-                    {members.filter((m) => isRegistered(m.id, selectedComp.id)).length}
-                  </TableCell>
-                  <TableCell className="text-center text-sm font-bold">
-                    {members.reduce((s, m) => s + getMemberMedals(m.id).zlato, 0)}
-                  </TableCell>
-                  <TableCell className="text-center text-sm font-bold">
-                    {members.reduce((s, m) => s + getMemberMedals(m.id).striebro, 0)}
-                  </TableCell>
-                  <TableCell className="text-center text-sm font-bold">
-                    {members.reduce((s, m) => s + getMemberMedals(m.id).bronz, 0)}
-                  </TableCell>
-                  <TableCell />
-                </tr>
-              </tfoot>
+                    <TableCell className="text-center text-sm font-bold text-primary">
+                      {members.filter((m) => isRegistered(m.id, selectedComp.id)).length}
+                    </TableCell>
+                    <TableCell className="text-center text-sm font-bold">
+                      {members.reduce((s, m) => s + getMemberMedals(m.id).zlato, 0)}
+                    </TableCell>
+                    <TableCell className="text-center text-sm font-bold">
+                      {members.reduce((s, m) => s + getMemberMedals(m.id).striebro, 0)}
+                    </TableCell>
+                    <TableCell className="text-center text-sm font-bold">
+                      {members.reduce((s, m) => s + getMemberMedals(m.id).bronz, 0)}
+                    </TableCell>
+                    <TableCell />
+                  </tr>
+                </tfoot>
+              )}
+            </Table>
+            {isAdmin && (
+              <div className="p-2 flex gap-2">
+                <ImportResultsDialog
+                  competitionId={selectedComp.id}
+                  competitionName={selectedComp.nazov}
+                  members={members}
+                  onImported={invalidateResults}
+                />
+                <Button variant="ghost" size="sm" onClick={() => onDeleteCompetition(selectedComp.id)}
+                  className="text-xs text-muted-foreground hover:text-destructive">
+                  <Trash2 className="h-3 w-3 mr-1" /> Zmazať súťaž
+                </Button>
+              </div>
             )}
-          </Table>
-        </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -210,7 +227,7 @@ export default function MemberTable({
       <div className="flex items-center gap-3 flex-wrap">
         <span className="text-sm text-muted-foreground font-medium">Súťaž:</span>
         <Select value={selectedCompId} onValueChange={setSelectedCompId}>
-          <SelectTrigger className="w-[320px]">
+          <SelectTrigger className="w-full sm:w-[320px]">
             <SelectValue placeholder="Vybrať súťaž" />
           </SelectTrigger>
           <SelectContent>
@@ -224,6 +241,18 @@ export default function MemberTable({
           </SelectContent>
         </Select>
       </div>
+
+      {isMobile ? (
+        <MobileMemberList
+          members={members}
+          competitions={competitions}
+          isAdmin={isAdmin}
+          currentUserId={currentUserId}
+          onUpdateMember={onUpdateMember}
+          onDeleteMember={onDeleteMember}
+          isRegistered={isRegistered}
+        />
+      ) : (
 
       <div className="overflow-x-auto rounded-lg border border-border">
         <Table>
@@ -384,6 +413,7 @@ export default function MemberTable({
           onSave={onUpdateMember}
         />
       </div>
+      )}
     </div>
   );
 }

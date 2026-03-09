@@ -43,6 +43,7 @@ export default function MemberTable({
 }: MemberTableProps) {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [selectedCompId, setSelectedCompId] = useState<string>("all");
+  const isMobile = useIsMobile();
 
   const formatDate = (d: string) => {
     if (!d) return "—";

@@ -1,1 +1,4 @@
 project_id = "jikdnhoehahlhkcldcci"
+
+[functions.import-competition-results]
+verify_jwt = false

@@ -4,14 +4,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, Pencil } from "lucide-react";
+import { Trash2, Pencil, X } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import { motion, AnimatePresence } from "framer-motion";
 import EditMemberDialog from "./EditMemberDialog";
 import ImportResultsDialog from "./ImportResultsDialog";
+import AddResultDialog from "./AddResultDialog";
 import { useCompetitionResults } from "@/hooks/useCompetitionResults";
+import { toast } from "sonner";
 
 interface MemberTableProps {
   members: Member[];
@@ -52,7 +54,7 @@ export default function MemberTable({
   const selectedComp = !showAllComps ? competitions.find((c) => c.id === selectedCompId) : undefined;
 
   // Fetch competition results when a specific competition is selected
-  const { getMemberMedals, invalidate: invalidateResults } = useCompetitionResults(selectedComp?.id);
+  const { getMemberMedals, invalidate: invalidateResults, deleteResult } = useCompetitionResults(selectedComp?.id);
 
   // When a specific competition is selected, show simplified view
   if (selectedComp) {
@@ -137,9 +139,35 @@ export default function MemberTable({
                         <TableCell className="text-center text-sm font-bold">{medals.striebro || "—"}</TableCell>
                         <TableCell className="text-center text-sm font-bold">{medals.bronz || "—"}</TableCell>
                         <TableCell className="text-xs text-muted-foreground">
-                          {medals.results.length > 0
-                            ? medals.results.map((r) => `${r.discipline} (${r.category || "—"}) — ${r.placement}.`).join(", ")
-                            : "—"}
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {medals.results.length > 0
+                              ? medals.results.map((r) => (
+                                <span key={r.id} className="inline-flex items-center gap-0.5 bg-secondary/80 rounded px-1.5 py-0.5">
+                                  <span className="capitalize">{r.discipline}</span>
+                                  {r.category && <span className="text-muted-foreground">({r.category})</span>}
+                                  <span>— {r.placement}.</span>
+                                  {isAdmin && (
+                                    <button
+                                      onClick={async () => {
+                                        try { await deleteResult(r.id); toast.success("Výsledok zmazaný"); }
+                                        catch { toast.error("Chyba pri mazaní"); }
+                                      }}
+                                      className="ml-0.5 text-muted-foreground hover:text-destructive transition-colors"
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </button>
+                                  )}
+                                </span>
+                              ))
+                              : "—"}
+                            {isAdmin && selectedComp && (
+                              <AddResultDialog
+                                competitionId={selectedComp.id}
+                                member={member}
+                                onAdded={invalidateResults}
+                              />
+                            )}
+                          </div>
                         </TableCell>
                       </motion.tr>
                     );

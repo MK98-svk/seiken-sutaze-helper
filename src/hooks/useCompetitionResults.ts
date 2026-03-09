@@ -35,6 +35,15 @@ export function useCompetitionResults(competitionId?: string) {
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["competition_results", competitionId] });
 
+  const deleteResult = async (resultId: string) => {
+    const { error } = await (supabase as any)
+      .from("competition_results")
+      .delete()
+      .eq("id", resultId);
+    if (error) throw error;
+    invalidate();
+  };
+
   // Get medals for a specific member in this competition
   const getMemberMedals = (memberId: string) => {
     const memberResults = results.filter((r) => r.memberId === memberId);
@@ -46,5 +55,5 @@ export function useCompetitionResults(competitionId?: string) {
     };
   };
 
-  return { results, isLoading, invalidate, getMemberMedals };
+  return { results, isLoading, invalidate, getMemberMedals, deleteResult };
 }

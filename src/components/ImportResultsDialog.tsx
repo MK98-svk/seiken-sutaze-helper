@@ -107,10 +107,18 @@ export default function ImportResultsDialog({ competitionId, competitionName, me
         return;
       }
 
+      // Deduplicate by key (keep last occurrence)
+      const uniqueMap = new Map<string, typeof results[number]>();
+      for (const r of results) {
+        const key = `${r.competition_id}|${r.member_id}|${r.discipline}|${r.category}`;
+        uniqueMap.set(key, r);
+      }
+      const dedupedResults = Array.from(uniqueMap.values());
+
       // Upsert results
       const { error } = await (supabase as any)
         .from("competition_results")
-        .upsert(results, { onConflict: "competition_id,member_id,discipline,category" });
+        .upsert(dedupedResults, { onConflict: "competition_id,member_id,discipline,category" });
 
       if (error) throw error;
 

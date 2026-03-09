@@ -47,6 +47,7 @@ export function useMembers() {
         priezvisko: member.priezvisko,
         stupen: member.stupen,
         datum_narodenia: member.datumNarodenia || null,
+        pohlavie: member.pohlavie,
         vyska: member.vyska,
         vaha: member.vaha,
         kata: member.kata,

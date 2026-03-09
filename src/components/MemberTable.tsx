@@ -413,6 +413,7 @@ export default function MemberTable({
           onSave={onUpdateMember}
         />
       </div>
+      )}
     </div>
   );
 }

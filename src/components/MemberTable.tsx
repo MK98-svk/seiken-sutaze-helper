@@ -4,14 +4,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, Pencil } from "lucide-react";
+import { Trash2, Pencil, X } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import { motion, AnimatePresence } from "framer-motion";
 import EditMemberDialog from "./EditMemberDialog";
 import ImportResultsDialog from "./ImportResultsDialog";
+import AddResultDialog from "./AddResultDialog";
 import { useCompetitionResults } from "@/hooks/useCompetitionResults";
+import { toast } from "sonner";
 
 interface MemberTableProps {
   members: Member[];

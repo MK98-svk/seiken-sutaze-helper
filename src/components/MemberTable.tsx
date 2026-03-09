@@ -227,7 +227,7 @@ export default function MemberTable({
       <div className="flex items-center gap-3 flex-wrap">
         <span className="text-sm text-muted-foreground font-medium">Súťaž:</span>
         <Select value={selectedCompId} onValueChange={setSelectedCompId}>
-          <SelectTrigger className="w-[320px]">
+          <SelectTrigger className="w-full sm:w-[320px]">
             <SelectValue placeholder="Vybrať súťaž" />
           </SelectTrigger>
           <SelectContent>
@@ -241,6 +241,18 @@ export default function MemberTable({
           </SelectContent>
         </Select>
       </div>
+
+      {isMobile ? (
+        <MobileMemberList
+          members={members}
+          competitions={competitions}
+          isAdmin={isAdmin}
+          currentUserId={currentUserId}
+          onUpdateMember={onUpdateMember}
+          onDeleteMember={onDeleteMember}
+          isRegistered={isRegistered}
+        />
+      ) : (
 
       <div className="overflow-x-auto rounded-lg border border-border">
         <Table>

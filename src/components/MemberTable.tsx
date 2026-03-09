@@ -14,6 +14,9 @@ import ImportResultsDialog from "./ImportResultsDialog";
 import AddResultDialog from "./AddResultDialog";
 import { useCompetitionResults } from "@/hooks/useCompetitionResults";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileCompetitionView from "./MobileCompetitionView";
+import MobileMemberList from "./MobileMemberList";
 
 interface MemberTableProps {
   members: Member[];

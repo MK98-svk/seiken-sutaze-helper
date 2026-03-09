@@ -26,6 +26,7 @@ export function useMembers() {
         priezvisko: r.priezvisko,
         stupen: r.stupen,
         datumNarodenia: r.datum_narodenia ?? "",
+        pohlavie: r.pohlavie ?? null,
         vyska: r.vyska ? Number(r.vyska) : null,
         vaha: r.vaha ? Number(r.vaha) : null,
         kata: r.kata,

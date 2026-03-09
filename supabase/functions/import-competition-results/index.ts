@@ -49,7 +49,6 @@ function matchName(resultName: string, members: MemberRecord[]): { member: Membe
   let bestScore = Infinity;
 
   for (const member of members) {
-    // Try both "meno priezvisko" and "priezvisko meno" orderings
     const fullName1 = normalize(`${member.meno} ${member.priezvisko}`);
     const fullName2 = normalize(`${member.priezvisko} ${member.meno}`);
     
@@ -65,7 +64,6 @@ function matchName(resultName: string, members: MemberRecord[]): { member: Membe
 
   if (!bestMatch) return null;
 
-  // Allow up to 3 character difference for typos
   const maxLen = Math.max(normResult.length, normalize(`${bestMatch.meno} ${bestMatch.priezvisko}`).length);
   const confidence = 1 - bestScore / maxLen;
 
@@ -81,27 +79,16 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { url, competitionId } = await req.json();
+    const { pdfBase64, competitionId } = await req.json();
 
-    if (!url || !competitionId) {
+    if (!pdfBase64 || !competitionId) {
       return new Response(
-        JSON.stringify({ success: false, error: 'URL and competitionId are required' }),
+        JSON.stringify({ success: false, error: 'pdfBase64 and competitionId are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // 1. Fetch the results page
-    console.log('Fetching URL:', url);
-    const pageResponse = await fetch(url);
-    if (!pageResponse.ok) {
-      return new Response(
-        JSON.stringify({ success: false, error: `Failed to fetch page: ${pageResponse.status}` }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-    const html = await pageResponse.text();
-
-    // 2. Use AI to extract results
+    // Use AI with vision to extract results from PDF
     const apiKey = Deno.env.get('LOVABLE_API_KEY');
     if (!apiKey) {
       return new Response(
@@ -109,6 +96,8 @@ Deno.serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log('Processing PDF, base64 length:', pdfBase64.length);
 
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -121,10 +110,10 @@ Deno.serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a parser for karate competition results. Extract ONLY individual results (not team/družstvo/team kata) for members of "Karate klub Seiken Bratislava" or "KK Seiken" or "Seiken Bratislava" or similar.
+            content: `You are a parser for karate competition results from PDF documents. Extract ONLY individual results (not team/družstvo/team kata) for members of "Karate klub Seiken Bratislava" or "KK Seiken" or "Seiken Bratislava" or "Seiken" or similar.
 
 Return a JSON array of objects with these fields:
-- name: full name of the competitor (as written on the page)
+- name: full name of the competitor (as written in the PDF)
 - discipline: the discipline (e.g. "kata", "kumite", "kobudo")
 - category: the category (e.g. age group, weight class)
 - placement: numeric placement (1, 2, 3, etc.)
@@ -133,11 +122,23 @@ IMPORTANT:
 - Only include INDIVIDUAL results, skip team/družstvo entries
 - Include all placements, not just medalists
 - If you can't determine placement, use 0
-- Return ONLY the JSON array, no markdown, no explanation`
+- Return ONLY the JSON array, no markdown, no explanation
+- Look carefully through all pages of the PDF for any Seiken members`
           },
           {
             role: 'user',
-            content: `Extract individual karate results for Seiken Bratislava members from this HTML:\n\n${html.substring(0, 50000)}`
+            content: [
+              {
+                type: 'text',
+                text: 'Extract individual karate competition results for Seiken Bratislava members from this PDF document.'
+              },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:application/pdf;base64,${pdfBase64}`
+                }
+              }
+            ]
           }
         ],
         temperature: 0.1,
@@ -148,13 +149,15 @@ IMPORTANT:
       const errText = await aiResponse.text();
       console.error('AI error:', errText);
       return new Response(
-        JSON.stringify({ success: false, error: 'AI parsing failed' }),
+        JSON.stringify({ success: false, error: 'AI parsing failed: ' + errText.substring(0, 200) }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const aiData = await aiResponse.json();
     let content = aiData.choices?.[0]?.message?.content || '[]';
+    
+    console.log('AI response:', content.substring(0, 500));
     
     // Strip markdown code blocks if present
     content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -165,12 +168,12 @@ IMPORTANT:
     } catch {
       console.error('Failed to parse AI response:', content);
       return new Response(
-        JSON.stringify({ success: false, error: 'Failed to parse results from page' }),
+        JSON.stringify({ success: false, error: 'Failed to parse results from PDF' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // 3. Get members from DB for matching
+    // Get members from DB for matching
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     
@@ -182,7 +185,7 @@ IMPORTANT:
     });
     const members: MemberRecord[] = await membersResponse.json();
 
-    // 4. Match results to members
+    // Match results to members
     const matched: Array<ParsedResult & { memberId: string; memberName: string; confidence: number }> = [];
     const unmatched: ParsedResult[] = [];
 
@@ -199,6 +202,8 @@ IMPORTANT:
         unmatched.push(result);
       }
     }
+
+    console.log(`Found ${parsedResults.length} results, matched ${matched.length}, unmatched ${unmatched.length}`);
 
     return new Response(
       JSON.stringify({

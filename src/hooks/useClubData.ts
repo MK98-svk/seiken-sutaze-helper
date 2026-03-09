@@ -26,6 +26,7 @@ export function useMembers() {
         priezvisko: r.priezvisko,
         stupen: r.stupen,
         datumNarodenia: r.datum_narodenia ?? "",
+        pohlavie: r.pohlavie ?? null,
         vyska: r.vyska ? Number(r.vyska) : null,
         vaha: r.vaha ? Number(r.vaha) : null,
         kata: r.kata,
@@ -46,6 +47,7 @@ export function useMembers() {
         priezvisko: member.priezvisko,
         stupen: member.stupen,
         datum_narodenia: member.datumNarodenia || null,
+        pohlavie: member.pohlavie,
         vyska: member.vyska,
         vaha: member.vaha,
         kata: member.kata,
@@ -69,6 +71,7 @@ export function useMembers() {
       if (updates.priezvisko !== undefined) dbUpdates.priezvisko = updates.priezvisko;
       if (updates.stupen !== undefined) dbUpdates.stupen = updates.stupen;
       if (updates.datumNarodenia !== undefined) dbUpdates.datum_narodenia = updates.datumNarodenia || null;
+      if (updates.pohlavie !== undefined) dbUpdates.pohlavie = updates.pohlavie;
       if (updates.vyska !== undefined) dbUpdates.vyska = updates.vyska;
       if (updates.vaha !== undefined) dbUpdates.vaha = updates.vaha;
       if (updates.kata !== undefined) dbUpdates.kata = updates.kata;

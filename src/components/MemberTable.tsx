@@ -163,6 +163,7 @@ export default function MemberTable({
                             {isAdmin && selectedComp && (
                               <AddResultDialog
                                 competitionId={selectedComp.id}
+                                competitionDate={selectedComp.datum}
                                 member={member}
                                 onAdded={invalidateResults}
                               />

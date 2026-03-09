@@ -25,6 +25,7 @@ export default function AddMemberDialog({ onAdd }: AddMemberDialogProps) {
     meno: "",
     priezvisko: "",
     stupen: "",
+    pohlavie: "",
     datumNarodenia: "",
     vyska: "",
     vaha: "",
@@ -40,6 +41,7 @@ export default function AddMemberDialog({ onAdd }: AddMemberDialogProps) {
       meno: form.meno,
       priezvisko: form.priezvisko,
       stupen: form.stupen,
+      pohlavie: form.pohlavie || null,
       datumNarodenia: form.datumNarodenia,
       vyska: form.vyska ? Number(form.vyska) : null,
       vaha: form.vaha ? Number(form.vaha) : null,
@@ -51,7 +53,7 @@ export default function AddMemberDialog({ onAdd }: AddMemberDialogProps) {
       bronz: 0,
       userId: null,
     });
-    setForm({ meno: "", priezvisko: "", stupen: "", datumNarodenia: "", vyska: "", vaha: "", kata: false, kobudo: false, kumite: false });
+    setForm({ meno: "", priezvisko: "", stupen: "", pohlavie: "", datumNarodenia: "", vyska: "", vaha: "", kata: false, kobudo: false, kumite: false });
     setOpen(false);
   };
 
@@ -78,18 +80,32 @@ export default function AddMemberDialog({ onAdd }: AddMemberDialogProps) {
               <Input value={form.priezvisko} onChange={(e) => setForm({ ...form, priezvisko: e.target.value })} placeholder="Priezvisko" />
             </div>
           </div>
-          <div className="space-y-1.5">
-            <Label>Stupeň (kyu/dan)</Label>
-            <Select value={form.stupen} onValueChange={(v) => setForm({ ...form, stupen: v })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Vybrať stupeň" />
-              </SelectTrigger>
-              <SelectContent>
-                {KYU_DAN_OPTIONS.map((opt) => (
-                  <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>Stupeň (kyu/dan)</Label>
+              <Select value={form.stupen} onValueChange={(v) => setForm({ ...form, stupen: v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Vybrať stupeň" />
+                </SelectTrigger>
+                <SelectContent>
+                  {KYU_DAN_OPTIONS.map((opt) => (
+                    <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Pohlavie</Label>
+              <Select value={form.pohlavie} onValueChange={(v) => setForm({ ...form, pohlavie: v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Vybrať" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="CH">Chlapec / Muž</SelectItem>
+                  <SelectItem value="D">Dievča / Žena</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="space-y-1.5">
             <Label>Dátum narodenia</Label>

@@ -4,6 +4,7 @@ export interface Member {
   priezvisko: string;
   stupen: string;
   datumNarodenia: string;
+  pohlavie: string | null;
   vyska: number | null;
   vaha: number | null;
   kata: boolean;

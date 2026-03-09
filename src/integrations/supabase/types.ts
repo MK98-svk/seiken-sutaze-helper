@@ -162,6 +162,7 @@ export type Database = {
           kobudo: boolean
           kumite: boolean
           meno: string
+          pohlavie: string | null
           priezvisko: string
           striebro: number
           stupen: string
@@ -180,6 +181,7 @@ export type Database = {
           kobudo?: boolean
           kumite?: boolean
           meno?: string
+          pohlavie?: string | null
           priezvisko?: string
           striebro?: number
           stupen?: string
@@ -198,6 +200,7 @@ export type Database = {
           kobudo?: boolean
           kumite?: boolean
           meno?: string
+          pohlavie?: string | null
           priezvisko?: string
           striebro?: number
           stupen?: string

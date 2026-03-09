@@ -1,12 +1,11 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Download, Check, AlertTriangle, Loader2 } from "lucide-react";
+import { Download, Check, AlertTriangle, Loader2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Member } from "@/types/member";
@@ -37,20 +36,34 @@ interface ImportResultsDialogProps {
 
 export default function ImportResultsDialog({ competitionId, competitionName, members, onImported }: ImportResultsDialogProps) {
   const [open, setOpen] = useState(false);
-  const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [matched, setMatched] = useState<MatchedResult[]>([]);
   const [unmatched, setUnmatched] = useState<UnmatchedResult[]>([]);
   const [unmatchedAssignments, setUnmatchedAssignments] = useState<Record<number, string>>({});
-  const [step, setStep] = useState<"url" | "review">("url");
+  const [step, setStep] = useState<"upload" | "review">("upload");
+  const [fileName, setFileName] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFetch = async () => {
-    if (!url.trim()) return;
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.type !== "application/pdf") {
+      toast.error("Prosím nahrajte PDF súbor.");
+      return;
+    }
+    setFileName(file.name);
     setLoading(true);
+
     try {
+      // Convert PDF to base64
+      const arrayBuffer = await file.arrayBuffer();
+      const base64 = btoa(
+        new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), "")
+      );
+
       const { data, error } = await supabase.functions.invoke("import-competition-results", {
-        body: { url: url.trim(), competitionId },
+        body: { pdfBase64: base64, competitionId },
       });
 
       if (error) throw error;
@@ -62,7 +75,7 @@ export default function ImportResultsDialog({ competitionId, competitionName, me
       setStep("review");
 
       if (data.totalFound === 0) {
-        toast.info("Nenašli sa žiadne výsledky pre Seiken na tejto stránke.");
+        toast.info("Nenašli sa žiadne výsledky pre Seiken v tomto PDF.");
       }
     } catch (e: any) {
       toast.error("Chyba pri importe: " + e.message);
@@ -76,7 +89,6 @@ export default function ImportResultsDialog({ competitionId, competitionName, me
     try {
       const results: Array<{ competition_id: string; member_id: string; discipline: string; category: string; placement: number }> = [];
 
-      // Add matched results
       for (const r of matched) {
         results.push({
           competition_id: competitionId,
@@ -87,7 +99,6 @@ export default function ImportResultsDialog({ competitionId, competitionName, me
         });
       }
 
-      // Add manually assigned unmatched results
       for (const [idx, memberId] of Object.entries(unmatchedAssignments)) {
         if (memberId) {
           const r = unmatched[Number(idx)];
@@ -107,7 +118,7 @@ export default function ImportResultsDialog({ competitionId, competitionName, me
         return;
       }
 
-      // Deduplicate by key (keep last occurrence)
+      // Deduplicate
       const uniqueMap = new Map<string, typeof results[number]>();
       for (const r of results) {
         const key = `${r.competition_id}|${r.member_id}|${r.discipline}|${r.category}`;
@@ -115,14 +126,13 @@ export default function ImportResultsDialog({ competitionId, competitionName, me
       }
       const dedupedResults = Array.from(uniqueMap.values());
 
-      // Upsert results
       const { error } = await (supabase as any)
         .from("competition_results")
         .upsert(dedupedResults, { onConflict: "competition_id,member_id,discipline,category" });
 
       if (error) throw error;
 
-      toast.success(`Uložených ${results.length} výsledkov!`);
+      toast.success(`Uložených ${dedupedResults.length} výsledkov!`);
       onImported();
       setOpen(false);
       resetState();
@@ -134,11 +144,12 @@ export default function ImportResultsDialog({ competitionId, competitionName, me
   };
 
   const resetState = () => {
-    setStep("url");
-    setUrl("");
+    setStep("upload");
+    setFileName("");
     setMatched([]);
     setUnmatched([]);
     setUnmatchedAssignments({});
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const getMedalEmoji = (placement: number) => {
@@ -160,28 +171,44 @@ export default function ImportResultsDialog({ competitionId, competitionName, me
           <DialogTitle className="font-display">Import výsledkov — {competitionName}</DialogTitle>
         </DialogHeader>
 
-        {step === "url" && (
+        {step === "upload" && (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label>URL stránky s výsledkami</Label>
-              <Input
-                placeholder="https://karate-slovakia.sk/..."
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-              />
+              <Label>PDF súbor s výsledkami</Label>
+              <div
+                className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf"
+                  className="hidden"
+                  onChange={handleFileSelect}
+                />
+                {loading ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Spracovávam PDF…</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2">
+                    <Upload className="h-8 w-8 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">
+                      {fileName || "Kliknite pre nahratie PDF súboru s výsledkami"}
+                    </p>
+                  </div>
+                )}
+              </div>
               <p className="text-xs text-muted-foreground">
-                Zadajte odkaz na stránku s výsledkami. Systém automaticky nájde výsledky členov KK Seiken.
+                Nahrajte PDF s výsledkami súťaže. Systém automaticky nájde výsledky členov KK Seiken.
               </p>
             </div>
-            <Button onClick={handleFetch} disabled={loading || !url.trim()} className="w-full">
-              {loading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Načítavam…</> : "Načítať výsledky"}
-            </Button>
           </div>
         )}
 
         {step === "review" && (
           <div className="space-y-4">
-            {/* Matched results */}
             {matched.length > 0 && (
               <div>
                 <h3 className="text-sm font-semibold flex items-center gap-1.5 mb-2">
@@ -222,7 +249,6 @@ export default function ImportResultsDialog({ competitionId, competitionName, me
               </div>
             )}
 
-            {/* Unmatched results */}
             {unmatched.length > 0 && (
               <div>
                 <h3 className="text-sm font-semibold flex items-center gap-1.5 mb-2">
@@ -272,12 +298,12 @@ export default function ImportResultsDialog({ competitionId, competitionName, me
 
             {matched.length === 0 && unmatched.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-4">
-                Nenašli sa žiadne výsledky pre KK Seiken na tejto stránke.
+                Nenašli sa žiadne výsledky pre KK Seiken v tomto PDF.
               </p>
             )}
 
             <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => { setStep("url"); }}>
+              <Button variant="outline" onClick={() => { resetState(); }}>
                 Späť
               </Button>
               <Button onClick={handleSave} disabled={saving || (matched.length === 0 && Object.keys(unmatchedAssignments).length === 0)}>

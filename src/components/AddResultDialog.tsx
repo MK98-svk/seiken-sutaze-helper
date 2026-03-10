@@ -136,7 +136,7 @@ export default function AddResultDialog({ competitionId, competitionDate, member
             </div>
           )}
 
-          {/* Category (smart filtered) */}
+          {/* Category (smart filtered, grouped for kata) */}
           {discipline && (
             <div className="space-y-1.5">
               <Label className="text-xs">
@@ -148,11 +148,38 @@ export default function AddResultDialog({ competitionId, competitionDate, member
                 </SelectTrigger>
                 <SelectContent className="max-h-[300px]">
                   {eligibleCategories.length > 0 ? (
-                    eligibleCategories.map((cat) => (
-                      <SelectItem key={cat.code} value={cat.code}>
-                        <span className="text-xs">{cat.code} — {cat.name}</span>
-                      </SelectItem>
-                    ))
+                    discipline === "kata" ? (
+                      <>
+                        {/* GOJU RYU group */}
+                        {eligibleCategories.filter(c => !c.subtype || c.subtype !== "RENGO").length > 0 && (
+                          <SelectGroup>
+                            <SelectLabel className="text-xs font-bold text-primary">KATA GOJU RYU</SelectLabel>
+                            {eligibleCategories.filter(c => !c.subtype || c.subtype !== "RENGO").map((cat) => (
+                              <SelectItem key={cat.code} value={cat.code}>
+                                <span className="text-xs">{cat.code} — {cat.name}</span>
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        )}
+                        {/* RENGO OPEN group */}
+                        {eligibleCategories.filter(c => c.subtype === "RENGO").length > 0 && (
+                          <SelectGroup>
+                            <SelectLabel className="text-xs font-bold text-primary">KATA RENGO OPEN</SelectLabel>
+                            {eligibleCategories.filter(c => c.subtype === "RENGO").map((cat) => (
+                              <SelectItem key={cat.code} value={cat.code}>
+                                <span className="text-xs">{cat.code} — {cat.name}</span>
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        )}
+                      </>
+                    ) : (
+                      eligibleCategories.map((cat) => (
+                        <SelectItem key={cat.code} value={cat.code}>
+                          <span className="text-xs">{cat.code} — {cat.name}</span>
+                        </SelectItem>
+                      ))
+                    )
                   ) : (
                     <div className="px-2 py-3 text-xs text-muted-foreground text-center">
                       Žiadna zodpovedajúca kategória

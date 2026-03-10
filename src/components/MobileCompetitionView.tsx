@@ -128,40 +128,47 @@ export default function MobileCompetitionView({
                     className="overflow-hidden"
                   >
                     <div className="px-3 pb-3 pt-1 border-t border-border space-y-2">
-                      {medals.results.length > 0 ? (
-                        <div className="space-y-1.5">
-                          {medals.results.map((r) => (
-                            <div key={r.id} className="flex items-center justify-between bg-secondary/60 rounded px-2.5 py-1.5 text-sm">
-                              <div>
-                                <span className="capitalize font-medium">{r.discipline}</span>
-                                {r.category && <span className="text-muted-foreground ml-1">({r.category})</span>}
-                                <span className="ml-1.5 font-bold">{r.placement}.</span>
+                      {(() => {
+                        const canManage = isAdmin || (currentUserId != null && member.userId === currentUserId);
+                        return (
+                          <>
+                            {medals.results.length > 0 ? (
+                              <div className="space-y-1.5">
+                                {medals.results.map((r) => (
+                                  <div key={r.id} className="flex items-center justify-between bg-secondary/60 rounded px-2.5 py-1.5 text-sm">
+                                    <div>
+                                      <span className="capitalize font-medium">{r.discipline}</span>
+                                      {r.category && <span className="text-muted-foreground ml-1">({r.category})</span>}
+                                      <span className="ml-1.5 font-bold">{r.placement}.</span>
+                                    </div>
+                                    {canManage && (
+                                      <button
+                                        onClick={async () => {
+                                          try { await deleteResult(r.id); toast.success("Výsledok zmazaný"); }
+                                          catch { toast.error("Chyba pri mazaní"); }
+                                        }}
+                                        className="text-muted-foreground hover:text-destructive p-1"
+                                      >
+                                        <X className="h-3.5 w-3.5" />
+                                      </button>
+                                    )}
+                                  </div>
+                                ))}
                               </div>
-                              {isAdmin && (
-                                <button
-                                  onClick={async () => {
-                                    try { await deleteResult(r.id); toast.success("Výsledok zmazaný"); }
-                                    catch { toast.error("Chyba pri mazaní"); }
-                                  }}
-                                  className="text-muted-foreground hover:text-destructive p-1"
-                                >
-                                  <X className="h-3.5 w-3.5" />
-                                </button>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-xs text-muted-foreground">Žiadne výsledky</p>
-                      )}
-                      {isAdmin && (
-                        <AddResultDialog
-                          competitionId={competition.id}
-                          competitionDate={competition.datum}
-                          member={member}
-                          onAdded={invalidateResults}
-                        />
-                      )}
+                            ) : (
+                              <p className="text-xs text-muted-foreground">Žiadne výsledky</p>
+                            )}
+                            {canManage && (
+                              <AddResultDialog
+                                competitionId={competition.id}
+                                competitionDate={competition.datum}
+                                member={member}
+                                onAdded={invalidateResults}
+                              />
+                            )}
+                          </>
+                        );
+                      })()}
                     </div>
                   </motion.div>
                 )}

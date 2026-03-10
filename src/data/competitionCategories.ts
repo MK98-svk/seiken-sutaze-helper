@@ -1,7 +1,7 @@
 /**
  * Competition categories for Slovak karate competitions.
  * Parsed from official category list (2026).
- * Only INDIVIDUAL categories (no team KS/KT, no inclusive IN, no kata rengo KR).
+ * Individual categories + KATA RENGO OPEN (no team KS/KT, no inclusive IN).
  */
 
 export interface CompetitionCategory {

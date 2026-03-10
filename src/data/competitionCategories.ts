@@ -274,6 +274,7 @@ const KUMITE_CATEGORIES: CompetitionCategory[] = [
 
 export const ALL_INDIVIDUAL_CATEGORIES: CompetitionCategory[] = [
   ...KATA_CATEGORIES,
+  ...KATA_RENGO_CATEGORIES,
   ...KOBUDO_CATEGORIES,
   ...KUMITE_CATEGORIES,
 ];

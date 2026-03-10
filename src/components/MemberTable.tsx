@@ -87,6 +87,7 @@ export default function MemberTable({
             competition={selectedComp}
             members={members}
             isAdmin={isAdmin}
+            currentUserId={currentUserId ?? null}
             isRegistered={isRegistered}
             onToggleEntry={onToggleEntry}
             onDeleteCompetition={onDeleteCompetition}

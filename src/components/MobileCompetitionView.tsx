@@ -13,6 +13,7 @@ interface MobileCompetitionViewProps {
   competition: Competition;
   members: Member[];
   isAdmin: boolean;
+  currentUserId: string | null;
   isRegistered: (memberId: string, competitionId: string) => boolean;
   onToggleEntry: (memberId: string, competitionId: string) => void;
   onDeleteCompetition: (id: string) => void;
@@ -23,6 +24,7 @@ export default function MobileCompetitionView({
   competition,
   members,
   isAdmin,
+  currentUserId,
   isRegistered,
   onToggleEntry,
   onDeleteCompetition,

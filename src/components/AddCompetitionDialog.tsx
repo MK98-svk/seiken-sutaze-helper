@@ -26,9 +26,9 @@ export default function AddCompetitionDialog({ onAdd }: AddCompetitionDialogProp
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="gap-2">
+        <Button variant="outline" size="icon" className="h-8 w-8 sm:h-9 sm:w-auto sm:px-3 sm:gap-2" title="Pridať súťaž">
           <Trophy className="h-4 w-4" />
-          Pridať súťaž
+          <span className="hidden sm:inline">Pridať súťaž</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-sm">

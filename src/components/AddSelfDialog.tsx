@@ -62,9 +62,9 @@ export default function AddSelfDialog({ onAdd, userId, linkedMembersCount }: Add
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2">
+        <Button variant="outline" size="icon" className="h-8 w-8 sm:h-9 sm:w-auto sm:px-3 sm:gap-2" title="Pridať cvičenca">
           <UserPlus className="h-4 w-4" />
-          Pridať ďalšieho cvičenca
+          <span className="hidden sm:inline">Pridať cvičenca</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">

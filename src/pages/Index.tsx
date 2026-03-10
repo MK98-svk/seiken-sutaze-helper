@@ -27,27 +27,27 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 py-2 sm:py-4 flex items-center justify-between gap-1 sm:gap-2">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-2 sm:gap-3 min-w-0"
+            className="flex items-center gap-2 min-w-0"
           >
-            <img src={seikenLogo} alt="KK SEIKEN logo" className="h-9 w-9 sm:h-12 sm:w-12 rounded-lg object-cover ring-1 ring-primary/30 shrink-0" />
+            <img src={seikenLogo} alt="KK SEIKEN logo" className="h-8 w-8 sm:h-12 sm:w-12 rounded-lg object-cover ring-1 ring-primary/30 shrink-0" />
             <div className="min-w-0">
-              <h1 className="text-base sm:text-xl font-display font-bold tracking-wider text-foreground truncate">
+              <h1 className="text-sm sm:text-xl font-display font-bold tracking-wider text-foreground truncate">
                 KK SEIKEN
               </h1>
-              <p className="text-xs text-muted-foreground hidden sm:block">Bratislava • Checklist súťaží</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">Bratislava • Checklist súťaží</p>
             </div>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex gap-1 sm:gap-2 items-center shrink-0"
+            className="flex gap-1 items-center shrink-0"
           >
             {isAdmin && (
               <>
@@ -56,21 +56,21 @@ const Index = () => {
               </>
             )}
             {user && <AddSelfDialog onAdd={addMember} userId={user.id} linkedMembersCount={linkedMembersCount} />}
-            <Button variant="ghost" size="icon" onClick={signOut} title="Odhlásiť sa" className="h-8 w-8 sm:h-9 sm:w-9">
+            <Button variant="ghost" size="icon" onClick={signOut} title="Odhlásiť sa" className="h-8 w-8">
               <LogOut className="h-4 w-4" />
             </Button>
           </motion.div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 py-3 sm:py-6 space-y-3 sm:space-y-6">
 
         {/* Stats */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-6"
+          className="grid grid-cols-5 gap-1.5 sm:gap-3 mb-3 sm:mb-6"
         >
           {[
             { label: "Členov", value: members.length },
@@ -79,9 +79,9 @@ const Index = () => {
             { label: "Kumite", value: members.filter((m) => m.kumite).length },
             { label: "Súťaží", value: competitions.length },
           ].map((stat) => (
-            <div key={stat.label} className="bg-card rounded-lg border border-border p-4 text-center">
-              <div className="text-2xl font-display font-bold text-primary">{stat.value}</div>
-              <div className="text-xs text-muted-foreground uppercase tracking-wider">{stat.label}</div>
+            <div key={stat.label} className="bg-card rounded-lg border border-border p-2 sm:p-4 text-center">
+              <div className="text-lg sm:text-2xl font-display font-bold text-primary">{stat.value}</div>
+              <div className="text-[9px] sm:text-xs text-muted-foreground uppercase tracking-wider leading-tight">{stat.label}</div>
             </div>
           ))}
         </motion.div>

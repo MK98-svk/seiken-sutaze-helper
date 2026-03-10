@@ -1,7 +1,7 @@
 /**
  * Competition categories for Slovak karate competitions.
  * Parsed from official category list (2026).
- * Only INDIVIDUAL categories (no team KS/KT, no inclusive IN, no kata rengo KR).
+ * Individual categories + KATA RENGO OPEN (no team KS/KT, no inclusive IN).
  */
 
 export interface CompetitionCategory {
@@ -168,6 +168,21 @@ const KATA_CATEGORIES: CompetitionCategory[] = [
   { code: "KA42", name: "KATA GOJU 41+ rokov OPEN D", discipline: "kata", gender: "D", ageMin: 41, ageMax: null, rankMin: null, rankMax: null, weightMin: null, weightMax: null, heightMin: null, heightMax: null },
 ];
 
+// ─── KATA RENGO OPEN categories ───────────────────────
+
+const KATA_RENGO_CATEGORIES: CompetitionCategory[] = [
+  // CH
+  { code: "KR01a", name: "KATA RENGO OPEN do 10 rokov CH", discipline: "kata", gender: "CH", ageMin: null, ageMax: 10, rankMin: null, rankMax: null, weightMin: null, weightMax: null, heightMin: null, heightMax: null, subtype: "RENGO" },
+  { code: "KR01b", name: "KATA RENGO OPEN 11-13 rokov CH", discipline: "kata", gender: "CH", ageMin: 11, ageMax: 13, rankMin: null, rankMax: null, weightMin: null, weightMax: null, heightMin: null, heightMax: null, subtype: "RENGO" },
+  { code: "KR02", name: "KATA RENGO OPEN 14-17 rokov CH", discipline: "kata", gender: "CH", ageMin: 14, ageMax: 17, rankMin: null, rankMax: null, weightMin: null, weightMax: null, heightMin: null, heightMax: null, subtype: "RENGO" },
+  { code: "KR03", name: "KATA RENGO OPEN 18+ rokov CH", discipline: "kata", gender: "CH", ageMin: 18, ageMax: null, rankMin: null, rankMax: null, weightMin: null, weightMax: null, heightMin: null, heightMax: null, subtype: "RENGO" },
+  // D
+  { code: "KR04a", name: "KATA RENGO OPEN do 10 rokov D", discipline: "kata", gender: "D", ageMin: null, ageMax: 10, rankMin: null, rankMax: null, weightMin: null, weightMax: null, heightMin: null, heightMax: null, subtype: "RENGO" },
+  { code: "KR04b", name: "KATA RENGO OPEN 11-13 rokov D", discipline: "kata", gender: "D", ageMin: 11, ageMax: 13, rankMin: null, rankMax: null, weightMin: null, weightMax: null, heightMin: null, heightMax: null, subtype: "RENGO" },
+  { code: "KR05", name: "KATA RENGO OPEN 14-17 rokov D", discipline: "kata", gender: "D", ageMin: 14, ageMax: 17, rankMin: null, rankMax: null, weightMin: null, weightMax: null, heightMin: null, heightMax: null, subtype: "RENGO" },
+  { code: "KR06", name: "KATA RENGO OPEN 18+ rokov D", discipline: "kata", gender: "D", ageMin: 18, ageMax: null, rankMin: null, rankMax: null, weightMin: null, weightMax: null, heightMin: null, heightMax: null, subtype: "RENGO" },
+];
+
 // ─── KOBUDO categories ─────────────────────────────────
 
 const KOBUDO_CATEGORIES: CompetitionCategory[] = [
@@ -259,6 +274,7 @@ const KUMITE_CATEGORIES: CompetitionCategory[] = [
 
 export const ALL_INDIVIDUAL_CATEGORIES: CompetitionCategory[] = [
   ...KATA_CATEGORIES,
+  ...KATA_RENGO_CATEGORIES,
   ...KOBUDO_CATEGORIES,
   ...KUMITE_CATEGORIES,
 ];

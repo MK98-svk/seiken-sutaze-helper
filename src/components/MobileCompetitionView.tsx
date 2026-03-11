@@ -55,6 +55,12 @@ export default function MobileCompetitionView({
         </div>
         {isAdmin && (
           <div className="flex gap-1">
+            <ImportStartlistDialog
+              competitionId={competition.id}
+              competitionName={competition.nazov}
+              members={members}
+              onImported={invalidateResults}
+            />
             <ImportResultsDialog
               competitionId={competition.id}
               competitionName={competition.nazov}

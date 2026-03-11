@@ -210,6 +210,12 @@ export default function MemberTable({
             </Table>
             {isAdmin && (
               <div className="p-2 flex gap-2">
+                <ImportStartlistDialog
+                  competitionId={selectedComp.id}
+                  competitionName={selectedComp.nazov}
+                  members={members}
+                  onImported={invalidateResults}
+                />
                 <ImportResultsDialog
                   competitionId={selectedComp.id}
                   competitionName={selectedComp.nazov}

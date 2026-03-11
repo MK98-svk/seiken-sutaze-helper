@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2, X, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ImportResultsDialog from "./ImportResultsDialog";
+import ImportStartlistDialog from "./ImportStartlistDialog";
 import AddResultDialog from "./AddResultDialog";
 import { useCompetitionResults } from "@/hooks/useCompetitionResults";
 import { toast } from "sonner";

@@ -1,0 +1,1 @@
+ALTER TABLE public.team_competition_results ADD COLUMN members_text text;

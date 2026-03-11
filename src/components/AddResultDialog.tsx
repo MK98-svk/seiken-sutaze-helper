@@ -79,6 +79,7 @@ export default function AddResultDialog({ competitionId, competitionDate, member
           discipline,
           category: categoryName,
           placement: Number(placement),
+          num_competitors: numCompetitors ? Number(numCompetitors) : null,
         });
       if (error) throw error;
       toast.success(`Výsledok pridaný pre ${member.meno} ${member.priezvisko}`);

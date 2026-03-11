@@ -183,9 +183,6 @@ export default function MemberTable({
                     <TableCell colSpan={2} className="text-right text-xs uppercase tracking-wider text-muted-foreground">
                       Súčet
                     </TableCell>
-                    <TableCell className="text-center text-sm font-bold text-primary">
-                      {members.filter((m) => isRegistered(m.id, selectedComp.id)).length}
-                    </TableCell>
                     <TableCell className="text-center text-sm font-bold">
                       {members.reduce((s, m) => s + getMemberMedals(m.id).zlato, 0)}
                     </TableCell>

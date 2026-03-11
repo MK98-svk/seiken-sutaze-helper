@@ -96,16 +96,6 @@ export default function MobileCompetitionView({
                 className="flex items-center gap-3 p-3 cursor-pointer active:bg-secondary/30"
                 onClick={() => setExpandedMember(isExpanded ? null : member.id)}
               >
-                <Checkbox
-                  checked={registered}
-                  onCheckedChange={(e) => {
-                    e && e; // prevent propagation
-                    if (isAdmin) onToggleEntry(member.id, competition.id);
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                  disabled={!isAdmin}
-                  className="data-[state=checked]:bg-success data-[state=checked]:border-success"
-                />
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-sm truncate">
                     {member.meno} {member.priezvisko}

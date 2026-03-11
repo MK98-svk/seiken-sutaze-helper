@@ -267,6 +267,7 @@ export type Database = {
           created_at: string
           discipline: string
           id: string
+          members_text: string | null
           num_competitors: number | null
           placement: number | null
         }
@@ -276,6 +277,7 @@ export type Database = {
           created_at?: string
           discipline: string
           id?: string
+          members_text?: string | null
           num_competitors?: number | null
           placement?: number | null
         }
@@ -285,6 +287,7 @@ export type Database = {
           created_at?: string
           discipline?: string
           id?: string
+          members_text?: string | null
           num_competitors?: number | null
           placement?: number | null
         }

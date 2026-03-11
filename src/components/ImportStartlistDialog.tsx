@@ -114,8 +114,9 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
           competition_id: competitionId,
           discipline: t.discipline,
           category: t.category,
+          members_text: t.members?.join(", ") || null,
         }));
-        const { error: teamError } = await supabase
+        const { error: teamError } = await (supabase as any)
           .from("team_competition_results")
           .insert(teamRows);
         if (teamError) throw teamError;

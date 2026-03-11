@@ -241,6 +241,9 @@ export default function MemberTable({
               />
             </div>
           </div>
+        )}
+      </div>
+    );
   }
 
   // Default view: full member table (no specific competition selected)

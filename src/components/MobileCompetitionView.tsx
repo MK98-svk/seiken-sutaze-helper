@@ -31,7 +31,7 @@ export default function MobileCompetitionView({
   onToggleEntry,
   onDeleteCompetition,
 }: MobileCompetitionViewProps) {
-  const { getMemberMedals, invalidate: invalidateResults, deleteResult } = useCompetitionResults(competition.id);
+  const { getMemberMedals, teamResults, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult } = useCompetitionResults(competition.id);
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
 
   

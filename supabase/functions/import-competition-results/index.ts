@@ -93,22 +93,34 @@ async function callAI(pdfBase64: string, systemPrompt: string): Promise<string> 
   return content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 }
 
-// MODE: startlist — extract just names of Seiken members from štartovná listina
+// MODE: startlist — extract names of Seiken members AND team entries from štartovná listina
 async function handleStartlist(pdfBase64: string) {
-  const systemPrompt = `You are a parser for karate competition start lists (štartovná listina). Extract the names of ALL competitors from "Karate klub Seiken Bratislava" or "KK Seiken" or "Seiken Bratislava" or "Seiken" or similar club name.
+  const systemPrompt = `You are a parser for karate competition start lists (štartovná listina). Extract ALL entries for "Karate klub Seiken Bratislava" or "KK Seiken" or "Seiken Bratislava" or "Seiken" or similar club name.
 
-Return a JSON array of objects with:
-- name: full name of the competitor (as written in the PDF)
+Return a JSON object with two arrays:
+1. "individuals" - array of objects with:
+   - name: full name of the competitor (as written in the PDF)
+2. "teams" - array of objects with:
+   - discipline: the discipline ("kata" or "kumite")
+   - category: the category name (e.g. age group, gender)
+   - members: array of full names of team members (as written in the PDF)
 
 IMPORTANT:
-- Include ALL Seiken members found in the document
+- Include ALL Seiken individual competitors AND team entries (družstvá)
+- Team entries are typically listed as "kata družstvá" or "kumite družstvá" or similar
 - Look through all pages carefully
-- Return ONLY the JSON array, no markdown, no explanation`;
+- Return ONLY the JSON object, no markdown, no explanation`;
 
   const content = await callAI(pdfBase64, systemPrompt);
-  let parsed: Array<{ name: string }>;
+  let parsed: { individuals: Array<{ name: string }>; teams: Array<{ discipline: string; category: string; members: string[] }> };
   try {
-    parsed = JSON.parse(content);
+    const raw = JSON.parse(content);
+    // Handle both formats - if it's an array (old format), treat as individuals only
+    if (Array.isArray(raw)) {
+      parsed = { individuals: raw, teams: [] };
+    } else {
+      parsed = { individuals: raw.individuals || [], teams: raw.teams || [] };
+    }
   } catch {
     throw new Error('Failed to parse startlist from PDF');
   }
@@ -117,7 +129,7 @@ IMPORTANT:
   const matched: Array<{ name: string; memberId: string; memberName: string; confidence: number }> = [];
   const unmatched: Array<{ name: string }> = [];
 
-  for (const entry of parsed) {
+  for (const entry of parsed.individuals) {
     const match = matchName(entry.name, members);
     if (match) {
       matched.push({
@@ -131,7 +143,29 @@ IMPORTANT:
     }
   }
 
-  return { success: true, mode: 'startlist', matched, unmatched, totalFound: parsed.length };
+  // Process team members too - match them for reference
+  const teamEntries = parsed.teams.map(team => {
+    const matchedMembers = team.members.map(name => {
+      const match = matchName(name, members);
+      return {
+        name,
+        memberId: match?.member.id || null,
+        memberName: match ? `${match.member.meno} ${match.member.priezvisko}` : null,
+        confidence: match?.confidence || 0,
+      };
+    });
+    return { ...team, matchedMembers };
+  });
+
+  return {
+    success: true,
+    mode: 'startlist',
+    matched,
+    unmatched,
+    teams: teamEntries,
+    totalFound: parsed.individuals.length,
+    totalTeams: teamEntries.length,
+  };
 }
 
 // MODE: results — extract competition results (existing logic)

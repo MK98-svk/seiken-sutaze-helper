@@ -219,10 +219,28 @@ export default function MemberTable({
                 </Button>
               </div>
             )}
+            {/* Team results */}
+            <div className="p-3 grid gap-3 sm:grid-cols-2">
+              <TeamResultsSection
+                competitionId={selectedComp.id}
+                discipline="kata"
+                teamResults={teamResults}
+                isAdmin={isAdmin}
+                deleteTeamResult={deleteTeamResult}
+                addTeamResult={addTeamResult}
+                invalidate={invalidateResults}
+              />
+              <TeamResultsSection
+                competitionId={selectedComp.id}
+                discipline="kumite"
+                teamResults={teamResults}
+                isAdmin={isAdmin}
+                deleteTeamResult={deleteTeamResult}
+                addTeamResult={addTeamResult}
+                invalidate={invalidateResults}
+              />
+            </div>
           </div>
-        )}
-      </div>
-    );
   }
 
   // Default view: full member table (no specific competition selected)

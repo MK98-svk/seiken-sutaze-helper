@@ -102,7 +102,7 @@ export default function MemberTable({
                 <TableRow className="bg-secondary/50 hover:bg-secondary/50">
                   <TableHead className="font-display font-semibold text-foreground">Meno</TableHead>
                   <TableHead className="font-display font-semibold text-foreground">Priezvisko</TableHead>
-                  <TableHead className="font-display font-semibold text-foreground text-center">Účasť</TableHead>
+                  
                   <TableHead className="font-display font-semibold text-foreground text-center">🥇</TableHead>
                   <TableHead className="font-display font-semibold text-foreground text-center">🥈</TableHead>
                   <TableHead className="font-display font-semibold text-foreground text-center">🥉</TableHead>
@@ -113,7 +113,7 @@ export default function MemberTable({
                 <AnimatePresence>
                   {members.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center text-muted-foreground py-12">
+                      <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
                         Zatiaľ žiadni členovia.
                       </TableCell>
                     </TableRow>
@@ -131,14 +131,6 @@ export default function MemberTable({
                         >
                           <TableCell className="font-medium">{member.meno}</TableCell>
                           <TableCell className="font-medium">{member.priezvisko}</TableCell>
-                          <TableCell className="text-center">
-                            <Checkbox
-                              checked={registered}
-                              onCheckedChange={() => isAdmin && onToggleEntry(member.id, selectedComp.id)}
-                              disabled={!isAdmin}
-                              className="data-[state=checked]:bg-success data-[state=checked]:border-success"
-                            />
-                          </TableCell>
                           <TableCell className="text-center text-sm font-bold">{medals.zlato || "—"}</TableCell>
                           <TableCell className="text-center text-sm font-bold">{medals.striebro || "—"}</TableCell>
                           <TableCell className="text-center text-sm font-bold">{medals.bronz || "—"}</TableCell>
@@ -190,9 +182,6 @@ export default function MemberTable({
                   <tr className="border-t-2 border-border bg-secondary/60 font-semibold">
                     <TableCell colSpan={2} className="text-right text-xs uppercase tracking-wider text-muted-foreground">
                       Súčet
-                    </TableCell>
-                    <TableCell className="text-center text-sm font-bold text-primary">
-                      {members.filter((m) => isRegistered(m.id, selectedComp.id)).length}
                     </TableCell>
                     <TableCell className="text-center text-sm font-bold">
                       {members.reduce((s, m) => s + getMemberMedals(m.id).zlato, 0)}

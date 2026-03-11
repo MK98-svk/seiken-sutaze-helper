@@ -1,5 +1,5 @@
 import { Member, Competition } from "@/types/member";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import { Button } from "@/components/ui/button";
 import { Trash2, X, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -33,7 +33,7 @@ export default function MobileCompetitionView({
   const { getMemberMedals, invalidate: invalidateResults, deleteResult } = useCompetitionResults(competition.id);
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
 
-  const registeredCount = members.filter((m) => isRegistered(m.id, competition.id)).length;
+  
   const totalMedals = members.reduce((acc, m) => {
     const medals = getMemberMedals(m.id);
     return {
@@ -48,7 +48,6 @@ export default function MobileCompetitionView({
       {/* Summary bar */}
       <div className="flex items-center justify-between bg-card rounded-lg border border-border p-3">
         <div className="flex gap-3 text-sm">
-          <span className="text-muted-foreground">Účasť: <strong className="text-primary">{registeredCount}</strong></span>
           <span>🥇 <strong>{totalMedals.zlato}</strong></span>
           <span>🥈 <strong>{totalMedals.striebro}</strong></span>
           <span>🥉 <strong>{totalMedals.bronz}</strong></span>
@@ -96,16 +95,6 @@ export default function MobileCompetitionView({
                 className="flex items-center gap-3 p-3 cursor-pointer active:bg-secondary/30"
                 onClick={() => setExpandedMember(isExpanded ? null : member.id)}
               >
-                <Checkbox
-                  checked={registered}
-                  onCheckedChange={(e) => {
-                    e && e; // prevent propagation
-                    if (isAdmin) onToggleEntry(member.id, competition.id);
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                  disabled={!isAdmin}
-                  className="data-[state=checked]:bg-success data-[state=checked]:border-success"
-                />
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-sm truncate">
                     {member.meno} {member.priezvisko}

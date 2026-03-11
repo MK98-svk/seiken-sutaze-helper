@@ -61,6 +61,7 @@ export function useCompetitionResults(competitionId?: string) {
         category: r.category ?? "",
         placement: r.placement ?? null,
         numCompetitors: r.num_competitors ?? null,
+        membersText: r.members_text ?? null,
       }));
     },
   });

@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { TeamResult } from "@/hooks/useCompetitionResults";
-import { X, Check } from "lucide-react";
+import { X, Plus, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import AddTeamResultDialog from "./AddTeamResultDialog";
 
@@ -20,36 +23,34 @@ function getMedalEmoji(placement: number | null) {
   if (placement === 1) return "🥇";
   if (placement === 2) return "🥈";
   if (placement === 3) return "🥉";
-  return "";
+  return null;
 }
 
-function TeamResultRow({
+function EditTeamResultDialog({
   result,
-  isAdmin,
-  onDelete,
-  onUpdate,
+  onSave,
 }: {
   result: TeamResult;
-  isAdmin: boolean;
-  onDelete: () => void;
-  onUpdate: (updates: { placement?: number | null; numCompetitors?: number | null }) => Promise<void>;
+  onSave: (updates: { placement?: number | null; numCompetitors?: number | null }) => Promise<void>;
 }) {
-  const [editPlacement, setEditPlacement] = useState(result.placement?.toString() ?? "");
-  const [editNum, setEditNum] = useState(result.numCompetitors?.toString() ?? "");
+  const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-
-  const hasChanges =
-    (editPlacement !== (result.placement?.toString() ?? "")) ||
-    (editNum !== (result.numCompetitors?.toString() ?? ""));
+  const [placement, setPlacement] = useState(result.placement?.toString() ?? "");
+  const [numCompetitors, setNumCompetitors] = useState(result.numCompetitors?.toString() ?? "");
 
   const handleSave = async () => {
+    if (!placement) {
+      toast.error("Vyplňte umiestnenie.");
+      return;
+    }
     setSaving(true);
     try {
-      await onUpdate({
-        placement: editPlacement ? Number(editPlacement) : null,
-        numCompetitors: editNum ? Number(editNum) : null,
+      await onSave({
+        placement: Number(placement),
+        numCompetitors: numCompetitors ? Number(numCompetitors) : null,
       });
       toast.success("Výsledok uložený");
+      setOpen(false);
     } catch {
       toast.error("Chyba pri ukladaní");
     } finally {
@@ -57,57 +58,58 @@ function TeamResultRow({
     }
   };
 
-  const medal = getMedalEmoji(editPlacement ? Number(editPlacement) : null);
-
   return (
-    <div className="flex items-center gap-2 bg-secondary/60 rounded px-2.5 py-1.5 text-sm">
-      {medal && <span>{medal}</span>}
-      <span className="text-muted-foreground shrink-0">{result.category || "—"}</span>
-
-      {isAdmin ? (
-        <>
-          <div className="flex items-center gap-1 ml-auto">
-            <Input
-              type="number"
-              min={1}
-              value={editPlacement}
-              onChange={(e) => setEditPlacement(e.target.value)}
-              placeholder="Um."
-              className="h-7 w-14 text-xs text-center"
-            />
-            <span className="text-xs text-muted-foreground">z</span>
-            <Input
-              type="number"
-              min={1}
-              value={editNum}
-              onChange={(e) => setEditNum(e.target.value)}
-              placeholder="N"
-              className="h-7 w-14 text-xs text-center"
-            />
-            {hasChanges && (
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="text-primary hover:text-primary/80 p-1"
-              >
-                <Check className="h-3.5 w-3.5" />
-              </button>
-            )}
-            <button
-              onClick={onDelete}
-              className="text-muted-foreground hover:text-destructive p-1"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <button
+        onClick={() => setOpen(true)}
+        className="text-muted-foreground hover:text-primary p-1"
+        title="Doplniť výsledok"
+      >
+        <Plus className="h-3.5 w-3.5" />
+      </button>
+      <DialogContent className="max-w-xs">
+        <DialogHeader>
+          <DialogTitle className="text-base">
+            Výsledok — {result.category || result.discipline}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="text-sm text-muted-foreground">
+            {result.membersText && <span>{result.membersText}</span>}
           </div>
-        </>
-      ) : (
-        <div className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
-          {result.placement != null && <span className="font-bold text-foreground">{result.placement}.</span>}
-          {result.numCompetitors != null && <span>z {result.numCompetitors}</span>}
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Umiestnenie</Label>
+              <Input
+                type="number"
+                min={1}
+                value={placement}
+                onChange={(e) => setPlacement(e.target.value)}
+                placeholder="1, 2, 3…"
+                className="h-9"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Počet tímov</Label>
+              <Input
+                type="number"
+                min={1}
+                value={numCompetitors}
+                onChange={(e) => setNumCompetitors(e.target.value)}
+                placeholder="napr. 8"
+                className="h-9"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" size="sm" onClick={() => setOpen(false)}>Zrušiť</Button>
+            <Button size="sm" onClick={handleSave} disabled={saving}>
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Uložiť"}
+            </Button>
+          </div>
         </div>
-      )}
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -139,18 +141,42 @@ export default function TeamResultsSection({
       </div>
       {filtered.length > 0 ? (
         <div className="space-y-1">
-          {filtered.map((r) => (
-            <TeamResultRow
-              key={r.id}
-              result={r}
-              isAdmin={isAdmin}
-              onDelete={async () => {
-                try { await deleteTeamResult(r.id); toast.success("Tímový výsledok zmazaný"); }
-                catch { toast.error("Chyba pri mazaní"); }
-              }}
-              onUpdate={(updates) => updateTeamResult(r.id, updates)}
-            />
-          ))}
+          {filtered.map((r) => {
+            const medal = getMedalEmoji(r.placement);
+            return (
+              <div key={r.id} className="flex items-center justify-between bg-secondary/60 rounded px-2.5 py-1.5 text-sm gap-2">
+                <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                  {medal && <span className="shrink-0">{medal}</span>}
+                  <span className="font-medium truncate">{r.category || "—"}</span>
+                  {r.membersText && (
+                    <span className="text-muted-foreground text-xs truncate">— {r.membersText}</span>
+                  )}
+                  {r.placement != null && (
+                    <span className="text-xs text-muted-foreground shrink-0 ml-auto">
+                      {r.placement}. {r.numCompetitors != null && `z ${r.numCompetitors}`}
+                    </span>
+                  )}
+                </div>
+                {isAdmin && (
+                  <div className="flex items-center shrink-0">
+                    <EditTeamResultDialog
+                      result={r}
+                      onSave={(updates) => updateTeamResult(r.id, updates)}
+                    />
+                    <button
+                      onClick={async () => {
+                        try { await deleteTeamResult(r.id); toast.success("Tímový výsledok zmazaný"); }
+                        catch { toast.error("Chyba pri mazaní"); }
+                      }}
+                      className="text-muted-foreground hover:text-destructive p-1"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       ) : (
         <p className="text-xs text-muted-foreground">Žiadne tímové výsledky</p>

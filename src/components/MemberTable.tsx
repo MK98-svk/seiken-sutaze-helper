@@ -11,6 +11,7 @@ import { sk } from "date-fns/locale";
 import { motion, AnimatePresence } from "framer-motion";
 import EditMemberDialog from "./EditMemberDialog";
 import ImportResultsDialog from "./ImportResultsDialog";
+import ImportStartlistDialog from "./ImportStartlistDialog";
 import AddResultDialog from "./AddResultDialog";
 import { useCompetitionResults } from "@/hooks/useCompetitionResults";
 import { toast } from "sonner";

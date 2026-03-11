@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import EditMemberDialog from "./EditMemberDialog";
 import ImportResultsDialog from "./ImportResultsDialog";
 import ImportStartlistDialog from "./ImportStartlistDialog";
+import TeamResultsSection from "./TeamResultsSection";
 import AddResultDialog from "./AddResultDialog";
 import { useCompetitionResults } from "@/hooks/useCompetitionResults";
 import { toast } from "sonner";

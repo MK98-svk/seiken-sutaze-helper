@@ -101,6 +101,18 @@ export function useCompetitionResults(competitionId?: string) {
     invalidate();
   };
 
+  const updateTeamResult = async (id: string, updates: { placement?: number | null; numCompetitors?: number | null }) => {
+    const { error } = await (supabase as any)
+      .from("team_competition_results")
+      .update({
+        ...(updates.placement !== undefined && { placement: updates.placement }),
+        ...(updates.numCompetitors !== undefined && { num_competitors: updates.numCompetitors }),
+      })
+      .eq("id", id);
+    if (error) throw error;
+    invalidate();
+  };
+
   const getMemberMedals = (memberId: string) => {
     const memberResults = results.filter((r) => r.memberId === memberId);
     return {
@@ -111,5 +123,5 @@ export function useCompetitionResults(competitionId?: string) {
     };
   };
 
-  return { results, teamResults, isLoading, teamLoading, invalidate, getMemberMedals, deleteResult, deleteTeamResult, addTeamResult };
+  return { results, teamResults, isLoading, teamLoading, invalidate, getMemberMedals, deleteResult, deleteTeamResult, addTeamResult, updateTeamResult };
 }

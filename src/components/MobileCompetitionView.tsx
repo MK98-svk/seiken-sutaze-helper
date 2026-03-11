@@ -31,7 +31,7 @@ export default function MobileCompetitionView({
   onToggleEntry,
   onDeleteCompetition,
 }: MobileCompetitionViewProps) {
-  const { getMemberMedals, teamResults, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult } = useCompetitionResults(competition.id);
+  const { getMemberMedals, teamResults, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult, updateTeamResult } = useCompetitionResults(competition.id);
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
 
   
@@ -184,6 +184,7 @@ export default function MobileCompetitionView({
         isAdmin={isAdmin}
         deleteTeamResult={deleteTeamResult}
         addTeamResult={addTeamResult}
+        updateTeamResult={updateTeamResult}
         invalidate={invalidateResults}
       />
       <TeamResultsSection
@@ -193,6 +194,7 @@ export default function MobileCompetitionView({
         isAdmin={isAdmin}
         deleteTeamResult={deleteTeamResult}
         addTeamResult={addTeamResult}
+        updateTeamResult={updateTeamResult}
         invalidate={invalidateResults}
       />
     </div>

@@ -60,7 +60,7 @@ export default function MemberTable({
   const selectedComp = !showAllComps ? competitions.find((c) => c.id === selectedCompId) : undefined;
 
   // Fetch competition results when a specific competition is selected
-  const { getMemberMedals, teamResults, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult } = useCompetitionResults(selectedComp?.id);
+  const { getMemberMedals, teamResults, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult, updateTeamResult } = useCompetitionResults(selectedComp?.id);
 
   // When a specific competition is selected
   if (selectedComp) {
@@ -228,6 +228,7 @@ export default function MemberTable({
                 isAdmin={isAdmin}
                 deleteTeamResult={deleteTeamResult}
                 addTeamResult={addTeamResult}
+                updateTeamResult={updateTeamResult}
                 invalidate={invalidateResults}
               />
               <TeamResultsSection
@@ -237,6 +238,7 @@ export default function MemberTable({
                 isAdmin={isAdmin}
                 deleteTeamResult={deleteTeamResult}
                 addTeamResult={addTeamResult}
+                updateTeamResult={updateTeamResult}
                 invalidate={invalidateResults}
               />
             </div>

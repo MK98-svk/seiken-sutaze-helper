@@ -131,14 +131,6 @@ export default function MemberTable({
                         >
                           <TableCell className="font-medium">{member.meno}</TableCell>
                           <TableCell className="font-medium">{member.priezvisko}</TableCell>
-                          <TableCell className="text-center">
-                            <Checkbox
-                              checked={registered}
-                              onCheckedChange={() => isAdmin && onToggleEntry(member.id, selectedComp.id)}
-                              disabled={!isAdmin}
-                              className="data-[state=checked]:bg-success data-[state=checked]:border-success"
-                            />
-                          </TableCell>
                           <TableCell className="text-center text-sm font-bold">{medals.zlato || "—"}</TableCell>
                           <TableCell className="text-center text-sm font-bold">{medals.striebro || "—"}</TableCell>
                           <TableCell className="text-center text-sm font-bold">{medals.bronz || "—"}</TableCell>

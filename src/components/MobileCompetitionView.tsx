@@ -137,6 +137,7 @@ export default function MobileCompetitionView({
                                       <span className="capitalize font-medium">{r.discipline}</span>
                                       {r.category && <span className="text-muted-foreground ml-1">({r.category})</span>}
                                       <span className="ml-1.5 font-bold">{r.placement}.</span>
+                                      {r.numCompetitors && <span className="text-xs text-muted-foreground ml-1">z {r.numCompetitors}</span>}
                                     </div>
                                     {canManage && (
                                       <button

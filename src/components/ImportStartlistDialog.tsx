@@ -85,7 +85,7 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
       for (const m of matched) {
         memberIds.push(m.memberId);
       }
-      for (const [idx, memberId] of Object.entries(unmatchedAssignments)) {
+      for (const [, memberId] of Object.entries(unmatchedAssignments)) {
         if (memberId) memberIds.push(memberId);
       }
 

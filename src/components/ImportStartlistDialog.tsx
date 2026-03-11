@@ -24,6 +24,7 @@ interface UnmatchedEntry {
 interface TeamEntry {
   discipline: string;
   category: string;
+  members?: string[];
 }
 
 interface ImportStartlistDialogProps {

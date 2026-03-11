@@ -97,6 +97,7 @@ export default function AddResultDialog({ competitionId, competitionDate, member
     setDiscipline("");
     setCategoryCode("");
     setPlacement("");
+    setNumCompetitors("");
   };
 
   return (

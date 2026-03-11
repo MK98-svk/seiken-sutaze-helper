@@ -18,6 +18,7 @@ export interface TeamResult {
   category: string;
   placement: number | null;
   numCompetitors: number | null;
+  membersText: string | null;
 }
 
 export function useCompetitionResults(competitionId?: string) {

@@ -21,18 +21,9 @@ interface UnmatchedEntry {
   name: string;
 }
 
-interface TeamMember {
-  name: string;
-  memberId: string | null;
-  memberName: string | null;
-  confidence: number;
-}
-
 interface TeamEntry {
   discipline: string;
   category: string;
-  members: string[];
-  matchedMembers: TeamMember[];
 }
 
 interface ImportStartlistDialogProps {
@@ -96,42 +87,44 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
   const handleSave = async () => {
     setSaving(true);
     try {
+      // 1. Register individual members
       const memberIds: string[] = [];
-
-      for (const m of matched) {
-        memberIds.push(m.memberId);
-      }
+      for (const m of matched) memberIds.push(m.memberId);
       for (const [, memberId] of Object.entries(unmatchedAssignments)) {
         if (memberId) memberIds.push(memberId);
       }
-      // Also include matched team members
-      for (const team of teams) {
-        for (const tm of team.matchedMembers) {
-          if (tm.memberId) memberIds.push(tm.memberId);
-        }
-      }
-
       const uniqueIds = [...new Set(memberIds)];
 
-      if (uniqueIds.length === 0) {
-        toast.info("Žiadni členovia na registráciu.");
-        setSaving(false);
-        return;
+      if (uniqueIds.length > 0) {
+        const entries = uniqueIds.map((memberId) => ({
+          competition_id: competitionId,
+          member_id: memberId,
+          registered: true,
+        }));
+        const { error } = await (supabase as any)
+          .from("member_competition_entries")
+          .upsert(entries, { onConflict: "competition_id,member_id" });
+        if (error) throw error;
       }
 
-      const entries = uniqueIds.map((memberId) => ({
-        competition_id: competitionId,
-        member_id: memberId,
-        registered: true,
-      }));
+      // 2. Insert team entries into team_competition_results
+      if (teams.length > 0) {
+        const teamRows = teams.map((t) => ({
+          competition_id: competitionId,
+          discipline: t.discipline,
+          category: t.category,
+        }));
+        const { error: teamError } = await supabase
+          .from("team_competition_results")
+          .insert(teamRows);
+        if (teamError) throw teamError;
+      }
 
-      const { error } = await (supabase as any)
-        .from("member_competition_entries")
-        .upsert(entries, { onConflict: "competition_id,member_id" });
+      const parts: string[] = [];
+      if (uniqueIds.length > 0) parts.push(`${uniqueIds.length} pretekárov`);
+      if (teams.length > 0) parts.push(`${teams.length} družstiev`);
+      toast.success(`Zaregistrovaných ${parts.join(" a ")}!`);
 
-      if (error) throw error;
-
-      toast.success(`Zaregistrovaných ${uniqueIds.length} pretekárov!`);
       onImported();
       setOpen(false);
       resetState();
@@ -152,9 +145,8 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const totalToRegister = matched.length
-    + Object.values(unmatchedAssignments).filter(Boolean).length
-    + teams.reduce((sum, t) => sum + t.matchedMembers.filter(m => m.memberId).length, 0);
+  const totalIndividuals = matched.length + Object.values(unmatchedAssignments).filter(Boolean).length;
+  const hasAnything = totalIndividuals > 0 || teams.length > 0;
 
   return (
     <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) resetState(); }}>
@@ -237,34 +229,32 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
             {teams.length > 0 && (
               <div>
                 <h3 className="text-sm font-semibold flex items-center gap-1.5 mb-2">
-                  <Users className="h-4 w-4 text-blue-500" />
+                  <Users className="h-4 w-4 text-primary" />
                   Družstvá ({teams.length})
                 </h3>
-                <div className="space-y-2">
-                  {teams.map((team, i) => (
-                    <div key={i} className="rounded-md border border-border p-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="secondary" className="text-xs capitalize">{team.discipline}</Badge>
-                        <span className="text-sm font-medium">{team.category}</span>
-                      </div>
-                      <div className="space-y-1">
-                        {team.matchedMembers.map((tm, j) => (
-                          <div key={j} className="flex items-center gap-2 text-sm">
-                            {tm.memberId ? (
-                              <Check className="h-3 w-3 text-green-500 shrink-0" />
-                            ) : (
-                              <AlertTriangle className="h-3 w-3 text-yellow-500 shrink-0" />
-                            )}
-                            <span>{tm.name}</span>
-                            {tm.memberName && tm.name !== tm.memberName && (
-                              <span className="text-muted-foreground">→ {tm.memberName}</span>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                <div className="rounded-md border border-border overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-secondary/50">
+                        <TableHead className="text-xs">Disciplína</TableHead>
+                        <TableHead className="text-xs">Kategória</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {teams.map((t, i) => (
+                        <TableRow key={i}>
+                          <TableCell className="text-sm">
+                            <Badge variant="secondary" className="text-xs capitalize">{t.discipline} družstvá</Badge>
+                          </TableCell>
+                          <TableCell className="text-sm">{t.category}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Družstvá budú vytvorené bez umiestnenia — doplníte ho po súťaži.
+                </p>
               </div>
             )}
 
@@ -319,8 +309,12 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
 
             <div className="flex gap-2 justify-end">
               <Button variant="outline" onClick={resetState}>Späť</Button>
-              <Button onClick={handleSave} disabled={saving || totalToRegister === 0}>
-                {saving ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Registrujem…</> : `Zaregistrovať ${totalToRegister} pretekárov`}
+              <Button onClick={handleSave} disabled={saving || !hasAnything}>
+                {saving ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Registrujem…</>
+                ) : (
+                  <>Importovať {totalIndividuals > 0 ? `${totalIndividuals} pretekárov` : ""}{totalIndividuals > 0 && teams.length > 0 ? " a " : ""}{teams.length > 0 ? `${teams.length} družstiev` : ""}</>
+                )}
               </Button>
             </div>
           </div>

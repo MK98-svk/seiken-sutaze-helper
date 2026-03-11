@@ -146,6 +146,7 @@ export default function MemberTable({
                                         <span className="capitalize">{r.discipline}</span>
                                         {r.category && <span className="text-muted-foreground">({r.category})</span>}
                                         <span>— {r.placement}.</span>
+                                        {r.numCompetitors && <span className="text-muted-foreground">z {r.numCompetitors}</span>}
                                         {canManage && (
                                           <button
                                             onClick={async () => {

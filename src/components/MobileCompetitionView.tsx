@@ -33,7 +33,7 @@ export default function MobileCompetitionView({
   const { getMemberMedals, invalidate: invalidateResults, deleteResult } = useCompetitionResults(competition.id);
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
 
-  const registeredCount = members.filter((m) => isRegistered(m.id, competition.id)).length;
+  
   const totalMedals = members.reduce((acc, m) => {
     const medals = getMemberMedals(m.id);
     return {

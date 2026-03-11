@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2, X, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ImportResultsDialog from "./ImportResultsDialog";
+import ImportStartlistDialog from "./ImportStartlistDialog";
 import AddResultDialog from "./AddResultDialog";
 import { useCompetitionResults } from "@/hooks/useCompetitionResults";
 import { toast } from "sonner";
@@ -54,6 +55,12 @@ export default function MobileCompetitionView({
         </div>
         {isAdmin && (
           <div className="flex gap-1">
+            <ImportStartlistDialog
+              competitionId={competition.id}
+              competitionName={competition.nazov}
+              members={members}
+              onImported={invalidateResults}
+            />
             <ImportResultsDialog
               competitionId={competition.id}
               competitionName={competition.nazov}

@@ -11,6 +11,7 @@ import { sk } from "date-fns/locale";
 import { motion, AnimatePresence } from "framer-motion";
 import EditMemberDialog from "./EditMemberDialog";
 import ImportResultsDialog from "./ImportResultsDialog";
+import ImportStartlistDialog from "./ImportStartlistDialog";
 import AddResultDialog from "./AddResultDialog";
 import { useCompetitionResults } from "@/hooks/useCompetitionResults";
 import { toast } from "sonner";
@@ -209,6 +210,12 @@ export default function MemberTable({
             </Table>
             {isAdmin && (
               <div className="p-2 flex gap-2">
+                <ImportStartlistDialog
+                  competitionId={selectedComp.id}
+                  competitionName={selectedComp.nazov}
+                  members={members}
+                  onImported={invalidateResults}
+                />
                 <ImportResultsDialog
                   competitionId={selectedComp.id}
                   competitionName={selectedComp.nazov}

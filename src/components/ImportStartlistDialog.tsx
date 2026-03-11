@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Check, AlertTriangle, Loader2, Upload, ClipboardList } from "lucide-react";
+import { Check, AlertTriangle, Loader2, Upload, ClipboardList, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Member } from "@/types/member";
@@ -21,6 +21,20 @@ interface UnmatchedEntry {
   name: string;
 }
 
+interface TeamMember {
+  name: string;
+  memberId: string | null;
+  memberName: string | null;
+  confidence: number;
+}
+
+interface TeamEntry {
+  discipline: string;
+  category: string;
+  members: string[];
+  matchedMembers: TeamMember[];
+}
+
 interface ImportStartlistDialogProps {
   competitionId: string;
   competitionName: string;
@@ -34,6 +48,7 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
   const [saving, setSaving] = useState(false);
   const [matched, setMatched] = useState<MatchedEntry[]>([]);
   const [unmatched, setUnmatched] = useState<UnmatchedEntry[]>([]);
+  const [teams, setTeams] = useState<TeamEntry[]>([]);
   const [unmatchedAssignments, setUnmatchedAssignments] = useState<Record<number, string>>({});
   const [step, setStep] = useState<"upload" | "review">("upload");
   const [fileName, setFileName] = useState("");
@@ -64,10 +79,11 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
 
       setMatched(data.matched || []);
       setUnmatched(data.unmatched || []);
+      setTeams(data.teams || []);
       setUnmatchedAssignments({});
       setStep("review");
 
-      if (data.totalFound === 0) {
+      if (data.totalFound === 0 && (data.totalTeams || 0) === 0) {
         toast.info("Nenašli sa žiadni členovia Seiken v tejto štartovnej listine.");
       }
     } catch (e: any) {
@@ -88,8 +104,13 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
       for (const [, memberId] of Object.entries(unmatchedAssignments)) {
         if (memberId) memberIds.push(memberId);
       }
+      // Also include matched team members
+      for (const team of teams) {
+        for (const tm of team.matchedMembers) {
+          if (tm.memberId) memberIds.push(tm.memberId);
+        }
+      }
 
-      // Deduplicate
       const uniqueIds = [...new Set(memberIds)];
 
       if (uniqueIds.length === 0) {
@@ -98,7 +119,6 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
         return;
       }
 
-      // Upsert entries into member_competition_entries
       const entries = uniqueIds.map((memberId) => ({
         competition_id: competitionId,
         member_id: memberId,
@@ -127,9 +147,14 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
     setFileName("");
     setMatched([]);
     setUnmatched([]);
+    setTeams([]);
     setUnmatchedAssignments({});
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
+
+  const totalToRegister = matched.length
+    + Object.values(unmatchedAssignments).filter(Boolean).length
+    + teams.reduce((sum, t) => sum + t.matchedMembers.filter(m => m.memberId).length, 0);
 
   return (
     <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) resetState(); }}>
@@ -179,7 +204,7 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
               <div>
                 <h3 className="text-sm font-semibold flex items-center gap-1.5 mb-2">
                   <Check className="h-4 w-4 text-green-500" />
-                  Priradení ({matched.length})
+                  Priradení jednotlivci ({matched.length})
                 </h3>
                 <div className="rounded-md border border-border overflow-hidden">
                   <Table>
@@ -205,6 +230,40 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
                       ))}
                     </TableBody>
                   </Table>
+                </div>
+              </div>
+            )}
+
+            {teams.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold flex items-center gap-1.5 mb-2">
+                  <Users className="h-4 w-4 text-blue-500" />
+                  Družstvá ({teams.length})
+                </h3>
+                <div className="space-y-2">
+                  {teams.map((team, i) => (
+                    <div key={i} className="rounded-md border border-border p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="secondary" className="text-xs capitalize">{team.discipline}</Badge>
+                        <span className="text-sm font-medium">{team.category}</span>
+                      </div>
+                      <div className="space-y-1">
+                        {team.matchedMembers.map((tm, j) => (
+                          <div key={j} className="flex items-center gap-2 text-sm">
+                            {tm.memberId ? (
+                              <Check className="h-3 w-3 text-green-500 shrink-0" />
+                            ) : (
+                              <AlertTriangle className="h-3 w-3 text-yellow-500 shrink-0" />
+                            )}
+                            <span>{tm.name}</span>
+                            {tm.memberName && tm.name !== tm.memberName && (
+                              <span className="text-muted-foreground">→ {tm.memberName}</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -252,7 +311,7 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
               </div>
             )}
 
-            {matched.length === 0 && unmatched.length === 0 && (
+            {matched.length === 0 && unmatched.length === 0 && teams.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-4">
                 Nenašli sa žiadni členovia KK Seiken v tejto štartovnej listine.
               </p>
@@ -260,8 +319,8 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
 
             <div className="flex gap-2 justify-end">
               <Button variant="outline" onClick={resetState}>Späť</Button>
-              <Button onClick={handleSave} disabled={saving || (matched.length === 0 && Object.keys(unmatchedAssignments).length === 0)}>
-                {saving ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Registrujem…</> : `Zaregistrovať ${matched.length + Object.values(unmatchedAssignments).filter(Boolean).length} pretekárov`}
+              <Button onClick={handleSave} disabled={saving || totalToRegister === 0}>
+                {saving ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Registrujem…</> : `Zaregistrovať ${totalToRegister} pretekárov`}
               </Button>
             </div>
           </div>

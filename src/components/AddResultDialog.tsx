@@ -25,6 +25,7 @@ export default function AddResultDialog({ competitionId, competitionDate, member
   const [discipline, setDiscipline] = useState("");
   const [categoryCode, setCategoryCode] = useState("");
   const [placement, setPlacement] = useState("");
+  const [numCompetitors, setNumCompetitors] = useState("");
 
   const competitionYear = competitionDate
     ? new Date(competitionDate).getFullYear()

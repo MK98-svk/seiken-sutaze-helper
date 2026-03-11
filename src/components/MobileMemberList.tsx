@@ -53,7 +53,7 @@ export default function MobileMemberList({
                         {member.meno} {member.priezvisko}
                       </div>
                       <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-xs text-muted-foreground">
-                        <span className="inline-block px-1.5 py-0.5 rounded bg-primary/20 text-primary font-medium">
+                        <span className="inline-block px-1.5 py-0.5 rounded bg-primary/20 text-primary font-medium whitespace-nowrap">
                           {member.stupen || "—"}
                         </span>
                         {member.kata && <span>Kata</span>}

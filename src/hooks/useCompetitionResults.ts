@@ -8,6 +8,16 @@ export interface CompetitionResult {
   discipline: string;
   category: string;
   placement: number;
+  numCompetitors: number | null;
+}
+
+export interface TeamResult {
+  id: string;
+  competitionId: string;
+  discipline: string;
+  category: string;
+  placement: number | null;
+  numCompetitors: number | null;
 }
 
 export function useCompetitionResults(competitionId?: string) {
@@ -29,11 +39,35 @@ export function useCompetitionResults(competitionId?: string) {
         discipline: r.discipline,
         category: r.category ?? "",
         placement: r.placement ?? 0,
+        numCompetitors: r.num_competitors ?? null,
       }));
     },
   });
 
-  const invalidate = () => qc.invalidateQueries({ queryKey: ["competition_results", competitionId] });
+  const { data: teamResults = [], isLoading: teamLoading } = useQuery({
+    queryKey: ["team_competition_results", competitionId],
+    enabled: !!competitionId,
+    queryFn: async (): Promise<TeamResult[]> => {
+      const { data, error } = await (supabase as any)
+        .from("team_competition_results")
+        .select("*")
+        .eq("competition_id", competitionId);
+      if (error) throw error;
+      return (data ?? []).map((r: any) => ({
+        id: r.id,
+        competitionId: r.competition_id,
+        discipline: r.discipline,
+        category: r.category ?? "",
+        placement: r.placement ?? null,
+        numCompetitors: r.num_competitors ?? null,
+      }));
+    },
+  });
+
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["competition_results", competitionId] });
+    qc.invalidateQueries({ queryKey: ["team_competition_results", competitionId] });
+  };
 
   const deleteResult = async (resultId: string) => {
     const { error } = await (supabase as any)
@@ -44,7 +78,29 @@ export function useCompetitionResults(competitionId?: string) {
     invalidate();
   };
 
-  // Get medals for a specific member in this competition
+  const deleteTeamResult = async (resultId: string) => {
+    const { error } = await (supabase as any)
+      .from("team_competition_results")
+      .delete()
+      .eq("id", resultId);
+    if (error) throw error;
+    invalidate();
+  };
+
+  const addTeamResult = async (result: { competitionId: string; discipline: string; category?: string; placement?: number; numCompetitors?: number }) => {
+    const { error } = await (supabase as any)
+      .from("team_competition_results")
+      .insert({
+        competition_id: result.competitionId,
+        discipline: result.discipline,
+        category: result.category || null,
+        placement: result.placement || null,
+        num_competitors: result.numCompetitors || null,
+      });
+    if (error) throw error;
+    invalidate();
+  };
+
   const getMemberMedals = (memberId: string) => {
     const memberResults = results.filter((r) => r.memberId === memberId);
     return {
@@ -55,5 +111,5 @@ export function useCompetitionResults(competitionId?: string) {
     };
   };
 
-  return { results, isLoading, invalidate, getMemberMedals, deleteResult };
+  return { results, teamResults, isLoading, teamLoading, invalidate, getMemberMedals, deleteResult, deleteTeamResult, addTeamResult };
 }

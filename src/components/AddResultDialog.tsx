@@ -25,6 +25,7 @@ export default function AddResultDialog({ competitionId, competitionDate, member
   const [discipline, setDiscipline] = useState("");
   const [categoryCode, setCategoryCode] = useState("");
   const [placement, setPlacement] = useState("");
+  const [numCompetitors, setNumCompetitors] = useState("");
 
   const competitionYear = competitionDate
     ? new Date(competitionDate).getFullYear()
@@ -78,6 +79,7 @@ export default function AddResultDialog({ competitionId, competitionDate, member
           discipline,
           category: categoryName,
           placement: Number(placement),
+          num_competitors: numCompetitors ? Number(numCompetitors) : null,
         });
       if (error) throw error;
       toast.success(`Výsledok pridaný pre ${member.meno} ${member.priezvisko}`);
@@ -95,6 +97,7 @@ export default function AddResultDialog({ competitionId, competitionDate, member
     setDiscipline("");
     setCategoryCode("");
     setPlacement("");
+    setNumCompetitors("");
   };
 
   return (
@@ -191,9 +194,15 @@ export default function AddResultDialog({ competitionId, competitionDate, member
           )}
 
           {/* Placement */}
-          <div className="space-y-1.5">
-            <Label className="text-xs">Umiestnenie</Label>
-            <Input type="number" min={1} value={placement} onChange={(e) => setPlacement(e.target.value)} placeholder="1, 2, 3…" className="h-9" />
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Umiestnenie</Label>
+              <Input type="number" min={1} value={placement} onChange={(e) => setPlacement(e.target.value)} placeholder="1, 2, 3…" className="h-9" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Počet pretekárov</Label>
+              <Input type="number" min={1} value={numCompetitors} onChange={(e) => setNumCompetitors(e.target.value)} placeholder="napr. 12" className="h-9" />
+            </div>
           </div>
 
           <div className="flex justify-end gap-2 pt-2">

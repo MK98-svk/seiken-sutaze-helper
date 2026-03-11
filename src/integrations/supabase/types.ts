@@ -58,6 +58,7 @@ export type Database = {
           discipline: string
           id: string
           member_id: string
+          num_competitors: number | null
           placement: number | null
         }
         Insert: {
@@ -67,6 +68,7 @@ export type Database = {
           discipline: string
           id?: string
           member_id: string
+          num_competitors?: number | null
           placement?: number | null
         }
         Update: {
@@ -76,6 +78,7 @@ export type Database = {
           discipline?: string
           id?: string
           member_id?: string
+          num_competitors?: number | null
           placement?: number | null
         }
         Relationships: [
@@ -256,6 +259,44 @@ export type Database = {
           vyska?: number | null
         }
         Relationships: []
+      }
+      team_competition_results: {
+        Row: {
+          category: string | null
+          competition_id: string
+          created_at: string
+          discipline: string
+          id: string
+          num_competitors: number | null
+          placement: number | null
+        }
+        Insert: {
+          category?: string | null
+          competition_id: string
+          created_at?: string
+          discipline: string
+          id?: string
+          num_competitors?: number | null
+          placement?: number | null
+        }
+        Update: {
+          category?: string | null
+          competition_id?: string
+          created_at?: string
+          discipline?: string
+          id?: string
+          num_competitors?: number | null
+          placement?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_competition_results_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "competitions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import ImportResultsDialog from "./ImportResultsDialog";
 import ImportStartlistDialog from "./ImportStartlistDialog";
 import AddResultDialog from "./AddResultDialog";
+import TeamResultsSection from "./TeamResultsSection";
 import { useCompetitionResults } from "@/hooks/useCompetitionResults";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -30,7 +31,7 @@ export default function MobileCompetitionView({
   onToggleEntry,
   onDeleteCompetition,
 }: MobileCompetitionViewProps) {
-  const { getMemberMedals, invalidate: invalidateResults, deleteResult } = useCompetitionResults(competition.id);
+  const { getMemberMedals, teamResults, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult } = useCompetitionResults(competition.id);
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
 
   
@@ -136,6 +137,7 @@ export default function MobileCompetitionView({
                                       <span className="capitalize font-medium">{r.discipline}</span>
                                       {r.category && <span className="text-muted-foreground ml-1">({r.category})</span>}
                                       <span className="ml-1.5 font-bold">{r.placement}.</span>
+                                      {r.numCompetitors && <span className="text-xs text-muted-foreground ml-1">z {r.numCompetitors}</span>}
                                     </div>
                                     {canManage && (
                                       <button
@@ -173,6 +175,26 @@ export default function MobileCompetitionView({
           );
         })}
       </AnimatePresence>
+
+      {/* Team results sections */}
+      <TeamResultsSection
+        competitionId={competition.id}
+        discipline="kata"
+        teamResults={teamResults}
+        isAdmin={isAdmin}
+        deleteTeamResult={deleteTeamResult}
+        addTeamResult={addTeamResult}
+        invalidate={invalidateResults}
+      />
+      <TeamResultsSection
+        competitionId={competition.id}
+        discipline="kumite"
+        teamResults={teamResults}
+        isAdmin={isAdmin}
+        deleteTeamResult={deleteTeamResult}
+        addTeamResult={addTeamResult}
+        invalidate={invalidateResults}
+      />
     </div>
   );
 }

@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import EditMemberDialog from "./EditMemberDialog";
 import ImportResultsDialog from "./ImportResultsDialog";
 import ImportStartlistDialog from "./ImportStartlistDialog";
+import TeamResultsSection from "./TeamResultsSection";
 import AddResultDialog from "./AddResultDialog";
 import { useCompetitionResults } from "@/hooks/useCompetitionResults";
 import { toast } from "sonner";
@@ -59,7 +60,7 @@ export default function MemberTable({
   const selectedComp = !showAllComps ? competitions.find((c) => c.id === selectedCompId) : undefined;
 
   // Fetch competition results when a specific competition is selected
-  const { getMemberMedals, invalidate: invalidateResults, deleteResult } = useCompetitionResults(selectedComp?.id);
+  const { getMemberMedals, teamResults, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult } = useCompetitionResults(selectedComp?.id);
 
   // When a specific competition is selected
   if (selectedComp) {
@@ -145,6 +146,7 @@ export default function MemberTable({
                                         <span className="capitalize">{r.discipline}</span>
                                         {r.category && <span className="text-muted-foreground">({r.category})</span>}
                                         <span>— {r.placement}.</span>
+                                        {r.numCompetitors && <span className="text-muted-foreground">z {r.numCompetitors}</span>}
                                         {canManage && (
                                           <button
                                             onClick={async () => {
@@ -217,6 +219,27 @@ export default function MemberTable({
                 </Button>
               </div>
             )}
+            {/* Team results */}
+            <div className="p-3 grid gap-3 sm:grid-cols-2">
+              <TeamResultsSection
+                competitionId={selectedComp.id}
+                discipline="kata"
+                teamResults={teamResults}
+                isAdmin={isAdmin}
+                deleteTeamResult={deleteTeamResult}
+                addTeamResult={addTeamResult}
+                invalidate={invalidateResults}
+              />
+              <TeamResultsSection
+                competitionId={selectedComp.id}
+                discipline="kumite"
+                teamResults={teamResults}
+                isAdmin={isAdmin}
+                deleteTeamResult={deleteTeamResult}
+                addTeamResult={addTeamResult}
+                invalidate={invalidateResults}
+              />
+            </div>
           </div>
         )}
       </div>
@@ -303,7 +326,7 @@ export default function MemberTable({
                       <TableCell className="font-medium">{member.meno}</TableCell>
                       <TableCell className="font-medium">{member.priezvisko}</TableCell>
                       <TableCell>
-                        <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-primary/20 text-primary">
+                        <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-primary/20 text-primary whitespace-nowrap">
                           {member.stupen || "—"}
                         </span>
                       </TableCell>

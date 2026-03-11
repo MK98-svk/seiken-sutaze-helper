@@ -103,10 +103,11 @@ Return a JSON object with two arrays:
 2. "teams" - array of objects with:
    - discipline: the discipline - use "kata" for kata družstvá, "kumite" for kumite družstvá
    - category: the category name (e.g. "Mladší žiaci", "Kadeti", age group, gender group, etc.)
+   - members: array of strings with the names/surnames of team members as written in the PDF (even if only surnames are listed)
 
 IMPORTANT:
 - Include ALL Seiken individual competitors AND all team entries (družstvá)
-- For teams, you do NOT need to list member names, just the discipline and category
+- For teams, include whatever names or surnames are listed for the team members
 - Team entries are typically listed under sections like "kata družstvá" or "kumite družstvá"
 - Each team entry in a different category should be a separate object
 - Look through all pages carefully

@@ -123,5 +123,5 @@ export function useCompetitionResults(competitionId?: string) {
     };
   };
 
-  return { results, teamResults, isLoading, teamLoading, invalidate, getMemberMedals, deleteResult, deleteTeamResult, addTeamResult };
+  return { results, teamResults, isLoading, teamLoading, invalidate, getMemberMedals, deleteResult, deleteTeamResult, addTeamResult, updateTeamResult };
 }

@@ -175,6 +175,26 @@ export default function MobileCompetitionView({
           );
         })}
       </AnimatePresence>
+
+      {/* Team results sections */}
+      <TeamResultsSection
+        competitionId={competition.id}
+        discipline="kata"
+        teamResults={teamResults}
+        isAdmin={isAdmin}
+        deleteTeamResult={deleteTeamResult}
+        addTeamResult={addTeamResult}
+        invalidate={invalidateResults}
+      />
+      <TeamResultsSection
+        competitionId={competition.id}
+        discipline="kumite"
+        teamResults={teamResults}
+        isAdmin={isAdmin}
+        deleteTeamResult={deleteTeamResult}
+        addTeamResult={addTeamResult}
+        invalidate={invalidateResults}
+      />
     </div>
   );
 }

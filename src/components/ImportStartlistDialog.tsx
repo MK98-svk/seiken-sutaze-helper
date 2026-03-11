@@ -153,8 +153,10 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
   return (
     <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) resetState(); }}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1.5">
-          <ClipboardList className="h-3.5 w-3.5" /> Import štartovnej listiny
+        <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+          <ClipboardList className="h-3.5 w-3.5 shrink-0" />
+          <span className="hidden sm:inline">Import štartovnej listiny</span>
+          <span className="sm:hidden">Štart. listina</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">

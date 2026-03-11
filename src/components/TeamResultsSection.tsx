@@ -144,17 +144,19 @@ export default function TeamResultsSection({
           {filtered.map((r) => {
             const medal = getMedalEmoji(r.placement);
             return (
-              <div key={r.id} className="flex items-center justify-between bg-secondary/60 rounded px-2.5 py-1.5 text-sm gap-2">
-                <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                  {medal && <span className="shrink-0">{medal}</span>}
-                  <span className="font-medium truncate">{r.category || "—"}</span>
+              <div key={r.id} className="flex items-center bg-secondary/60 rounded px-2.5 py-1.5 text-sm gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    {medal && <span className="shrink-0">{medal}</span>}
+                    <span className="font-medium truncate">{r.category || "—"}</span>
+                    {r.placement != null && (
+                      <span className="text-xs text-muted-foreground shrink-0">
+                        {r.placement}. {r.numCompetitors != null && `z ${r.numCompetitors}`}
+                      </span>
+                    )}
+                  </div>
                   {r.membersText && (
-                    <span className="text-muted-foreground text-xs truncate">— {r.membersText}</span>
-                  )}
-                  {r.placement != null && (
-                    <span className="text-xs text-muted-foreground shrink-0 ml-auto">
-                      {r.placement}. {r.numCompetitors != null && `z ${r.numCompetitors}`}
-                    </span>
+                    <div className="text-muted-foreground text-xs truncate mt-0.5">{r.membersText}</div>
                   )}
                 </div>
                 {isAdmin && (

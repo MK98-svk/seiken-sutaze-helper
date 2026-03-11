@@ -1,7 +1,6 @@
 import { Member, Competition } from "@/types/member";
-
 import { Button } from "@/components/ui/button";
-import { Trash2, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Trash2, X, ChevronDown, ChevronUp, ClipboardList, Download } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ImportResultsDialog from "./ImportResultsDialog";
 import ImportStartlistDialog from "./ImportStartlistDialog";
@@ -34,7 +33,6 @@ export default function MobileCompetitionView({
   const { getMemberMedals, teamResults, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult, updateTeamResult } = useCompetitionResults(competition.id);
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
 
-  
   const totalMedals = members.reduce((acc, m) => {
     const medals = getMemberMedals(m.id);
     return {
@@ -47,14 +45,22 @@ export default function MobileCompetitionView({
   return (
     <div className="space-y-3">
       {/* Summary bar */}
-      <div className="flex items-center justify-between bg-card rounded-lg border border-border p-3">
-        <div className="flex gap-3 text-sm">
-          <span>🥇 <strong>{totalMedals.zlato}</strong></span>
-          <span>🥈 <strong>{totalMedals.striebro}</strong></span>
-          <span>🥉 <strong>{totalMedals.bronz}</strong></span>
+      <div className="bg-card rounded-lg border border-border p-3 space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex gap-3 text-sm">
+            <span>🥇 <strong>{totalMedals.zlato}</strong></span>
+            <span>🥈 <strong>{totalMedals.striebro}</strong></span>
+            <span>🥉 <strong>{totalMedals.bronz}</strong></span>
+          </div>
+          {isAdmin && (
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+              onClick={() => onDeleteCompetition(competition.id)}>
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
         {isAdmin && (
-          <div className="flex gap-1">
+          <div className="flex gap-2">
             <ImportStartlistDialog
               competitionId={competition.id}
               competitionName={competition.nazov}
@@ -67,10 +73,6 @@ export default function MobileCompetitionView({
               members={members}
               onImported={invalidateResults}
             />
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive"
-              onClick={() => onDeleteCompetition(competition.id)}>
-              <Trash2 className="h-4 w-4" />
-            </Button>
           </div>
         )}
       </div>
@@ -91,7 +93,7 @@ export default function MobileCompetitionView({
               exit={{ opacity: 0, x: -20 }}
               className="bg-card rounded-lg border border-border overflow-hidden"
             >
-              {/* Card header - always visible */}
+              {/* Card header */}
               <div
                 className="flex items-center gap-3 p-3 cursor-pointer active:bg-secondary/30"
                 onClick={() => setExpandedMember(isExpanded ? null : member.id)}
@@ -133,9 +135,9 @@ export default function MobileCompetitionView({
                               <div className="space-y-1.5">
                                 {medals.results.map((r) => (
                                   <div key={r.id} className="flex items-center justify-between bg-secondary/60 rounded px-2.5 py-1.5 text-sm">
-                                    <div>
+                                    <div className="min-w-0 flex-1">
                                       <span className="capitalize font-medium">{r.discipline}</span>
-                                      {r.category && <span className="text-muted-foreground ml-1">({r.category})</span>}
+                                      {r.category && <span className="text-muted-foreground ml-1 text-xs">({r.category})</span>}
                                       <span className="ml-1.5 font-bold">{r.placement}.</span>
                                       {r.numCompetitors && <span className="text-xs text-muted-foreground ml-1">z {r.numCompetitors}</span>}
                                     </div>
@@ -145,7 +147,7 @@ export default function MobileCompetitionView({
                                           try { await deleteResult(r.id); toast.success("Výsledok zmazaný"); }
                                           catch { toast.error("Chyba pri mazaní"); }
                                         }}
-                                        className="text-muted-foreground hover:text-destructive p-1"
+                                        className="text-muted-foreground hover:text-destructive p-1 shrink-0"
                                       >
                                         <X className="h-3.5 w-3.5" />
                                       </button>
@@ -176,27 +178,29 @@ export default function MobileCompetitionView({
         })}
       </AnimatePresence>
 
-      {/* Team results sections */}
-      <TeamResultsSection
-        competitionId={competition.id}
-        discipline="kata"
-        teamResults={teamResults}
-        isAdmin={isAdmin}
-        deleteTeamResult={deleteTeamResult}
-        addTeamResult={addTeamResult}
-        updateTeamResult={updateTeamResult}
-        invalidate={invalidateResults}
-      />
-      <TeamResultsSection
-        competitionId={competition.id}
-        discipline="kumite"
-        teamResults={teamResults}
-        isAdmin={isAdmin}
-        deleteTeamResult={deleteTeamResult}
-        addTeamResult={addTeamResult}
-        updateTeamResult={updateTeamResult}
-        invalidate={invalidateResults}
-      />
+      {/* Team results - stacked vertically */}
+      <div className="space-y-3">
+        <TeamResultsSection
+          competitionId={competition.id}
+          discipline="kata"
+          teamResults={teamResults}
+          isAdmin={isAdmin}
+          deleteTeamResult={deleteTeamResult}
+          addTeamResult={addTeamResult}
+          updateTeamResult={updateTeamResult}
+          invalidate={invalidateResults}
+        />
+        <TeamResultsSection
+          competitionId={competition.id}
+          discipline="kumite"
+          teamResults={teamResults}
+          isAdmin={isAdmin}
+          deleteTeamResult={deleteTeamResult}
+          addTeamResult={addTeamResult}
+          updateTeamResult={updateTeamResult}
+          invalidate={invalidateResults}
+        />
+      </div>
     </div>
   );
 }

@@ -114,7 +114,7 @@ IMPORTANT:
 - Return ONLY the JSON object, no markdown, no explanation`;
 
   const content = await callAI(pdfBase64, systemPrompt);
-  let parsed: { individuals: Array<{ name: string }>; teams: Array<{ discipline: string; category: string }> };
+  let parsed: { individuals: Array<{ name: string }>; teams: Array<{ discipline: string; category: string; members?: string[] }> };
   try {
     const raw = JSON.parse(content);
     if (Array.isArray(raw)) {

@@ -194,9 +194,15 @@ export default function AddResultDialog({ competitionId, competitionDate, member
           )}
 
           {/* Placement */}
-          <div className="space-y-1.5">
-            <Label className="text-xs">Umiestnenie</Label>
-            <Input type="number" min={1} value={placement} onChange={(e) => setPlacement(e.target.value)} placeholder="1, 2, 3…" className="h-9" />
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Umiestnenie</Label>
+              <Input type="number" min={1} value={placement} onChange={(e) => setPlacement(e.target.value)} placeholder="1, 2, 3…" className="h-9" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Počet pretekárov</Label>
+              <Input type="number" min={1} value={numCompetitors} onChange={(e) => setNumCompetitors(e.target.value)} placeholder="napr. 12" className="h-9" />
+            </div>
           </div>
 
           <div className="flex justify-end gap-2 pt-2">

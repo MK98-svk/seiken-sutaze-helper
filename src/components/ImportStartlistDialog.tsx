@@ -24,6 +24,7 @@ interface UnmatchedEntry {
 interface TeamEntry {
   discipline: string;
   category: string;
+  members?: string[];
 }
 
 interface ImportStartlistDialogProps {
@@ -238,6 +239,7 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
                       <TableRow className="bg-secondary/50">
                         <TableHead className="text-xs">Disciplína</TableHead>
                         <TableHead className="text-xs">Kategória</TableHead>
+                        <TableHead className="text-xs">Členovia</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -247,6 +249,9 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
                             <Badge variant="secondary" className="text-xs capitalize">{t.discipline} družstvá</Badge>
                           </TableCell>
                           <TableCell className="text-sm">{t.category}</TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {t.members?.join(", ") || "—"}
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

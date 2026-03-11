@@ -184,6 +184,7 @@ export default function MobileCompetitionView({
         isAdmin={isAdmin}
         deleteTeamResult={deleteTeamResult}
         addTeamResult={addTeamResult}
+        updateTeamResult={updateTeamResult}
         invalidate={invalidateResults}
       />
       <TeamResultsSection
@@ -193,6 +194,7 @@ export default function MobileCompetitionView({
         isAdmin={isAdmin}
         deleteTeamResult={deleteTeamResult}
         addTeamResult={addTeamResult}
+        updateTeamResult={updateTeamResult}
         invalidate={invalidateResults}
       />
     </div>

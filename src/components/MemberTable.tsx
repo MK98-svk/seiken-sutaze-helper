@@ -228,6 +228,7 @@ export default function MemberTable({
                 isAdmin={isAdmin}
                 deleteTeamResult={deleteTeamResult}
                 addTeamResult={addTeamResult}
+                updateTeamResult={updateTeamResult}
                 invalidate={invalidateResults}
               />
               <TeamResultsSection
@@ -237,6 +238,7 @@ export default function MemberTable({
                 isAdmin={isAdmin}
                 deleteTeamResult={deleteTeamResult}
                 addTeamResult={addTeamResult}
+                updateTeamResult={updateTeamResult}
                 invalidate={invalidateResults}
               />
             </div>

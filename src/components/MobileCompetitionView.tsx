@@ -48,7 +48,6 @@ export default function MobileCompetitionView({
       {/* Summary bar */}
       <div className="flex items-center justify-between bg-card rounded-lg border border-border p-3">
         <div className="flex gap-3 text-sm">
-          <span className="text-muted-foreground">Účasť: <strong className="text-primary">{registeredCount}</strong></span>
           <span>🥇 <strong>{totalMedals.zlato}</strong></span>
           <span>🥈 <strong>{totalMedals.striebro}</strong></span>
           <span>🥉 <strong>{totalMedals.bronz}</strong></span>

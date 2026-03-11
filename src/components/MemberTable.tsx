@@ -113,7 +113,7 @@ export default function MemberTable({
                 <AnimatePresence>
                   {members.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center text-muted-foreground py-12">
+                      <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
                         Zatiaľ žiadni členovia.
                       </TableCell>
                     </TableRow>

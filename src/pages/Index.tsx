@@ -103,6 +103,7 @@ const Index = () => {
               isRegistered={isRegistered}
               onToggleEntry={isAdmin ? toggleEntry : () => {}}
               isAdmin={isAdmin}
+              isCoach={isCoach}
               currentUserId={user?.id ?? null}
             />
           </motion.div>

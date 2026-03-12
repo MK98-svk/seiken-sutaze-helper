@@ -202,7 +202,7 @@ export default function MemberTable({
                 </tfoot>
               )}
             </Table>
-            {isAdmin && (
+            {(isAdmin || isCoach) && (
               <div className="p-2 flex gap-2">
                 <ImportStartlistDialog
                   competitionId={selectedComp.id}

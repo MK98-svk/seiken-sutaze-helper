@@ -42,6 +42,7 @@ export default function MemberTable({
   isRegistered,
   onToggleEntry,
   isAdmin = false,
+  isCoach = false,
   currentUserId,
 }: MemberTableProps) {
   const [editingMember, setEditingMember] = useState<Member | null>(null);

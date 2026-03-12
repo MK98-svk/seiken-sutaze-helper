@@ -238,7 +238,7 @@ export default function MemberTable({
                 competitionId={selectedComp.id}
                 discipline="kumite"
                 teamResults={teamResults}
-                isAdmin={isAdmin}
+                isAdmin={isAdmin || isCoach}
                 deleteTeamResult={deleteTeamResult}
                 addTeamResult={addTeamResult}
                 updateTeamResult={updateTeamResult}

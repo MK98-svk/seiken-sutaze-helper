@@ -216,10 +216,12 @@ export default function MemberTable({
                   members={members}
                   onImported={invalidateResults}
                 />
-                <Button variant="ghost" size="sm" onClick={() => onDeleteCompetition(selectedComp.id)}
-                  className="text-xs text-muted-foreground hover:text-destructive">
-                  <Trash2 className="h-3 w-3 mr-1" /> Zmazať súťaž
-                </Button>
+                {isAdmin && (
+                  <Button variant="ghost" size="sm" onClick={() => onDeleteCompetition(selectedComp.id)}
+                    className="text-xs text-muted-foreground hover:text-destructive">
+                    <Trash2 className="h-3 w-3 mr-1" /> Zmazať súťaž
+                  </Button>
+                )}
               </div>
             )}
             {/* Team results */}

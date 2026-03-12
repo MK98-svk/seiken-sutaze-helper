@@ -21,9 +21,10 @@ export function useAuth() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) checkAdmin(session.user.id);
+      if (session?.user) checkRoles(session.user.id);
       else {
         setIsAdmin(false);
+        setIsCoach(false);
         setLoading(false);
       }
     });

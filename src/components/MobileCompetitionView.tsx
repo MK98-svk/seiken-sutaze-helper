@@ -197,7 +197,7 @@ export default function MobileCompetitionView({
           competitionId={competition.id}
           discipline="kumite"
           teamResults={teamResults}
-          isAdmin={isAdmin}
+          isAdmin={canManageResults}
           deleteTeamResult={deleteTeamResult}
           addTeamResult={addTeamResult}
           updateTeamResult={updateTeamResult}

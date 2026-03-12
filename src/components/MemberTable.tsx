@@ -140,7 +140,7 @@ export default function MemberTable({
                           <TableCell className="text-center text-sm font-bold">{medals.bronz || "—"}</TableCell>
                           <TableCell className="text-xs text-muted-foreground">
                             {(() => {
-                              const canManage = isAdmin || (currentUserId != null && member.userId === currentUserId);
+                              const canManage = isAdmin || isCoach || (currentUserId != null && member.userId === currentUserId);
                               return (
                                 <div className="flex items-center gap-1.5 flex-wrap">
                                   {medals.results.length > 0

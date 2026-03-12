@@ -131,7 +131,7 @@ export default function MobileCompetitionView({
                   >
                     <div className="px-3 pb-3 pt-1 border-t border-border space-y-2">
                       {(() => {
-                        const canManage = isAdmin || (currentUserId != null && member.userId === currentUserId);
+                        const canManage = canManageResults || (currentUserId != null && member.userId === currentUserId);
                         return (
                           <>
                             {medals.results.length > 0 ? (

@@ -26,11 +26,13 @@ export default function MobileCompetitionView({
   competition,
   members,
   isAdmin,
+  isCoach = false,
   currentUserId,
   isRegistered,
   onToggleEntry,
   onDeleteCompetition,
 }: MobileCompetitionViewProps) {
+  const canManageResults = isAdmin || isCoach;
   const { getMemberMedals, teamResults, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult, updateTeamResult } = useCompetitionResults(competition.id);
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
 

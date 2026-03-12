@@ -32,12 +32,13 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
-  async function checkAdmin(userId: string) {
-    const { data, error } = await supabase.rpc("has_role", {
-      _user_id: userId,
-      _role: "admin",
-    });
-    setIsAdmin(!error && data === true);
+  async function checkRoles(userId: string) {
+    const [adminRes, coachRes] = await Promise.all([
+      supabase.rpc("has_role", { _user_id: userId, _role: "admin" }),
+      supabase.rpc("has_role", { _user_id: userId, _role: "coach" }),
+    ]);
+    setIsAdmin(!adminRes.error && adminRes.data === true);
+    setIsCoach(!coachRes.error && coachRes.data === true);
     setLoading(false);
   }
 

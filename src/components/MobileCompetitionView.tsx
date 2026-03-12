@@ -62,7 +62,7 @@ export default function MobileCompetitionView({
             </Button>
           )}
         </div>
-        {isAdmin && (
+        {canManageResults && (
           <div className="flex gap-2">
             <ImportStartlistDialog
               competitionId={competition.id}

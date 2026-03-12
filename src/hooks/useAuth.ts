@@ -14,7 +14,7 @@ export function useAuth() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) checkAdmin(session.user.id);
+      if (session?.user) checkRoles(session.user.id);
       else setLoading(false);
     });
 

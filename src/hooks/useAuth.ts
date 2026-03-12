@@ -7,22 +7,24 @@ export function useAuth() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isCoach, setIsCoach] = useState(false);
 
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) checkAdmin(session.user.id);
+      if (session?.user) checkRoles(session.user.id);
       else setLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) checkAdmin(session.user.id);
+      if (session?.user) checkRoles(session.user.id);
       else {
         setIsAdmin(false);
+        setIsCoach(false);
         setLoading(false);
       }
     });
@@ -30,12 +32,13 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
-  async function checkAdmin(userId: string) {
-    const { data, error } = await supabase.rpc("has_role", {
-      _user_id: userId,
-      _role: "admin",
-    });
-    setIsAdmin(!error && data === true);
+  async function checkRoles(userId: string) {
+    const [adminRes, coachRes] = await Promise.all([
+      supabase.rpc("has_role", { _user_id: userId, _role: "admin" }),
+      supabase.rpc("has_role", { _user_id: userId, _role: "coach" }),
+    ]);
+    setIsAdmin(!adminRes.error && adminRes.data === true);
+    setIsCoach(!coachRes.error && coachRes.data === true);
     setLoading(false);
   }
 
@@ -53,5 +56,5 @@ export function useAuth() {
     await supabase.auth.signOut();
   }
 
-  return { user, session, loading, isAdmin, signIn, signUp, signOut };
+  return { user, session, loading, isAdmin, isCoach, signIn, signUp, signOut };
 }

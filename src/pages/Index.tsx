@@ -11,7 +11,7 @@ import { LogOut } from "lucide-react";
 import seikenLogo from "@/assets/seiken-logo.jpg";
 
 const Index = () => {
-  const { user, loading: authLoading, isAdmin, signOut } = useAuth();
+  const { user, loading: authLoading, isAdmin, isCoach, signOut } = useAuth();
   const { members, isLoading: membersLoading, addMember, updateMember, deleteMember } = useMembers();
   const { competitions, isLoading: compsLoading, addCompetition, deleteCompetition } = useCompetitions();
   const { isRegistered, toggleEntry } = useCompetitionEntries();
@@ -103,6 +103,7 @@ const Index = () => {
               isRegistered={isRegistered}
               onToggleEntry={isAdmin ? toggleEntry : () => {}}
               isAdmin={isAdmin}
+              isCoach={isCoach}
               currentUserId={user?.id ?? null}
             />
           </motion.div>

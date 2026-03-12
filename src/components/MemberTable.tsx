@@ -29,6 +29,7 @@ interface MemberTableProps {
   isRegistered: (memberId: string, competitionId: string) => boolean;
   onToggleEntry: (memberId: string, competitionId: string) => void;
   isAdmin?: boolean;
+  isCoach?: boolean;
   currentUserId?: string | null;
 }
 
@@ -41,6 +42,7 @@ export default function MemberTable({
   isRegistered,
   onToggleEntry,
   isAdmin = false,
+  isCoach = false,
   currentUserId,
 }: MemberTableProps) {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
@@ -89,6 +91,7 @@ export default function MemberTable({
             competition={selectedComp}
             members={members}
             isAdmin={isAdmin}
+            isCoach={isCoach}
             currentUserId={currentUserId ?? null}
             isRegistered={isRegistered}
             onToggleEntry={onToggleEntry}
@@ -137,7 +140,7 @@ export default function MemberTable({
                           <TableCell className="text-center text-sm font-bold">{medals.bronz || "—"}</TableCell>
                           <TableCell className="text-xs text-muted-foreground">
                             {(() => {
-                              const canManage = isAdmin || (currentUserId != null && member.userId === currentUserId);
+                              const canManage = isAdmin || isCoach || (currentUserId != null && member.userId === currentUserId);
                               return (
                                 <div className="flex items-center gap-1.5 flex-wrap">
                                   {medals.results.length > 0
@@ -199,7 +202,7 @@ export default function MemberTable({
                 </tfoot>
               )}
             </Table>
-            {isAdmin && (
+            {(isAdmin || isCoach) && (
               <div className="p-2 flex gap-2">
                 <ImportStartlistDialog
                   competitionId={selectedComp.id}
@@ -213,10 +216,12 @@ export default function MemberTable({
                   members={members}
                   onImported={invalidateResults}
                 />
-                <Button variant="ghost" size="sm" onClick={() => onDeleteCompetition(selectedComp.id)}
-                  className="text-xs text-muted-foreground hover:text-destructive">
-                  <Trash2 className="h-3 w-3 mr-1" /> Zmazať súťaž
-                </Button>
+                {isAdmin && (
+                  <Button variant="ghost" size="sm" onClick={() => onDeleteCompetition(selectedComp.id)}
+                    className="text-xs text-muted-foreground hover:text-destructive">
+                    <Trash2 className="h-3 w-3 mr-1" /> Zmazať súťaž
+                  </Button>
+                )}
               </div>
             )}
             {/* Team results */}
@@ -225,7 +230,7 @@ export default function MemberTable({
                 competitionId={selectedComp.id}
                 discipline="kata"
                 teamResults={teamResults}
-                isAdmin={isAdmin}
+                isAdmin={isAdmin || isCoach}
                 deleteTeamResult={deleteTeamResult}
                 addTeamResult={addTeamResult}
                 updateTeamResult={updateTeamResult}
@@ -235,7 +240,7 @@ export default function MemberTable({
                 competitionId={selectedComp.id}
                 discipline="kumite"
                 teamResults={teamResults}
-                isAdmin={isAdmin}
+                isAdmin={isAdmin || isCoach}
                 deleteTeamResult={deleteTeamResult}
                 addTeamResult={addTeamResult}
                 updateTeamResult={updateTeamResult}

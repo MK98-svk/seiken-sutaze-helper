@@ -14,6 +14,7 @@ interface MobileCompetitionViewProps {
   competition: Competition;
   members: Member[];
   isAdmin: boolean;
+  isCoach?: boolean;
   currentUserId: string | null;
   isRegistered: (memberId: string, competitionId: string) => boolean;
   onToggleEntry: (memberId: string, competitionId: string) => void;
@@ -25,11 +26,13 @@ export default function MobileCompetitionView({
   competition,
   members,
   isAdmin,
+  isCoach = false,
   currentUserId,
   isRegistered,
   onToggleEntry,
   onDeleteCompetition,
 }: MobileCompetitionViewProps) {
+  const canManageResults = isAdmin || isCoach;
   const { getMemberMedals, teamResults, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult, updateTeamResult } = useCompetitionResults(competition.id);
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
 
@@ -59,7 +62,7 @@ export default function MobileCompetitionView({
             </Button>
           )}
         </div>
-        {isAdmin && (
+        {canManageResults && (
           <div className="flex gap-2">
             <ImportStartlistDialog
               competitionId={competition.id}
@@ -110,7 +113,7 @@ export default function MobileCompetitionView({
                     </div>
                   )}
                 </div>
-                {(hasResults || isAdmin || (currentUserId && member.userId === currentUserId)) && (
+                {(hasResults || canManageResults || (currentUserId && member.userId === currentUserId)) && (
                   isExpanded
                     ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
                     : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -128,7 +131,7 @@ export default function MobileCompetitionView({
                   >
                     <div className="px-3 pb-3 pt-1 border-t border-border space-y-2">
                       {(() => {
-                        const canManage = isAdmin || (currentUserId != null && member.userId === currentUserId);
+                        const canManage = canManageResults || (currentUserId != null && member.userId === currentUserId);
                         return (
                           <>
                             {medals.results.length > 0 ? (
@@ -184,7 +187,7 @@ export default function MobileCompetitionView({
           competitionId={competition.id}
           discipline="kata"
           teamResults={teamResults}
-          isAdmin={isAdmin}
+          isAdmin={canManageResults}
           deleteTeamResult={deleteTeamResult}
           addTeamResult={addTeamResult}
           updateTeamResult={updateTeamResult}
@@ -194,7 +197,7 @@ export default function MobileCompetitionView({
           competitionId={competition.id}
           discipline="kumite"
           teamResults={teamResults}
-          isAdmin={isAdmin}
+          isAdmin={canManageResults}
           deleteTeamResult={deleteTeamResult}
           addTeamResult={addTeamResult}
           updateTeamResult={updateTeamResult}

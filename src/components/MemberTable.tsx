@@ -29,6 +29,7 @@ interface MemberTableProps {
   isRegistered: (memberId: string, competitionId: string) => boolean;
   onToggleEntry: (memberId: string, competitionId: string) => void;
   isAdmin?: boolean;
+  isCoach?: boolean;
   currentUserId?: string | null;
 }
 

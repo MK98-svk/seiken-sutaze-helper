@@ -2,10 +2,11 @@ import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Check, AlertTriangle, Loader2, Upload, ClipboardList, Users } from "lucide-react";
+import { Check, AlertTriangle, Loader2, Upload, ClipboardList, Users, UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Member } from "@/types/member";
@@ -27,6 +28,19 @@ interface TeamEntry {
   members?: string[];
 }
 
+interface NewMemberData {
+  meno: string;
+  priezvisko: string;
+  datumNarodenia: string;
+  stupen: string;
+}
+
+const KYU_OPTIONS = [
+  "10. kyu", "9. kyu", "8. kyu", "7. kyu", "6. kyu",
+  "5. kyu", "4. kyu", "3. kyu", "2. kyu", "1. kyu",
+  "1. dan", "2. dan", "3. dan", "4. dan", "5. dan",
+];
+
 interface ImportStartlistDialogProps {
   competitionId: string;
   competitionName: string;
@@ -42,9 +56,20 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
   const [unmatched, setUnmatched] = useState<UnmatchedEntry[]>([]);
   const [teams, setTeams] = useState<TeamEntry[]>([]);
   const [unmatchedAssignments, setUnmatchedAssignments] = useState<Record<number, string>>({});
+  // "create" mode: store new member data per unmatched index
+  const [unmatchedCreateMode, setUnmatchedCreateMode] = useState<Record<number, boolean>>({});
+  const [unmatchedNewData, setUnmatchedNewData] = useState<Record<number, NewMemberData>>({});
   const [step, setStep] = useState<"upload" | "review">("upload");
   const [fileName, setFileName] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const parseNameParts = (fullName: string): { meno: string; priezvisko: string } => {
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return { priezvisko: parts[0], meno: parts.slice(1).join(" ") };
+    }
+    return { meno: fullName.trim(), priezvisko: "" };
+  };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -70,9 +95,18 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
       if (!data.success) throw new Error(data.error);
 
       setMatched(data.matched || []);
-      setUnmatched(data.unmatched || []);
+      const unmatchedList: UnmatchedEntry[] = data.unmatched || [];
+      setUnmatched(unmatchedList);
       setTeams(data.teams || []);
       setUnmatchedAssignments({});
+      setUnmatchedCreateMode({});
+      // Pre-fill new member data from parsed names
+      const newDataInit: Record<number, NewMemberData> = {};
+      unmatchedList.forEach((u, i) => {
+        const { meno, priezvisko } = parseNameParts(u.name);
+        newDataInit[i] = { meno, priezvisko, datumNarodenia: "", stupen: "" };
+      });
+      setUnmatchedNewData(newDataInit);
       setStep("review");
 
       if (data.totalFound === 0 && (data.totalTeams || 0) === 0) {
@@ -88,12 +122,44 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
   const handleSave = async () => {
     setSaving(true);
     try {
-      // 1. Register individual members
       const memberIds: string[] = [];
       for (const m of matched) memberIds.push(m.memberId);
-      for (const [, memberId] of Object.entries(unmatchedAssignments)) {
-        if (memberId) memberIds.push(memberId);
+
+      // Process unmatched: either assigned to existing or creating new
+      const newMembersToCreate: { index: number; data: NewMemberData }[] = [];
+      for (const [idxStr, isCreate] of Object.entries(unmatchedCreateMode)) {
+        const idx = Number(idxStr);
+        if (isCreate) {
+          const nd = unmatchedNewData[idx];
+          if (nd && nd.meno && nd.priezvisko) {
+            newMembersToCreate.push({ index: idx, data: nd });
+          }
+        }
       }
+      for (const [idxStr, memberId] of Object.entries(unmatchedAssignments)) {
+        const idx = Number(idxStr);
+        if (memberId && !unmatchedCreateMode[idx]) {
+          memberIds.push(memberId);
+        }
+      }
+
+      // Create new members first
+      for (const { data } of newMembersToCreate) {
+        const { data: inserted, error } = await (supabase as any)
+          .from("members")
+          .insert({
+            meno: data.meno,
+            priezvisko: data.priezvisko,
+            datum_narodenia: data.datumNarodenia || null,
+            stupen: data.stupen || "",
+            user_id: null,
+          })
+          .select("id")
+          .single();
+        if (error) throw error;
+        memberIds.push(inserted.id);
+      }
+
       const uniqueIds = [...new Set(memberIds)];
 
       if (uniqueIds.length > 0) {
@@ -108,7 +174,7 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
         if (error) throw error;
       }
 
-      // 2. Insert team entries into team_competition_results
+      // Insert team entries
       if (teams.length > 0) {
         const teamRows = teams.map((t) => ({
           competition_id: competitionId,
@@ -122,10 +188,12 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
         if (teamError) throw teamError;
       }
 
+      const createdCount = newMembersToCreate.length;
       const parts: string[] = [];
       if (uniqueIds.length > 0) parts.push(`${uniqueIds.length} pretekárov`);
       if (teams.length > 0) parts.push(`${teams.length} družstiev`);
-      toast.success(`Zaregistrovaných ${parts.join(" a ")}!`);
+      if (createdCount > 0) parts.push(`${createdCount} nových členov vytvorených`);
+      toast.success(`Zaregistrovaných ${parts.join(", ")}!`);
 
       onImported();
       setOpen(false);
@@ -144,10 +212,25 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
     setUnmatched([]);
     setTeams([]);
     setUnmatchedAssignments({});
+    setUnmatchedCreateMode({});
+    setUnmatchedNewData({});
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const totalIndividuals = matched.length + Object.values(unmatchedAssignments).filter(Boolean).length;
+  const getUnmatchedResolvedCount = () => {
+    let count = 0;
+    for (let i = 0; i < unmatched.length; i++) {
+      if (unmatchedCreateMode[i]) {
+        const nd = unmatchedNewData[i];
+        if (nd?.meno && nd?.priezvisko) count++;
+      } else if (unmatchedAssignments[i]) {
+        count++;
+      }
+    }
+    return count;
+  };
+
+  const totalIndividuals = matched.length + getUnmatchedResolvedCount();
   const hasAnything = totalIndividuals > 0 || teams.length > 0;
 
   return (
@@ -272,40 +355,125 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
                   <AlertTriangle className="h-4 w-4 text-yellow-500" />
                   Nepriradení ({unmatched.length})
                 </h3>
-                <div className="rounded-md border border-border overflow-hidden">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-secondary/50">
-                        <TableHead className="text-xs">Meno z listiny</TableHead>
-                        <TableHead className="text-xs">Priradiť k členovi</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {unmatched.map((r, i) => (
-                        <TableRow key={i}>
-                          <TableCell className="text-sm">{r.name}</TableCell>
-                          <TableCell>
-                            <Select
-                              value={unmatchedAssignments[i] || ""}
-                              onValueChange={(v) => setUnmatchedAssignments((prev) => ({ ...prev, [i]: v }))}
+                <div className="space-y-3">
+                  {unmatched.map((r, i) => {
+                    const isCreateMode = unmatchedCreateMode[i] || false;
+                    const newData = unmatchedNewData[i];
+                    return (
+                      <div key={i} className="rounded-md border border-border p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">{r.name}</span>
+                          <div className="flex gap-1">
+                            <Button
+                              type="button"
+                              variant={!isCreateMode ? "default" : "outline"}
+                              size="sm"
+                              className="text-xs h-7 px-2"
+                              onClick={() => setUnmatchedCreateMode((prev) => ({ ...prev, [i]: false }))}
                             >
-                              <SelectTrigger className="h-8 text-xs w-[200px]">
-                                <SelectValue placeholder="Vybrať člena…" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {members.map((m) => (
-                                  <SelectItem key={m.id} value={m.id}>
-                                    {m.meno} {m.priezvisko}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                              Priradiť
+                            </Button>
+                            <Button
+                              type="button"
+                              variant={isCreateMode ? "default" : "outline"}
+                              size="sm"
+                              className="text-xs h-7 px-2 gap-1"
+                              onClick={() => setUnmatchedCreateMode((prev) => ({ ...prev, [i]: true }))}
+                            >
+                              <UserPlus className="h-3 w-3" />
+                              Vytvoriť
+                            </Button>
+                          </div>
+                        </div>
+
+                        {!isCreateMode ? (
+                          <Select
+                            value={unmatchedAssignments[i] || ""}
+                            onValueChange={(v) => setUnmatchedAssignments((prev) => ({ ...prev, [i]: v }))}
+                          >
+                            <SelectTrigger className="h-8 text-xs">
+                              <SelectValue placeholder="Vybrať existujúceho člena…" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {members.map((m) => (
+                                <SelectItem key={m.id} value={m.id}>
+                                  {m.meno} {m.priezvisko}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <Label className="text-xs text-muted-foreground">Meno</Label>
+                              <Input
+                                className="h-8 text-xs"
+                                value={newData?.meno || ""}
+                                onChange={(e) =>
+                                  setUnmatchedNewData((prev) => ({
+                                    ...prev,
+                                    [i]: { ...prev[i], meno: e.target.value },
+                                  }))
+                                }
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs text-muted-foreground">Priezvisko</Label>
+                              <Input
+                                className="h-8 text-xs"
+                                value={newData?.priezvisko || ""}
+                                onChange={(e) =>
+                                  setUnmatchedNewData((prev) => ({
+                                    ...prev,
+                                    [i]: { ...prev[i], priezvisko: e.target.value },
+                                  }))
+                                }
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs text-muted-foreground">Dátum narodenia</Label>
+                              <Input
+                                type="date"
+                                className="h-8 text-xs"
+                                value={newData?.datumNarodenia || ""}
+                                onChange={(e) =>
+                                  setUnmatchedNewData((prev) => ({
+                                    ...prev,
+                                    [i]: { ...prev[i], datumNarodenia: e.target.value },
+                                  }))
+                                }
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs text-muted-foreground">Stupeň (kyu/dan)</Label>
+                              <Select
+                                value={newData?.stupen || ""}
+                                onValueChange={(v) =>
+                                  setUnmatchedNewData((prev) => ({
+                                    ...prev,
+                                    [i]: { ...prev[i], stupen: v },
+                                  }))
+                                }
+                              >
+                                <SelectTrigger className="h-8 text-xs">
+                                  <SelectValue placeholder="Vybrať…" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {KYU_OPTIONS.map((k) => (
+                                    <SelectItem key={k} value={k}>{k}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Vytvorení členovia budú bez účtu — po prihlásení sa na platformu ich budete môcť prepojiť.
+                </p>
               </div>
             )}
 

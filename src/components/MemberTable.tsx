@@ -254,15 +254,17 @@ export default function MemberTable({
                       discipline="kumite"
                       teamResults={teamResults}
                       isAdmin={canManageTeam}
-                deleteTeamResult={deleteTeamResult}
-                addTeamResult={addTeamResult}
-                updateTeamResult={updateTeamResult}
-                invalidate={invalidateResults}
-              />
+                      deleteTeamResult={deleteTeamResult}
+                      addTeamResult={addTeamResult}
+                      updateTeamResult={updateTeamResult}
+                      invalidate={invalidateResults}
+                    />
+                  </>
+                );
+              })()}
             </div>
           </div>
         );
-        })()}
       </div>
     );
   }

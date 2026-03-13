@@ -1,11 +1,9 @@
+import { useEffect } from "react";
 import { Member, Competition, CompetitionEntry } from "@/types/member";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { toast } from "sonner";
-
-// The "members" and "member_competition_entries" tables are new and may not be
-// in the auto-generated types yet, so we cast through `any` where needed.
 
 // ─── Members ───────────────────────────────────────────
 
@@ -39,6 +37,17 @@ export function useMembers() {
       }));
     },
   });
+
+  // Realtime: auto-refresh members when any user changes them
+  useEffect(() => {
+    const channel = supabase
+      .channel('members-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'members' }, () => {
+        qc.invalidateQueries({ queryKey: ["members"] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [qc]);
 
   const addMutation = useMutation({
     mutationFn: async (member: Omit<Member, "id">) => {
@@ -171,6 +180,17 @@ export function useCompetitionEntries() {
       }));
     },
   });
+
+  // Realtime: auto-refresh entries when any user changes them
+  useEffect(() => {
+    const channel = supabase
+      .channel('entries-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'member_competition_entries' }, () => {
+        qc.invalidateQueries({ queryKey: ["member_competition_entries"] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [qc]);
 
   const toggleMutation = useMutation({
     mutationFn: async ({ memberId, competitionId }: { memberId: string; competitionId: string }) => {

@@ -46,8 +46,15 @@ export default function MemberTable({
   currentUserId,
 }: MemberTableProps) {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
-  const [selectedCompId, setSelectedCompId] = useState<string>("all");
+  const [selectedCompId, setSelectedCompId] = useState<string>(() => {
+    return localStorage.getItem("seiken_selectedCompId") || "all";
+  });
   const isMobile = useIsMobile();
+
+  const handleSelectComp = (value: string) => {
+    setSelectedCompId(value);
+    localStorage.setItem("seiken_selectedCompId", value);
+  };
 
   const formatDate = (d: string) => {
     if (!d) return "—";
@@ -70,7 +77,7 @@ export default function MemberTable({
       <div className="space-y-4">
         <div className="flex items-center gap-3 flex-wrap">
           <span className="text-sm text-muted-foreground font-medium">Súťaž:</span>
-          <Select value={selectedCompId} onValueChange={setSelectedCompId}>
+          <Select value={selectedCompId} onValueChange={handleSelectComp}>
             <SelectTrigger className="w-full sm:w-[320px]">
               <SelectValue placeholder="Vybrať súťaž" />
             </SelectTrigger>
@@ -260,7 +267,7 @@ export default function MemberTable({
     <div className="space-y-4">
       <div className="flex items-center gap-3 flex-wrap">
         <span className="text-sm text-muted-foreground font-medium">Súťaž:</span>
-        <Select value={selectedCompId} onValueChange={setSelectedCompId}>
+        <Select value={selectedCompId} onValueChange={handleSelectComp}>
           <SelectTrigger className="w-full sm:w-[320px]">
             <SelectValue placeholder="Vybrať súťaž" />
           </SelectTrigger>

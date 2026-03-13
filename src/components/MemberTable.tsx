@@ -77,7 +77,7 @@ export default function MemberTable({
       <div className="space-y-4">
         <div className="flex items-center gap-3 flex-wrap">
           <span className="text-sm text-muted-foreground font-medium">Súťaž:</span>
-          <Select value={selectedCompId} onValueChange={setSelectedCompId}>
+          <Select value={selectedCompId} onValueChange={handleSelectComp}>
             <SelectTrigger className="w-full sm:w-[320px]">
               <SelectValue placeholder="Vybrať súťaž" />
             </SelectTrigger>

@@ -234,21 +234,26 @@ export default function MemberTable({
             )}
             {/* Team results */}
             <div className="p-3 grid gap-3 sm:grid-cols-2">
-              <TeamResultsSection
-                competitionId={selectedComp.id}
-                discipline="kata"
-                teamResults={teamResults}
-                isAdmin={isAdmin || isCoach}
-                deleteTeamResult={deleteTeamResult}
-                addTeamResult={addTeamResult}
-                updateTeamResult={updateTeamResult}
-                invalidate={invalidateResults}
-              />
-              <TeamResultsSection
-                competitionId={selectedComp.id}
-                discipline="kumite"
-                teamResults={teamResults}
-                isAdmin={isAdmin || isCoach}
+              {(() => {
+                const isRegisteredMember = currentUserId ? registeredMembers.some(m => m.userId === currentUserId) : false;
+                const canManageTeam = isAdmin || isCoach || isRegisteredMember;
+                return (
+                  <>
+                    <TeamResultsSection
+                      competitionId={selectedComp.id}
+                      discipline="kata"
+                      teamResults={teamResults}
+                      isAdmin={canManageTeam}
+                      deleteTeamResult={deleteTeamResult}
+                      addTeamResult={addTeamResult}
+                      updateTeamResult={updateTeamResult}
+                      invalidate={invalidateResults}
+                    />
+                    <TeamResultsSection
+                      competitionId={selectedComp.id}
+                      discipline="kumite"
+                      teamResults={teamResults}
+                      isAdmin={canManageTeam}
                 deleteTeamResult={deleteTeamResult}
                 addTeamResult={addTeamResult}
                 updateTeamResult={updateTeamResult}

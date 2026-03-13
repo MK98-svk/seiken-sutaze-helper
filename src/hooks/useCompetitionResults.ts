@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -65,6 +66,25 @@ export function useCompetitionResults(competitionId?: string) {
       }));
     },
   });
+
+  // Realtime subscriptions for live sync across users
+  useEffect(() => {
+    if (!competitionId) return;
+
+    const channel = supabase
+      .channel(`comp-results-${competitionId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'competition_results', filter: `competition_id=eq.${competitionId}` }, () => {
+        qc.invalidateQueries({ queryKey: ["competition_results", competitionId] });
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'team_competition_results', filter: `competition_id=eq.${competitionId}` }, () => {
+        qc.invalidateQueries({ queryKey: ["team_competition_results", competitionId] });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [competitionId, qc]);
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["competition_results", competitionId] });

@@ -46,8 +46,15 @@ export default function MemberTable({
   currentUserId,
 }: MemberTableProps) {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
-  const [selectedCompId, setSelectedCompId] = useState<string>("all");
+  const [selectedCompId, setSelectedCompId] = useState<string>(() => {
+    return localStorage.getItem("seiken_selectedCompId") || "all";
+  });
   const isMobile = useIsMobile();
+
+  const handleSelectComp = (value: string) => {
+    setSelectedCompId(value);
+    localStorage.setItem("seiken_selectedCompId", value);
+  };
 
   const formatDate = (d: string) => {
     if (!d) return "—";

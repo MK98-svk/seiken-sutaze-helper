@@ -86,10 +86,12 @@ export default function MemberTable({
           </Select>
         </div>
 
-        {isMobile ? (
+        {(() => {
+          const registeredMembers = members.filter(m => isRegistered(m.id, selectedComp.id));
+          return isMobile ? (
           <MobileCompetitionView
             competition={selectedComp}
-            members={members}
+            members={registeredMembers}
             isAdmin={isAdmin}
             isCoach={isCoach}
             currentUserId={currentUserId ?? null}

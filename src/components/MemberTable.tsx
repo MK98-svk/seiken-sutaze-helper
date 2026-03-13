@@ -265,6 +265,7 @@ export default function MemberTable({
             </div>
           </div>
         );
+        })()}
       </div>
     );
   }

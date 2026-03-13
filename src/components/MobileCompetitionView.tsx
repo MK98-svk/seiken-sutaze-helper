@@ -32,7 +32,9 @@ export default function MobileCompetitionView({
   onToggleEntry,
   onDeleteCompetition,
 }: MobileCompetitionViewProps) {
+  const isRegisteredMember = currentUserId ? members.some(m => m.userId === currentUserId) : false;
   const canManageResults = isAdmin || isCoach;
+  const canManageTeamResults = canManageResults || isRegisteredMember;
   const { getMemberMedals, teamResults, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult, updateTeamResult } = useCompetitionResults(competition.id);
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
 
@@ -187,7 +189,7 @@ export default function MobileCompetitionView({
           competitionId={competition.id}
           discipline="kata"
           teamResults={teamResults}
-          isAdmin={canManageResults}
+          isAdmin={canManageTeamResults}
           deleteTeamResult={deleteTeamResult}
           addTeamResult={addTeamResult}
           updateTeamResult={updateTeamResult}
@@ -197,7 +199,7 @@ export default function MobileCompetitionView({
           competitionId={competition.id}
           discipline="kumite"
           teamResults={teamResults}
-          isAdmin={canManageResults}
+          isAdmin={canManageTeamResults}
           deleteTeamResult={deleteTeamResult}
           addTeamResult={addTeamResult}
           updateTeamResult={updateTeamResult}

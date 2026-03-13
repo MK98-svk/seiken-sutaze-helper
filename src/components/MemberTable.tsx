@@ -117,16 +117,15 @@ export default function MemberTable({
               </TableHeader>
               <TableBody>
                 <AnimatePresence>
-                  {members.length === 0 ? (
+                  {registeredMembers.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
-                        Zatiaľ žiadni členovia.
+                        Žiadni registrovaní členovia na túto súťaž.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    members.map((member) => {
+                    registeredMembers.map((member) => {
                       const medals = getMemberMedals(member.id);
-                      const registered = isRegistered(member.id, selectedComp.id);
                       return (
                         <motion.tr
                           key={member.id}
@@ -184,20 +183,20 @@ export default function MemberTable({
                   )}
                 </AnimatePresence>
               </TableBody>
-              {members.length > 0 && (
+              {registeredMembers.length > 0 && (
                 <tfoot>
                   <tr className="border-t-2 border-border bg-secondary/60 font-semibold">
                     <TableCell colSpan={2} className="text-right text-xs uppercase tracking-wider text-muted-foreground">
                       Súčet
                     </TableCell>
                     <TableCell className="text-center text-sm font-bold">
-                      {members.reduce((s, m) => s + getMemberMedals(m.id).zlato, 0)}
+                      {registeredMembers.reduce((s, m) => s + getMemberMedals(m.id).zlato, 0)}
                     </TableCell>
                     <TableCell className="text-center text-sm font-bold">
-                      {members.reduce((s, m) => s + getMemberMedals(m.id).striebro, 0)}
+                      {registeredMembers.reduce((s, m) => s + getMemberMedals(m.id).striebro, 0)}
                     </TableCell>
                     <TableCell className="text-center text-sm font-bold">
-                      {members.reduce((s, m) => s + getMemberMedals(m.id).bronz, 0)}
+                      {registeredMembers.reduce((s, m) => s + getMemberMedals(m.id).bronz, 0)}
                     </TableCell>
                     <TableCell />
                   </tr>
@@ -250,7 +249,8 @@ export default function MemberTable({
               />
             </div>
           </div>
-        )}
+        );
+        })()}
       </div>
     );
   }

@@ -73,7 +73,7 @@ function getTop3(members: Member[]): Member[] {
     .slice(0, 3);
 }
 
-const PODIUM_COLORS = ["text-yellow-500", "text-muted-foreground", "text-orange-600"];
+
 const PODIUM_ICONS = ["🥇", "🥈", "🥉"];
 
 function Top3List({ members, title }: { members: Member[]; title: string }) {

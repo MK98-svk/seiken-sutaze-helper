@@ -52,8 +52,8 @@ function EditTeamResultDialog({
       });
       toast.success("Výsledok uložený");
       setOpen(false);
-    } catch {
-      toast.error("Chyba pri ukladaní");
+    } catch (e: any) {
+      toast.error(e?.message ? `Chyba pri ukladaní: ${e.message}` : "Chyba pri ukladaní");
     } finally {
       setSaving(false);
     }

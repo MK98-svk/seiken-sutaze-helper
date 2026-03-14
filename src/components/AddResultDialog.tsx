@@ -62,8 +62,8 @@ export default function AddResultDialog({ competitionId, competitionDate, member
   const selectedCategory = ALL_INDIVIDUAL_CATEGORIES.find((c) => c.code === categoryCode);
 
   const handleSave = async () => {
-    if (!discipline || !placement) {
-      toast.error("Vyplňte disciplínu a umiestnenie.");
+    if (!discipline || !categoryCode || !placement) {
+      toast.error("Vyplňte disciplínu, kategóriu a umiestnenie.");
       return;
     }
     setSaving(true);

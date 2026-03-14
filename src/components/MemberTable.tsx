@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileCompetitionView from "./MobileCompetitionView";
 import MobileMemberList from "./MobileMemberList";
+import CompetitorAnalytics from "./CompetitorAnalytics";
 
 interface MemberTableProps {
   members: Member[];

@@ -1,0 +1,1 @@
+UPDATE public.team_competition_results SET members_text = 'Horňák, Artnerová, Maxim' WHERE id = '1de309bd-203a-440f-8efb-828208ea3a74';

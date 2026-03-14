@@ -76,8 +76,8 @@ export default function MemberTable({
     }
   };
 
-  const showAllComps = selectedCompId === "show-all";
-  const selectedComp = !showAllComps ? competitions.find((c) => c.id === selectedCompId) : undefined;
+  const showStats = selectedCompId === "stats";
+  const selectedComp = !showStats && selectedCompId !== "all" ? competitions.find((c) => c.id === selectedCompId) : undefined;
 
   // Fetch competition results when a specific competition is selected
   const { getMemberMedals, teamResults, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult, updateTeamResult } = useCompetitionResults(selectedComp?.id);

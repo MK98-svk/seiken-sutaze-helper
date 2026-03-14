@@ -66,6 +66,48 @@ function aggregateStats(members: Member[]): MedalStats {
   );
 }
 
+function getTop3(members: Member[]): Member[] {
+  return [...members]
+    .sort((a, b) => {
+      const totalA = a.zlato * 3 + a.striebro * 2 + a.bronz;
+      const totalB = b.zlato * 3 + b.striebro * 2 + b.bronz;
+      if (totalB !== totalA) return totalB - totalA;
+      if (b.zlato !== a.zlato) return b.zlato - a.zlato;
+      if (b.striebro !== a.striebro) return b.striebro - a.striebro;
+      return b.bronz - a.bronz;
+    })
+    .filter(m => m.zlato + m.striebro + m.bronz > 0)
+    .slice(0, 3);
+}
+
+const PODIUM_COLORS = ["text-yellow-500", "text-muted-foreground", "text-orange-600"];
+const PODIUM_ICONS = ["🥇", "🥈", "🥉"];
+
+function Top3List({ members, title }: { members: Member[]; title: string }) {
+  const top = getTop3(members);
+  if (top.length === 0) return null;
+  return (
+    <div className="space-y-2">
+      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{title}</h4>
+      {top.map((m, i) => (
+        <div key={m.id} className="flex items-center gap-2 bg-secondary/30 rounded-md px-3 py-2">
+          <span className="text-lg">{PODIUM_ICONS[i]}</span>
+          <div className="flex-1 min-w-0">
+            <span className="text-sm font-medium text-foreground truncate block">
+              {m.meno} {m.priezvisko}
+            </span>
+          </div>
+          <div className="flex gap-2 text-xs font-bold shrink-0">
+            <span style={{ color: MEDAL_COLORS.zlato }}>{m.zlato}</span>
+            <span style={{ color: MEDAL_COLORS.striebro }}>{m.striebro}</span>
+            <span style={{ color: MEDAL_COLORS.bronz }}>{m.bronz}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function MedalBar({ stats, label }: { stats: MedalStats; label: string }) {
   const max = Math.max(stats.total, 1);
   return (

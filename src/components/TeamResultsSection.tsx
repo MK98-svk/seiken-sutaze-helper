@@ -12,7 +12,8 @@ interface TeamResultsSectionProps {
   competitionId: string;
   discipline: "kata" | "kumite";
   teamResults: TeamResult[];
-  isAdmin: boolean;
+  canManage: boolean;
+  canDelete: boolean;
   deleteTeamResult: (id: string) => Promise<void>;
   addTeamResult: (result: { competitionId: string; discipline: string; category?: string; placement?: number; numCompetitors?: number }) => Promise<void>;
   updateTeamResult: (id: string, updates: { placement?: number | null; numCompetitors?: number | null }) => Promise<void>;
@@ -51,8 +52,8 @@ function EditTeamResultDialog({
       });
       toast.success("Výsledok uložený");
       setOpen(false);
-    } catch {
-      toast.error("Chyba pri ukladaní");
+    } catch (e: any) {
+      toast.error(e?.message ? `Chyba pri ukladaní: ${e.message}` : "Chyba pri ukladaní");
     } finally {
       setSaving(false);
     }
@@ -117,7 +118,8 @@ export default function TeamResultsSection({
   competitionId,
   discipline,
   teamResults,
-  isAdmin,
+  canManage,
+  canDelete,
   deleteTeamResult,
   addTeamResult,
   updateTeamResult,
@@ -130,7 +132,7 @@ export default function TeamResultsSection({
     <div className="rounded-lg border border-border bg-card p-3 space-y-2">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">{title}</h3>
-        {isAdmin && (
+        {canManage && (
           <AddTeamResultDialog
             competitionId={competitionId}
             discipline={discipline}
@@ -159,21 +161,25 @@ export default function TeamResultsSection({
                     <div className="text-muted-foreground text-xs truncate mt-0.5">{r.membersText}</div>
                   )}
                 </div>
-                {isAdmin && (
+                {(canManage || canDelete) && (
                   <div className="flex items-center shrink-0">
-                    <EditTeamResultDialog
-                      result={r}
-                      onSave={(updates) => updateTeamResult(r.id, updates)}
-                    />
-                    <button
-                      onClick={async () => {
-                        try { await deleteTeamResult(r.id); toast.success("Tímový výsledok zmazaný"); }
-                        catch { toast.error("Chyba pri mazaní"); }
-                      }}
-                      className="text-muted-foreground hover:text-destructive p-1"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
+                    {canManage && (
+                      <EditTeamResultDialog
+                        result={r}
+                        onSave={(updates) => updateTeamResult(r.id, updates)}
+                      />
+                    )}
+                    {canDelete && (
+                      <button
+                        onClick={async () => {
+                          try { await deleteTeamResult(r.id); toast.success("Tímový výsledok zmazaný"); }
+                          catch { toast.error("Chyba pri mazaní"); }
+                        }}
+                        className="text-muted-foreground hover:text-destructive p-1"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                   </div>
                 )}
               </div>

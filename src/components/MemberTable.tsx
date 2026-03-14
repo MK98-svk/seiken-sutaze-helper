@@ -243,7 +243,8 @@ export default function MemberTable({
                       competitionId={selectedComp.id}
                       discipline="kata"
                       teamResults={teamResults}
-                      isAdmin={canManageTeam}
+                      canManage={canManageTeam}
+                      canDelete={isAdmin}
                       deleteTeamResult={deleteTeamResult}
                       addTeamResult={addTeamResult}
                       updateTeamResult={updateTeamResult}
@@ -253,7 +254,8 @@ export default function MemberTable({
                       competitionId={selectedComp.id}
                       discipline="kumite"
                       teamResults={teamResults}
-                      isAdmin={canManageTeam}
+                      canManage={canManageTeam}
+                      canDelete={isAdmin}
                       deleteTeamResult={deleteTeamResult}
                       addTeamResult={addTeamResult}
                       updateTeamResult={updateTeamResult}

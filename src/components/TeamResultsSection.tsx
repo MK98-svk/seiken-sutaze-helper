@@ -132,7 +132,7 @@ export default function TeamResultsSection({
     <div className="rounded-lg border border-border bg-card p-3 space-y-2">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">{title}</h3>
-        {isAdmin && (
+        {canManage && (
           <AddTeamResultDialog
             competitionId={competitionId}
             discipline={discipline}

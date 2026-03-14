@@ -1,6 +1,6 @@
 import { Member, Competition } from "@/types/member";
 import { Button } from "@/components/ui/button";
-import { Trash2, X, ChevronDown, ChevronUp, ClipboardList, Download } from "lucide-react";
+import { Trash2, X, ChevronDown, ChevronUp, UserMinus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ImportResultsDialog from "./ImportResultsDialog";
 import ImportStartlistDialog from "./ImportStartlistDialog";

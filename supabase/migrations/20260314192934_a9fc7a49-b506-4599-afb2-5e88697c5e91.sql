@@ -1,0 +1,1 @@
+UPDATE members SET zlato = 0, striebro = 3 WHERE id = '5564b0fc-105e-48e4-9460-a423ab546a64';

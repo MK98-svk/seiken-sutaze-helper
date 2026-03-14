@@ -161,21 +161,25 @@ export default function TeamResultsSection({
                     <div className="text-muted-foreground text-xs truncate mt-0.5">{r.membersText}</div>
                   )}
                 </div>
-                {isAdmin && (
+                {(canManage || canDelete) && (
                   <div className="flex items-center shrink-0">
-                    <EditTeamResultDialog
-                      result={r}
-                      onSave={(updates) => updateTeamResult(r.id, updates)}
-                    />
-                    <button
-                      onClick={async () => {
-                        try { await deleteTeamResult(r.id); toast.success("Tímový výsledok zmazaný"); }
-                        catch { toast.error("Chyba pri mazaní"); }
-                      }}
-                      className="text-muted-foreground hover:text-destructive p-1"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
+                    {canManage && (
+                      <EditTeamResultDialog
+                        result={r}
+                        onSave={(updates) => updateTeamResult(r.id, updates)}
+                      />
+                    )}
+                    {canDelete && (
+                      <button
+                        onClick={async () => {
+                          try { await deleteTeamResult(r.id); toast.success("Tímový výsledok zmazaný"); }
+                          catch { toast.error("Chyba pri mazaní"); }
+                        }}
+                        className="text-muted-foreground hover:text-destructive p-1"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                   </div>
                 )}
               </div>

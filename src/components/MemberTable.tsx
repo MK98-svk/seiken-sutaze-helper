@@ -231,7 +231,7 @@ export default function MemberTable({
                       {registeredMembers.reduce((s, m) => s + getMemberMedals(m.id).bronz, 0)}
                     </TableCell>
                     <TableCell />
-                    {isAdmin && <TableCell />}
+                    {(isAdmin || isCoach) && <TableCell />}
                   </tr>
                 </tfoot>
               )}

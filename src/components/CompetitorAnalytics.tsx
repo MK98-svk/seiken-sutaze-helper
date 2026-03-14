@@ -37,13 +37,6 @@ function getMemberAge(m: Member): number | null {
   return age >= 0 ? age : null;
 }
 
-function getAgeGroup(age: number | null): string {
-  if (age === null) return "Neznámy";
-  for (const g of AGE_GROUPS) {
-    if (age >= g.min && age <= g.max) return g.label;
-  }
-  return "Neznámy";
-}
 
 interface MedalStats {
   zlato: number;
@@ -63,6 +56,48 @@ function aggregateStats(members: Member[]): MedalStats {
       count: acc.count + 1,
     }),
     { zlato: 0, striebro: 0, bronz: 0, total: 0, count: 0 }
+  );
+}
+
+function getTop3(members: Member[]): Member[] {
+  return [...members]
+    .sort((a, b) => {
+      const totalA = a.zlato * 3 + a.striebro * 2 + a.bronz;
+      const totalB = b.zlato * 3 + b.striebro * 2 + b.bronz;
+      if (totalB !== totalA) return totalB - totalA;
+      if (b.zlato !== a.zlato) return b.zlato - a.zlato;
+      if (b.striebro !== a.striebro) return b.striebro - a.striebro;
+      return b.bronz - a.bronz;
+    })
+    .filter(m => m.zlato + m.striebro + m.bronz > 0)
+    .slice(0, 3);
+}
+
+
+const PODIUM_ICONS = ["🥇", "🥈", "🥉"];
+
+function Top3List({ members, title }: { members: Member[]; title: string }) {
+  const top = getTop3(members);
+  if (top.length === 0) return null;
+  return (
+    <div className="space-y-2">
+      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{title}</h4>
+      {top.map((m, i) => (
+        <div key={m.id} className="flex items-center gap-2 bg-secondary/30 rounded-md px-3 py-2">
+          <span className="text-lg">{PODIUM_ICONS[i]}</span>
+          <div className="flex-1 min-w-0">
+            <span className="text-sm font-medium text-foreground truncate block">
+              {m.meno} {m.priezvisko}
+            </span>
+          </div>
+          <div className="flex gap-2 text-xs font-bold shrink-0">
+            <span style={{ color: MEDAL_COLORS.zlato }}>{m.zlato}</span>
+            <span style={{ color: MEDAL_COLORS.striebro }}>{m.striebro}</span>
+            <span style={{ color: MEDAL_COLORS.bronz }}>{m.bronz}</span>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -246,6 +281,20 @@ export default function CompetitorAnalytics({ members }: CompetitorAnalyticsProp
         </div>
       </motion.div>
 
+      {/* Top 3 by gender */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="bg-card rounded-lg border border-border p-4"
+      >
+        <h3 className="text-sm font-display font-bold text-foreground mb-3">🏆 Top 3 podľa pohlavia</h3>
+        <div className="space-y-4">
+          <Top3List members={members.filter(m => m.pohlavie === "CH")} title="Chlapci / Muži" />
+          <Top3List members={members.filter(m => m.pohlavie === "D")} title="Dievčatá / Ženy" />
+        </div>
+      </motion.div>
+
       {/* By age group */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -257,6 +306,28 @@ export default function CompetitorAnalytics({ members }: CompetitorAnalyticsProp
         <div className="space-y-3">
           {ageGroupStats.map(g => (
             <MedalBar key={g.label} label={g.label} stats={g.stats} />
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Top 3 by age group */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25 }}
+        className="bg-card rounded-lg border border-border p-4"
+      >
+        <h3 className="text-sm font-display font-bold text-foreground mb-3">🏆 Top 3 podľa vekovej kategórie</h3>
+        <div className="space-y-4">
+          {AGE_GROUPS.map(g => (
+            <Top3List
+              key={g.label}
+              members={members.filter(m => {
+                const age = getMemberAge(m);
+                return age !== null && age >= g.min && age <= g.max;
+              })}
+              title={`${g.label} rokov`}
+            />
           ))}
         </div>
       </motion.div>

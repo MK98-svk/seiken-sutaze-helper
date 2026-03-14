@@ -138,7 +138,7 @@ export default function MemberTable({
                 <AnimatePresence>
                   {registeredMembers.length === 0 ? (
                    <TableRow>
-                       <TableCell colSpan={isAdmin ? 8 : 7} className="text-center text-muted-foreground py-12">
+                       <TableCell colSpan={(isAdmin || isCoach) ? 8 : 7} className="text-center text-muted-foreground py-12">
                          Žiadni registrovaní členovia na túto súťaž.
                        </TableCell>
                     </TableRow>

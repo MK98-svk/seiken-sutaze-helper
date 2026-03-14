@@ -37,13 +37,6 @@ function getMemberAge(m: Member): number | null {
   return age >= 0 ? age : null;
 }
 
-function getAgeGroup(age: number | null): string {
-  if (age === null) return "Neznámy";
-  for (const g of AGE_GROUPS) {
-    if (age >= g.min && age <= g.max) return g.label;
-  }
-  return "Neznámy";
-}
 
 interface MedalStats {
   zlato: number;

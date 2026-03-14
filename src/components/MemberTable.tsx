@@ -483,11 +483,6 @@ export default function MemberTable({
                 <TableCell className="text-center text-sm font-bold text-foreground">
                   {members.reduce((s, m) => s + (m.bronz ?? 0), 0)}
                 </TableCell>
-                {showAllComps && competitions.map((comp) => (
-                  <TableCell key={comp.id} className="text-center text-sm font-bold text-primary">
-                    {members.filter((m) => isRegistered(m.id, comp.id)).length}
-                  </TableCell>
-                ))}
                 {(isAdmin || currentUserId) && <TableCell />}
               </tr>
             </tfoot>

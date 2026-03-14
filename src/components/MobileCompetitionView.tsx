@@ -190,7 +190,8 @@ export default function MobileCompetitionView({
           competitionId={competition.id}
           discipline="kata"
           teamResults={teamResults}
-          isAdmin={canManageTeamResults}
+          canManage={canManageTeamResults}
+          canDelete={canDeleteTeamResults}
           deleteTeamResult={deleteTeamResult}
           addTeamResult={addTeamResult}
           updateTeamResult={updateTeamResult}
@@ -200,7 +201,8 @@ export default function MobileCompetitionView({
           competitionId={competition.id}
           discipline="kumite"
           teamResults={teamResults}
-          isAdmin={canManageTeamResults}
+          canManage={canManageTeamResults}
+          canDelete={canDeleteTeamResults}
           deleteTeamResult={deleteTeamResult}
           addTeamResult={addTeamResult}
           updateTeamResult={updateTeamResult}

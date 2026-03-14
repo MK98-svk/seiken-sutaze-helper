@@ -12,7 +12,8 @@ interface TeamResultsSectionProps {
   competitionId: string;
   discipline: "kata" | "kumite";
   teamResults: TeamResult[];
-  isAdmin: boolean;
+  canManage: boolean;
+  canDelete: boolean;
   deleteTeamResult: (id: string) => Promise<void>;
   addTeamResult: (result: { competitionId: string; discipline: string; category?: string; placement?: number; numCompetitors?: number }) => Promise<void>;
   updateTeamResult: (id: string, updates: { placement?: number | null; numCompetitors?: number | null }) => Promise<void>;

@@ -441,16 +441,6 @@ export default function MemberTable({
                           <span className="inline-block min-w-[3ch] text-sm">{member.bronz ?? 0}</span>
                         )}
                       </TableCell>
-                      {showAllComps && competitions.map((comp) => (
-                        <TableCell key={comp.id} className="text-center">
-                          <Checkbox
-                            checked={isRegistered(member.id, comp.id)}
-                            onCheckedChange={() => isAdmin && onToggleEntry(member.id, comp.id)}
-                            disabled={!isAdmin}
-                            className="data-[state=checked]:bg-success data-[state=checked]:border-success"
-                          />
-                        </TableCell>
-                      ))}
                       {(isAdmin || (currentUserId && member.userId === currentUserId)) && (
                         <TableCell>
                           <div className="flex gap-1">

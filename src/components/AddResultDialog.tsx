@@ -27,7 +27,7 @@ export default function AddResultDialog({ competitionId, competitionDate, member
   const [placement, setPlacement] = useState("");
   const [numCompetitors, setNumCompetitors] = useState("");
 
-  const competitionReferenceDate = competitionDate ?? new Date();
+  const competitionReferenceDate = competitionDate ?? new Date().toISOString().slice(0, 10);
 
   // Get eligible categories based on member attributes and selected discipline
   const eligibleCategories = useMemo(() => {

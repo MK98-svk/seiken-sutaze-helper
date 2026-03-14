@@ -127,7 +127,7 @@ export default function MobileCompetitionView({
                     </div>
                   )}
                 </div>
-                {isAdmin && (
+                {(isAdmin || isCoach) && (
                   <Button
                     variant="ghost"
                     size="icon"
@@ -135,7 +135,7 @@ export default function MobileCompetitionView({
                     title="Odstrániť zo súťaže"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onToggleEntry(member.id, competition.id);
+                      setMemberToRemove(member);
                     }}
                   >
                     <UserMinus className="h-3.5 w-3.5" />

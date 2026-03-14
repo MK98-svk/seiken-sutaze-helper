@@ -113,13 +113,14 @@ export default function MemberTable({
             <Table>
               <TableHeader>
                 <TableRow className="bg-secondary/50 hover:bg-secondary/50">
-                  <TableHead className="font-display font-semibold text-foreground">Meno</TableHead>
-                  <TableHead className="font-display font-semibold text-foreground">Priezvisko</TableHead>
-                  
-                  <TableHead className="font-display font-semibold text-foreground text-center">🥇</TableHead>
-                  <TableHead className="font-display font-semibold text-foreground text-center">🥈</TableHead>
-                  <TableHead className="font-display font-semibold text-foreground text-center">🥉</TableHead>
-                  <TableHead className="font-display font-semibold text-foreground">Disciplíny</TableHead>
+                 <TableHead className="font-display font-semibold text-foreground">Meno</TableHead>
+                   <TableHead className="font-display font-semibold text-foreground">Priezvisko</TableHead>
+                   
+                   <TableHead className="font-display font-semibold text-foreground text-center">🥇</TableHead>
+                   <TableHead className="font-display font-semibold text-foreground text-center">🥈</TableHead>
+                   <TableHead className="font-display font-semibold text-foreground text-center">🥉</TableHead>
+                   <TableHead className="font-display font-semibold text-foreground">Disciplíny</TableHead>
+                   {isAdmin && <TableHead className="w-10" />}
                 </TableRow>
               </TableHeader>
               <TableBody>

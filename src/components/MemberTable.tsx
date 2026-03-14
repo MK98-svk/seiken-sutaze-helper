@@ -324,6 +324,32 @@ export default function MemberTable({
     );
   }
 
+  // Stats view
+  if (showStats) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="text-sm text-muted-foreground font-medium">Súťaž:</span>
+          <Select value={selectedCompId} onValueChange={handleSelectComp}>
+            <SelectTrigger className="w-full sm:w-[320px]">
+              <SelectValue placeholder="Vybrať súťaž" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Všetky (prehľad členov)</SelectItem>
+              <SelectItem value="stats">📊 Úspešnosť pretekárov</SelectItem>
+              {competitions.map((comp) => (
+                <SelectItem key={comp.id} value={comp.id}>
+                  {comp.nazov} — {formatDate(comp.datum)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <CompetitorAnalytics members={members} />
+      </div>
+    );
+  }
+
   // Default view: full member table (no specific competition selected)
   return (
     <div className="space-y-4">

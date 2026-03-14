@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileCompetitionView from "./MobileCompetitionView";
 import MobileMemberList from "./MobileMemberList";
+import CompetitorAnalytics from "./CompetitorAnalytics";
 
 interface MemberTableProps {
   members: Member[];
@@ -76,8 +77,8 @@ export default function MemberTable({
     }
   };
 
-  const showAllComps = selectedCompId === "show-all";
-  const selectedComp = !showAllComps ? competitions.find((c) => c.id === selectedCompId) : undefined;
+  const showStats = selectedCompId === "stats";
+  const selectedComp = !showStats && selectedCompId !== "all" ? competitions.find((c) => c.id === selectedCompId) : undefined;
 
   // Fetch competition results when a specific competition is selected
   const { getMemberMedals, teamResults, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult, updateTeamResult } = useCompetitionResults(selectedComp?.id);
@@ -94,7 +95,7 @@ export default function MemberTable({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Všetky (prehľad členov)</SelectItem>
-              <SelectItem value="show-all">📋 Zobraziť všetky súťaže</SelectItem>
+              <SelectItem value="stats">📊 Úspešnosť pretekárov</SelectItem>
               {competitions.map((comp) => (
                 <SelectItem key={comp.id} value={comp.id}>
                   {comp.nazov} — {formatDate(comp.datum)}
@@ -324,6 +325,32 @@ export default function MemberTable({
     );
   }
 
+  // Stats view
+  if (showStats) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="text-sm text-muted-foreground font-medium">Súťaž:</span>
+          <Select value={selectedCompId} onValueChange={handleSelectComp}>
+            <SelectTrigger className="w-full sm:w-[320px]">
+              <SelectValue placeholder="Vybrať súťaž" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Všetky (prehľad členov)</SelectItem>
+              <SelectItem value="stats">📊 Úspešnosť pretekárov</SelectItem>
+              {competitions.map((comp) => (
+                <SelectItem key={comp.id} value={comp.id}>
+                  {comp.nazov} — {formatDate(comp.datum)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <CompetitorAnalytics members={members} />
+      </div>
+    );
+  }
+
   // Default view: full member table (no specific competition selected)
   return (
     <div className="space-y-4">
@@ -335,7 +362,7 @@ export default function MemberTable({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Všetky (prehľad členov)</SelectItem>
-            <SelectItem value="show-all">📋 Zobraziť všetky súťaže</SelectItem>
+            <SelectItem value="stats">📊 Úspešnosť pretekárov</SelectItem>
             {competitions.map((comp) => (
               <SelectItem key={comp.id} value={comp.id}>
                 {comp.nazov} — {formatDate(comp.datum)}
@@ -373,12 +400,6 @@ export default function MemberTable({
               <TableHead className="font-display font-semibold text-foreground text-center min-w-[88px]">🥇</TableHead>
               <TableHead className="font-display font-semibold text-foreground text-center min-w-[88px]">🥈</TableHead>
               <TableHead className="font-display font-semibold text-foreground text-center min-w-[88px]">🥉</TableHead>
-              {showAllComps && competitions.map((comp) => (
-                <TableHead key={comp.id} className="font-display font-semibold text-primary text-center min-w-[120px]">
-                  <div className="text-xs">{comp.nazov}</div>
-                  <div className="text-xs font-normal text-muted-foreground">{formatDate(comp.datum)}</div>
-                </TableHead>
-              ))}
               {(isAdmin || currentUserId) && <TableHead className="w-10" />}
             </TableRow>
           </TableHeader>
@@ -447,16 +468,6 @@ export default function MemberTable({
                           <span className="inline-block min-w-[3ch] text-sm">{member.bronz ?? 0}</span>
                         )}
                       </TableCell>
-                      {showAllComps && competitions.map((comp) => (
-                        <TableCell key={comp.id} className="text-center">
-                          <Checkbox
-                            checked={isRegistered(member.id, comp.id)}
-                            onCheckedChange={() => isAdmin && onToggleEntry(member.id, comp.id)}
-                            disabled={!isAdmin}
-                            className="data-[state=checked]:bg-success data-[state=checked]:border-success"
-                          />
-                        </TableCell>
-                      ))}
                       {(isAdmin || (currentUserId && member.userId === currentUserId)) && (
                         <TableCell>
                           <div className="flex gap-1">
@@ -499,11 +510,6 @@ export default function MemberTable({
                 <TableCell className="text-center text-sm font-bold text-foreground">
                   {members.reduce((s, m) => s + (m.bronz ?? 0), 0)}
                 </TableCell>
-                {showAllComps && competitions.map((comp) => (
-                  <TableCell key={comp.id} className="text-center text-sm font-bold text-primary">
-                    {members.filter((m) => isRegistered(m.id, comp.id)).length}
-                  </TableCell>
-                ))}
                 {(isAdmin || currentUserId) && <TableCell />}
               </tr>
             </tfoot>

@@ -9,6 +9,16 @@ import TeamResultsSection from "./TeamResultsSection";
 import { useCompetitionResults } from "@/hooks/useCompetitionResults";
 import { toast } from "sonner";
 import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface MobileCompetitionViewProps {
   competition: Competition;
@@ -38,6 +48,7 @@ export default function MobileCompetitionView({
   const canDeleteTeamResults = isAdmin;
   const { getMemberMedals, teamResults, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult, updateTeamResult } = useCompetitionResults(competition.id);
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
+  const [memberToRemove, setMemberToRemove] = useState<Member | null>(null);
 
   const totalMedals = members.reduce((acc, m) => {
     const medals = getMemberMedals(m.id);
@@ -116,7 +127,7 @@ export default function MobileCompetitionView({
                     </div>
                   )}
                 </div>
-                {isAdmin && (
+                {(isAdmin || isCoach) && (
                   <Button
                     variant="ghost"
                     size="icon"
@@ -124,7 +135,7 @@ export default function MobileCompetitionView({
                     title="Odstrániť zo súťaže"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onToggleEntry(member.id, competition.id);
+                      setMemberToRemove(member);
                     }}
                   >
                     <UserMinus className="h-3.5 w-3.5" />
@@ -223,6 +234,32 @@ export default function MobileCompetitionView({
           invalidate={invalidateResults}
         />
       </div>
+
+      {/* Confirm remove dialog */}
+      <AlertDialog open={!!memberToRemove} onOpenChange={(open) => { if (!open) setMemberToRemove(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Odstrániť zo súťaže?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Naozaj chcete odstrániť <strong>{memberToRemove?.meno} {memberToRemove?.priezvisko}</strong> zo súťaže <strong>{competition.nazov}</strong>?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-white text-foreground border border-border hover:bg-secondary">Nie</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-orange-500 text-white hover:bg-orange-600"
+              onClick={() => {
+                if (memberToRemove) {
+                  onToggleEntry(memberToRemove.id, competition.id);
+                  setMemberToRemove(null);
+                }
+              }}
+            >
+              Áno
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

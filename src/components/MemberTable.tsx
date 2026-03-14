@@ -5,6 +5,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Trash2, Pencil, X, UserMinus } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
@@ -46,6 +56,7 @@ export default function MemberTable({
   currentUserId,
 }: MemberTableProps) {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const [memberToRemove, setMemberToRemove] = useState<Member | null>(null);
   const [selectedCompId, setSelectedCompId] = useState<string>(() => {
     return localStorage.getItem("seiken_selectedCompId") || "all";
   });
@@ -120,14 +131,14 @@ export default function MemberTable({
                    <TableHead className="font-display font-semibold text-foreground text-center">🥈</TableHead>
                    <TableHead className="font-display font-semibold text-foreground text-center">🥉</TableHead>
                    <TableHead className="font-display font-semibold text-foreground">Disciplíny</TableHead>
-                   {isAdmin && <TableHead className="w-10" />}
+                   {(isAdmin || isCoach) && <TableHead className="w-10" />}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 <AnimatePresence>
                   {registeredMembers.length === 0 ? (
                    <TableRow>
-                       <TableCell colSpan={isAdmin ? 8 : 7} className="text-center text-muted-foreground py-12">
+                       <TableCell colSpan={(isAdmin || isCoach) ? 8 : 7} className="text-center text-muted-foreground py-12">
                          Žiadni registrovaní členovia na túto súťaž.
                        </TableCell>
                     </TableRow>
@@ -185,14 +196,14 @@ export default function MemberTable({
                               );
                             })()}
                           </TableCell>
-                          {isAdmin && (
+                          {(isAdmin || isCoach) && (
                             <TableCell className="text-center">
                               <Button
                                 variant="ghost"
                                 size="icon"
                                 className="h-7 w-7 text-muted-foreground hover:text-destructive"
                                 title="Odstrániť zo súťaže"
-                                onClick={() => onToggleEntry(member.id, selectedComp.id)}
+                                onClick={() => setMemberToRemove(member)}
                               >
                                 <UserMinus className="h-3.5 w-3.5" />
                               </Button>
@@ -220,7 +231,7 @@ export default function MemberTable({
                       {registeredMembers.reduce((s, m) => s + getMemberMedals(m.id).bronz, 0)}
                     </TableCell>
                     <TableCell />
-                    {isAdmin && <TableCell />}
+                    {(isAdmin || isCoach) && <TableCell />}
                   </tr>
                 </tfoot>
               )}
@@ -283,6 +294,32 @@ export default function MemberTable({
           </div>
         );
         })()}
+
+        {/* Confirm remove dialog */}
+        <AlertDialog open={!!memberToRemove} onOpenChange={(open) => { if (!open) setMemberToRemove(null); }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Odstrániť zo súťaže?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Naozaj chcete odstrániť <strong>{memberToRemove?.meno} {memberToRemove?.priezvisko}</strong> zo súťaže <strong>{selectedComp?.nazov}</strong>?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="bg-white text-foreground border border-border hover:bg-secondary">Nie</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-orange-500 text-white hover:bg-orange-600"
+                onClick={() => {
+                  if (memberToRemove && selectedComp) {
+                    onToggleEntry(memberToRemove.id, selectedComp.id);
+                    setMemberToRemove(null);
+                  }
+                }}
+              >
+                Áno
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     );
   }

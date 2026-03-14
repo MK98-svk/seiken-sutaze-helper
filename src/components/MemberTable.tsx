@@ -185,6 +185,19 @@ export default function MemberTable({
                               );
                             })()}
                           </TableCell>
+                          {isAdmin && (
+                            <TableCell className="text-center">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                                title="Odstrániť zo súťaže"
+                                onClick={() => onToggleEntry(member.id, selectedComp.id)}
+                              >
+                                <UserMinus className="h-3.5 w-3.5" />
+                              </Button>
+                            </TableCell>
+                          )}
                         </motion.tr>
                       );
                     })

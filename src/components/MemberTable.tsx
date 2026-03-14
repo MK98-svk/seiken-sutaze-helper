@@ -373,12 +373,6 @@ export default function MemberTable({
               <TableHead className="font-display font-semibold text-foreground text-center min-w-[88px]">🥇</TableHead>
               <TableHead className="font-display font-semibold text-foreground text-center min-w-[88px]">🥈</TableHead>
               <TableHead className="font-display font-semibold text-foreground text-center min-w-[88px]">🥉</TableHead>
-              {showAllComps && competitions.map((comp) => (
-                <TableHead key={comp.id} className="font-display font-semibold text-primary text-center min-w-[120px]">
-                  <div className="text-xs">{comp.nazov}</div>
-                  <div className="text-xs font-normal text-muted-foreground">{formatDate(comp.datum)}</div>
-                </TableHead>
-              ))}
               {(isAdmin || currentUserId) && <TableHead className="w-10" />}
             </TableRow>
           </TableHeader>

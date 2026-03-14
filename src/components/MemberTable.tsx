@@ -282,7 +282,7 @@ export default function MemberTable({
                       discipline="kumite"
                       teamResults={teamResults}
                       canManage={canManageTeam}
-                      canDelete={isAdmin}
+                      canDelete={isAdmin || isCoach}
                       deleteTeamResult={deleteTeamResult}
                       addTeamResult={addTeamResult}
                       updateTeamResult={updateTeamResult}

@@ -294,6 +294,32 @@ export default function MemberTable({
           </div>
         );
         })()}
+
+        {/* Confirm remove dialog */}
+        <AlertDialog open={!!memberToRemove} onOpenChange={(open) => { if (!open) setMemberToRemove(null); }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Odstrániť zo súťaže?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Naozaj chcete odstrániť <strong>{memberToRemove?.meno} {memberToRemove?.priezvisko}</strong> zo súťaže <strong>{selectedComp?.nazov}</strong>?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="bg-white text-foreground border border-border hover:bg-secondary">Nie</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-orange-500 text-white hover:bg-orange-600"
+                onClick={() => {
+                  if (memberToRemove && selectedComp) {
+                    onToggleEntry(memberToRemove.id, selectedComp.id);
+                    setMemberToRemove(null);
+                  }
+                }}
+              >
+                Áno
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     );
   }

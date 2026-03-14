@@ -126,10 +126,10 @@ export default function MemberTable({
               <TableBody>
                 <AnimatePresence>
                   {registeredMembers.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
-                        Žiadni registrovaní členovia na túto súťaž.
-                      </TableCell>
+                   <TableRow>
+                       <TableCell colSpan={isAdmin ? 8 : 7} className="text-center text-muted-foreground py-12">
+                         Žiadni registrovaní členovia na túto súťaž.
+                       </TableCell>
                     </TableRow>
                   ) : (
                     registeredMembers.map((member) => {

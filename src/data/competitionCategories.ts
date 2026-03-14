@@ -42,7 +42,9 @@ export function parseRank(stupen: string): number | null {
  */
 export function calculateAge(datumNarodenia: string, competitionYear: number): number | null {
   if (!datumNarodenia) return null;
-  const birthYear = new Date(datumNarodenia).getFullYear();
+  // Parse date parts directly to avoid UTC timezone shift issues
+  const parts = datumNarodenia.split("-");
+  const birthYear = parts.length >= 1 ? parseInt(parts[0], 10) : NaN;
   if (isNaN(birthYear)) return null;
   return competitionYear - birthYear;
 }

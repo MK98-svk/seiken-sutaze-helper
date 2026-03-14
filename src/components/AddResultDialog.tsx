@@ -28,7 +28,7 @@ export default function AddResultDialog({ competitionId, competitionDate, member
   const [numCompetitors, setNumCompetitors] = useState("");
 
   const competitionYear = competitionDate
-    ? new Date(competitionDate).getFullYear()
+    ? parseInt(competitionDate.split("-")[0], 10) || new Date().getFullYear()
     : new Date().getFullYear();
 
   // Get eligible categories based on member attributes and selected discipline

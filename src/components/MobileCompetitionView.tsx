@@ -116,6 +116,20 @@ export default function MobileCompetitionView({
                     </div>
                   )}
                 </div>
+                {isAdmin && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground hover:text-destructive shrink-0"
+                    title="Odstrániť zo súťaže"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleEntry(member.id, competition.id);
+                    }}
+                  >
+                    <UserMinus className="h-3.5 w-3.5" />
+                  </Button>
+                )}
                 {(hasResults || canManageResults || (currentUserId && member.userId === currentUserId)) && (
                   isExpanded
                     ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />

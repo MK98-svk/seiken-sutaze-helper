@@ -37,16 +37,49 @@ export function parseRank(stupen: string): number | null {
 }
 
 /**
- * Calculate age based on birth date and reference year.
- * In Slovak karate, age = year of competition - year of birth.
+ * Calculate exact age based on birth date and reference date.
  */
-export function calculateAge(datumNarodenia: string, competitionYear: number): number | null {
+export function calculateAge(datumNarodenia: string, referenceDate: string | Date): number | null {
   if (!datumNarodenia) return null;
-  // Parse date parts directly to avoid UTC timezone shift issues
-  const parts = datumNarodenia.split("-");
-  const birthYear = parts.length >= 1 ? parseInt(parts[0], 10) : NaN;
-  if (isNaN(birthYear)) return null;
-  return competitionYear - birthYear;
+
+  const parseDateParts = (dateString: string) => {
+    const [year, month, day] = dateString.split("-").map((part) => parseInt(part, 10));
+    if (!year || !month || !day) return null;
+    return { year, month, day };
+  };
+
+  const birth = parseDateParts(datumNarodenia);
+  if (!birth) return null;
+
+  let ref: { year: number; month: number; day: number } | null = null;
+  if (referenceDate instanceof Date) {
+    ref = {
+      year: referenceDate.getFullYear(),
+      month: referenceDate.getMonth() + 1,
+      day: referenceDate.getDate(),
+    };
+  } else {
+    ref = parseDateParts(referenceDate);
+    if (!ref) {
+      const fallbackDate = new Date(referenceDate);
+      if (Number.isNaN(fallbackDate.getTime())) return null;
+      ref = {
+        year: fallbackDate.getFullYear(),
+        month: fallbackDate.getMonth() + 1,
+        day: fallbackDate.getDate(),
+      };
+    }
+  }
+
+  let age = ref.year - birth.year;
+  const hadBirthdayThisYear =
+    ref.month > birth.month || (ref.month === birth.month && ref.day >= birth.day);
+
+  if (!hadBirthdayThisYear) {
+    age -= 1;
+  }
+
+  return age >= 0 ? age : null;
 }
 
 /**
@@ -62,9 +95,9 @@ export function getEligibleCategories(
     vaha?: number | null;
   },
   discipline: string,
-  competitionYear: number
+  competitionDate: string | Date
 ): CompetitionCategory[] {
-  const age = member.datumNarodenia ? calculateAge(member.datumNarodenia, competitionYear) : null;
+  const age = member.datumNarodenia ? calculateAge(member.datumNarodenia, competitionDate) : null;
   const rank = member.stupen ? parseRank(member.stupen) : null;
   const gender = member.pohlavie || null;
 

@@ -42,9 +42,9 @@ export default function AddResultDialog({ competitionId, competitionDate, member
         vaha: member.vaha,
       },
       discipline,
-      competitionYear
+      competitionReferenceDate
     );
-  }, [discipline, member, competitionYear]);
+  }, [discipline, member, competitionReferenceDate]);
 
   // Check if member is missing key data for proper filtering
   const missingData = useMemo(() => {

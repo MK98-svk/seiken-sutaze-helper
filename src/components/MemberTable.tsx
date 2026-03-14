@@ -335,7 +335,7 @@ export default function MemberTable({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Všetky (prehľad členov)</SelectItem>
-            <SelectItem value="show-all">📋 Zobraziť všetky súťaže</SelectItem>
+            <SelectItem value="stats">📊 Úspešnosť pretekárov</SelectItem>
             {competitions.map((comp) => (
               <SelectItem key={comp.id} value={comp.id}>
                 {comp.nazov} — {formatDate(comp.datum)}

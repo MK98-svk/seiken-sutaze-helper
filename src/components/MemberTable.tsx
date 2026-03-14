@@ -131,7 +131,7 @@ export default function MemberTable({
                    <TableHead className="font-display font-semibold text-foreground text-center">🥈</TableHead>
                    <TableHead className="font-display font-semibold text-foreground text-center">🥉</TableHead>
                    <TableHead className="font-display font-semibold text-foreground">Disciplíny</TableHead>
-                   {isAdmin && <TableHead className="w-10" />}
+                   {(isAdmin || isCoach) && <TableHead className="w-10" />}
                 </TableRow>
               </TableHeader>
               <TableBody>

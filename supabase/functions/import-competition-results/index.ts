@@ -95,23 +95,24 @@ async function callAI(pdfBase64: string, systemPrompt: string): Promise<string> 
 
 // MODE: startlist — extract individual Seiken members + team category entries
 async function handleStartlist(pdfBase64: string) {
-  const systemPrompt = `You are a parser for karate competition start lists (štartovná listina). Extract ALL entries for "Karate klub Seiken Bratislava" or "KK Seiken" or "Seiken Bratislava" or "Seiken" or similar club name.
+  const systemPrompt = `You are a parser for karate competition start lists / registration lists. Extract ALL entries for "Karate klub Seiken Bratislava" or "KK Seiken" or "Seiken Bratislava" or "Seiken" or similar club name.
 
 Return a JSON object with two arrays:
 1. "individuals" - array of objects with:
-   - name: full name of the competitor (as written in the PDF). List each person ONLY ONCE even if they appear in multiple categories.
-   - categories: array of objects with { discipline: "kata"|"kumite"|"kobudo", category: "category name" } listing all categories this person is registered in
+   - name: full name of the competitor (format: "Meno Priezvisko"). List each person ONLY ONCE even if they appear in multiple categories/divisions.
+   - categories: array of objects with { discipline, category } listing ALL divisions/categories this person is registered in. Use the EXACT division/category text from the PDF. For example:
+     - For WUKF format: discipline could be "Individual Kata", "Kumite Shobu Nihon", "Kobudo Short Weapons", "Kobudo Long Weapons", etc. Category should be the full description like "Open | Female | 11 to 12 Years | 4th kyu & below"
+     - For Slovak format: discipline is "kata", "kumite", "kobudo". Category is the Slovak name like "Mladší žiaci", "Kadeti", etc.
+     - Always preserve the original text from the PDF as closely as possible.
 2. "teams" - array of objects with:
-   - discipline: the discipline - use "kata" for kata družstvá, "kumite" for kumite družstvá
-   - category: the category name (e.g. "Mladší žiaci", "Kadeti", age group, gender group, etc.)
-   - members: array of strings with the names/surnames of team members as written in the PDF (even if only surnames are listed)
+   - discipline: the team discipline (e.g. "Mixed Team Kata", "Mixed Pairs Kata", "kata družstvá", "kumite družstvá")
+   - category: the full category description as written in the PDF
+   - members: array of strings with the names/surnames of team members as written in the PDF
 
 IMPORTANT:
-- Each individual competitor must appear ONLY ONCE in the individuals array, with ALL their categories listed in the categories field
-- Include ALL Seiken individual competitors AND all team entries (družstvá)
-- For teams, include whatever names or surnames are listed for the team members
-- Team entries are typically listed under sections like "kata družstvá" or "kumite družstvá"
-- Each team entry in a different category should be a separate object
+- Each individual competitor must appear ONLY ONCE in the individuals array, with ALL their categories listed
+- Preserve the EXACT division/category names from the PDF - do NOT translate or normalize them
+- Include ALL individual competitors AND all team entries
 - Look through all pages carefully
 - Return ONLY the JSON object, no markdown, no explanation`;
 

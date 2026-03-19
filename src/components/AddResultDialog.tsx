@@ -152,9 +152,14 @@ export default function AddResultDialog({ competitionId, competitionDate, member
                 <SelectValue placeholder="Vybrať disciplínu" />
               </SelectTrigger>
               <SelectContent>
-                {DISCIPLINES.map((d) => (
-                  <SelectItem key={d} value={d} className="capitalize">{d}</SelectItem>
-                ))}
+                {hasImportedCategories
+                  ? importedDisciplines.map((d) => (
+                      <SelectItem key={d} value={d}>{d}</SelectItem>
+                    ))
+                  : DISCIPLINES.map((d) => (
+                      <SelectItem key={d} value={d} className="capitalize">{d}</SelectItem>
+                    ))
+                }
               </SelectContent>
             </Select>
           </div>

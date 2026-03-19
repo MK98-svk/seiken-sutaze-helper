@@ -177,12 +177,13 @@ async function handleResults(pdfBase64: string) {
 
 Return a JSON array of objects with these fields:
 - name: full name of the competitor (as written in the PDF)
-- discipline: the discipline (e.g. "kata", "kumite", "kobudo")
-- category: the category (e.g. age group, weight class)
+- discipline: the discipline as written in the PDF (preserve original text, e.g. "Individual Kata", "Kumite Shobu Nihon", "Kobudo Short Weapons", "kata", "kumite", "kobudo")
+- category: the full category as written in the PDF (preserve original text, e.g. "Open | Female | 11 to 12 Years | 4th kyu & below" for WUKF, or Slovak category names)
 - placement: numeric placement (1, 2, 3, etc.)
 
 IMPORTANT:
 - Only include INDIVIDUAL results, skip team/družstvo entries
+- Preserve the EXACT division/category names from the PDF - do NOT translate or normalize them
 - Include all placements, not just medalists
 - If you can't determine placement, use 0
 - Return ONLY the JSON array, no markdown, no explanation

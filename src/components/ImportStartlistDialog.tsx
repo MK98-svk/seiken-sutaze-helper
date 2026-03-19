@@ -16,6 +16,7 @@ interface MatchedEntry {
   memberId: string;
   memberName: string;
   confidence: number;
+  categories?: Array<{ discipline: string; category: string }>;
 }
 
 interface UnmatchedEntry {

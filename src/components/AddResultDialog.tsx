@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,11 @@ interface AddResultDialogProps {
   onAdded: () => void;
 }
 
+interface ImportedCategory {
+  discipline: string;
+  category: string;
+}
+
 const DISCIPLINES = ["kata", "kumite", "kobudo"] as const;
 
 export default function AddResultDialog({ competitionId, competitionDate, member, onAdded }: AddResultDialogProps) {
@@ -26,12 +31,39 @@ export default function AddResultDialog({ competitionId, competitionDate, member
   const [categoryCode, setCategoryCode] = useState("");
   const [placement, setPlacement] = useState("");
   const [numCompetitors, setNumCompetitors] = useState("");
+  const [importedCategories, setImportedCategories] = useState<ImportedCategory[]>([]);
 
   const competitionReferenceDate = competitionDate ?? new Date().toISOString().slice(0, 10);
 
-  // Get eligible categories based on member attributes and selected discipline
-  const eligibleCategories = useMemo(() => {
+  // Fetch imported categories for this member + competition
+  useEffect(() => {
+    const fetchImported = async () => {
+      const { data } = await (supabase as any)
+        .from("member_competition_categories")
+        .select("discipline, category")
+        .eq("member_id", member.id)
+        .eq("competition_id", competitionId);
+      setImportedCategories(data || []);
+    };
+    fetchImported();
+  }, [member.id, competitionId]);
+
+  const hasImportedCategories = importedCategories.length > 0;
+
+  // Get unique disciplines from imported categories
+  const importedDisciplines = useMemo(() => {
+    return [...new Set(importedCategories.map(c => c.discipline))];
+  }, [importedCategories]);
+
+  // Get imported categories filtered by selected discipline
+  const importedForDiscipline = useMemo(() => {
     if (!discipline) return [];
+    return importedCategories.filter(c => c.discipline === discipline);
+  }, [discipline, importedCategories]);
+
+  // Get eligible categories based on member attributes and selected discipline (fallback)
+  const eligibleCategories = useMemo(() => {
+    if (!discipline || hasImportedCategories) return [];
     return getEligibleCategories(
       ALL_INDIVIDUAL_CATEGORIES,
       {
@@ -44,7 +76,7 @@ export default function AddResultDialog({ competitionId, competitionDate, member
       discipline,
       competitionReferenceDate
     );
-  }, [discipline, member, competitionReferenceDate]);
+  }, [discipline, member, competitionReferenceDate, hasImportedCategories]);
 
   // Check if member is missing key data for proper filtering
   const missingData = useMemo(() => {

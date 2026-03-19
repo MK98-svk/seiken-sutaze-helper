@@ -100,7 +100,7 @@ export default function AddResultDialog({ competitionId, competitionDate, member
     }
     setSaving(true);
     try {
-      const categoryName = selectedCategory?.name || categoryCode || null;
+      const categoryName = hasImportedCategories ? categoryCode : (selectedCategory?.name || categoryCode || null);
       const { error } = await (supabase as any)
         .from("competition_results")
         .insert({

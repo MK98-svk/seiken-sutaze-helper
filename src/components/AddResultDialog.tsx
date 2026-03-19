@@ -164,8 +164,8 @@ export default function AddResultDialog({ competitionId, competitionDate, member
             </Select>
           </div>
 
-          {/* Missing data warning */}
-          {discipline && missingData.length > 0 && (
+          {/* Missing data warning — only for Slovak categories */}
+          {discipline && !hasImportedCategories && missingData.length > 0 && (
             <div className="flex items-start gap-2 rounded-md bg-warning/10 border border-warning/30 p-2 text-xs text-warning-foreground">
               <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0 text-warning" />
               <span>
@@ -174,57 +174,83 @@ export default function AddResultDialog({ competitionId, competitionDate, member
             </div>
           )}
 
-          {/* Category (smart filtered, grouped for kata) */}
+          {/* Category selection */}
           {discipline && (
             <div className="space-y-1.5">
-              <Label className="text-xs">
-                Kategória ({eligibleCategories.length} {eligibleCategories.length === 1 ? "možnosť" : "možností"})
-              </Label>
-              <Select value={categoryCode} onValueChange={setCategoryCode}>
-                <SelectTrigger className="h-9">
-                  <SelectValue placeholder="Vybrať kategóriu" />
-                </SelectTrigger>
-                <SelectContent className="max-h-[300px]">
-                  {eligibleCategories.length > 0 ? (
-                    discipline === "kata" ? (
-                      <>
-                        {/* GOJU RYU group */}
-                        {eligibleCategories.filter(c => !c.subtype || c.subtype !== "RENGO").length > 0 && (
-                          <SelectGroup>
-                            <SelectLabel className="text-xs font-bold text-primary">KATA GOJU RYU</SelectLabel>
-                            {eligibleCategories.filter(c => !c.subtype || c.subtype !== "RENGO").map((cat) => (
-                              <SelectItem key={cat.code} value={cat.code}>
-                                <span className="text-xs">{cat.code} — {cat.name}</span>
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        )}
-                        {/* RENGO OPEN group */}
-                        {eligibleCategories.filter(c => c.subtype === "RENGO").length > 0 && (
-                          <SelectGroup>
-                            <SelectLabel className="text-xs font-bold text-primary">KATA RENGO OPEN</SelectLabel>
-                            {eligibleCategories.filter(c => c.subtype === "RENGO").map((cat) => (
-                              <SelectItem key={cat.code} value={cat.code}>
-                                <span className="text-xs">{cat.code} — {cat.name}</span>
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        )}
-                      </>
-                    ) : (
-                      eligibleCategories.map((cat) => (
-                        <SelectItem key={cat.code} value={cat.code}>
-                          <span className="text-xs">{cat.code} — {cat.name}</span>
-                        </SelectItem>
-                      ))
-                    )
-                  ) : (
-                    <div className="px-2 py-3 text-xs text-muted-foreground text-center">
-                      Žiadna zodpovedajúca kategória
-                    </div>
-                  )}
-                </SelectContent>
-              </Select>
+              {hasImportedCategories ? (
+                <>
+                  <Label className="text-xs">
+                    Kategória ({importedForDiscipline.length} {importedForDiscipline.length === 1 ? "možnosť" : "možností"})
+                  </Label>
+                  <Select value={categoryCode} onValueChange={setCategoryCode}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Vybrať kategóriu" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px]">
+                      {importedForDiscipline.length > 0 ? (
+                        importedForDiscipline.map((cat, idx) => (
+                          <SelectItem key={idx} value={cat.category}>
+                            <span className="text-xs">{cat.category}</span>
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="px-2 py-3 text-xs text-muted-foreground text-center">
+                          Žiadna kategória pre túto disciplínu
+                        </div>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </>
+              ) : (
+                <>
+                  <Label className="text-xs">
+                    Kategória ({eligibleCategories.length} {eligibleCategories.length === 1 ? "možnosť" : "možností"})
+                  </Label>
+                  <Select value={categoryCode} onValueChange={setCategoryCode}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Vybrať kategóriu" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px]">
+                      {eligibleCategories.length > 0 ? (
+                        discipline === "kata" ? (
+                          <>
+                            {eligibleCategories.filter(c => !c.subtype || c.subtype !== "RENGO").length > 0 && (
+                              <SelectGroup>
+                                <SelectLabel className="text-xs font-bold text-primary">KATA GOJU RYU</SelectLabel>
+                                {eligibleCategories.filter(c => !c.subtype || c.subtype !== "RENGO").map((cat) => (
+                                  <SelectItem key={cat.code} value={cat.code}>
+                                    <span className="text-xs">{cat.code} — {cat.name}</span>
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            )}
+                            {eligibleCategories.filter(c => c.subtype === "RENGO").length > 0 && (
+                              <SelectGroup>
+                                <SelectLabel className="text-xs font-bold text-primary">KATA RENGO OPEN</SelectLabel>
+                                {eligibleCategories.filter(c => c.subtype === "RENGO").map((cat) => (
+                                  <SelectItem key={cat.code} value={cat.code}>
+                                    <span className="text-xs">{cat.code} — {cat.name}</span>
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            )}
+                          </>
+                        ) : (
+                          eligibleCategories.map((cat) => (
+                            <SelectItem key={cat.code} value={cat.code}>
+                              <span className="text-xs">{cat.code} — {cat.name}</span>
+                            </SelectItem>
+                          ))
+                        )
+                      ) : (
+                        <div className="px-2 py-3 text-xs text-muted-foreground text-center">
+                          Žiadna zodpovedajúca kategória
+                        </div>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </>
+              )}
             </div>
           )}
 

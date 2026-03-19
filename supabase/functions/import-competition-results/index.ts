@@ -99,13 +99,15 @@ async function handleStartlist(pdfBase64: string) {
 
 Return a JSON object with two arrays:
 1. "individuals" - array of objects with:
-   - name: full name of the competitor (as written in the PDF)
+   - name: full name of the competitor (as written in the PDF). List each person ONLY ONCE even if they appear in multiple categories.
+   - categories: array of objects with { discipline: "kata"|"kumite"|"kobudo", category: "category name" } listing all categories this person is registered in
 2. "teams" - array of objects with:
    - discipline: the discipline - use "kata" for kata družstvá, "kumite" for kumite družstvá
    - category: the category name (e.g. "Mladší žiaci", "Kadeti", age group, gender group, etc.)
    - members: array of strings with the names/surnames of team members as written in the PDF (even if only surnames are listed)
 
 IMPORTANT:
+- Each individual competitor must appear ONLY ONCE in the individuals array, with ALL their categories listed in the categories field
 - Include ALL Seiken individual competitors AND all team entries (družstvá)
 - For teams, include whatever names or surnames are listed for the team members
 - Team entries are typically listed under sections like "kata družstvá" or "kumite družstvá"
@@ -114,7 +116,7 @@ IMPORTANT:
 - Return ONLY the JSON object, no markdown, no explanation`;
 
   const content = await callAI(pdfBase64, systemPrompt);
-  let parsed: { individuals: Array<{ name: string }>; teams: Array<{ discipline: string; category: string; members?: string[] }> };
+  let parsed: { individuals: Array<{ name: string; categories?: Array<{ discipline: string; category: string }> }>; teams: Array<{ discipline: string; category: string; members?: string[] }> };
   try {
     const raw = JSON.parse(content);
     if (Array.isArray(raw)) {
@@ -126,9 +128,21 @@ IMPORTANT:
     throw new Error('Failed to parse startlist from PDF');
   }
 
+  // Deduplicate individuals by normalized name
+  const seen = new Set<string>();
+  const uniqueIndividuals: typeof parsed.individuals = [];
+  for (const entry of parsed.individuals) {
+    const key = normalize(entry.name);
+    if (!seen.has(key)) {
+      seen.add(key);
+      uniqueIndividuals.push(entry);
+    }
+  }
+  parsed.individuals = uniqueIndividuals;
+
   const members = await fetchMembers();
-  const matched: Array<{ name: string; memberId: string; memberName: string; confidence: number }> = [];
-  const unmatched: Array<{ name: string }> = [];
+  const matched: Array<{ name: string; memberId: string; memberName: string; confidence: number; categories?: Array<{ discipline: string; category: string }> }> = [];
+  const unmatched: Array<{ name: string; categories?: Array<{ discipline: string; category: string }> }> = [];
 
   for (const entry of parsed.individuals) {
     const match = matchName(entry.name, members);
@@ -138,9 +152,10 @@ IMPORTANT:
         memberId: match.member.id,
         memberName: `${match.member.meno} ${match.member.priezvisko}`,
         confidence: match.confidence,
+        categories: entry.categories,
       });
     } else {
-      unmatched.push(entry);
+      unmatched.push({ name: entry.name, categories: entry.categories });
     }
   }
 

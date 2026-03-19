@@ -119,6 +119,48 @@ export type Database = {
         }
         Relationships: []
       }
+      member_competition_categories: {
+        Row: {
+          category: string
+          competition_id: string
+          created_at: string
+          discipline: string
+          id: string
+          member_id: string
+        }
+        Insert: {
+          category: string
+          competition_id: string
+          created_at?: string
+          discipline: string
+          id?: string
+          member_id: string
+        }
+        Update: {
+          category?: string
+          competition_id?: string
+          created_at?: string
+          discipline?: string
+          id?: string
+          member_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_competition_categories_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_competition_categories_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       member_competition_entries: {
         Row: {
           competition_id: string

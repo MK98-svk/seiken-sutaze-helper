@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,11 @@ interface AddResultDialogProps {
   onAdded: () => void;
 }
 
+interface ImportedCategory {
+  discipline: string;
+  category: string;
+}
+
 const DISCIPLINES = ["kata", "kumite", "kobudo"] as const;
 
 export default function AddResultDialog({ competitionId, competitionDate, member, onAdded }: AddResultDialogProps) {
@@ -26,12 +31,39 @@ export default function AddResultDialog({ competitionId, competitionDate, member
   const [categoryCode, setCategoryCode] = useState("");
   const [placement, setPlacement] = useState("");
   const [numCompetitors, setNumCompetitors] = useState("");
+  const [importedCategories, setImportedCategories] = useState<ImportedCategory[]>([]);
 
   const competitionReferenceDate = competitionDate ?? new Date().toISOString().slice(0, 10);
 
-  // Get eligible categories based on member attributes and selected discipline
-  const eligibleCategories = useMemo(() => {
+  // Fetch imported categories for this member + competition
+  useEffect(() => {
+    const fetchImported = async () => {
+      const { data } = await (supabase as any)
+        .from("member_competition_categories")
+        .select("discipline, category")
+        .eq("member_id", member.id)
+        .eq("competition_id", competitionId);
+      setImportedCategories(data || []);
+    };
+    fetchImported();
+  }, [member.id, competitionId]);
+
+  const hasImportedCategories = importedCategories.length > 0;
+
+  // Get unique disciplines from imported categories
+  const importedDisciplines = useMemo(() => {
+    return [...new Set(importedCategories.map(c => c.discipline))];
+  }, [importedCategories]);
+
+  // Get imported categories filtered by selected discipline
+  const importedForDiscipline = useMemo(() => {
     if (!discipline) return [];
+    return importedCategories.filter(c => c.discipline === discipline);
+  }, [discipline, importedCategories]);
+
+  // Get eligible categories based on member attributes and selected discipline (fallback)
+  const eligibleCategories = useMemo(() => {
+    if (!discipline || hasImportedCategories) return [];
     return getEligibleCategories(
       ALL_INDIVIDUAL_CATEGORIES,
       {
@@ -44,7 +76,7 @@ export default function AddResultDialog({ competitionId, competitionDate, member
       discipline,
       competitionReferenceDate
     );
-  }, [discipline, member, competitionReferenceDate]);
+  }, [discipline, member, competitionReferenceDate, hasImportedCategories]);
 
   // Check if member is missing key data for proper filtering
   const missingData = useMemo(() => {
@@ -68,7 +100,7 @@ export default function AddResultDialog({ competitionId, competitionDate, member
     }
     setSaving(true);
     try {
-      const categoryName = selectedCategory?.name || categoryCode || null;
+      const categoryName = hasImportedCategories ? categoryCode : (selectedCategory?.name || categoryCode || null);
       const { error } = await (supabase as any)
         .from("competition_results")
         .insert({
@@ -120,15 +152,20 @@ export default function AddResultDialog({ competitionId, competitionDate, member
                 <SelectValue placeholder="Vybrať disciplínu" />
               </SelectTrigger>
               <SelectContent>
-                {DISCIPLINES.map((d) => (
-                  <SelectItem key={d} value={d} className="capitalize">{d}</SelectItem>
-                ))}
+                {hasImportedCategories
+                  ? importedDisciplines.map((d) => (
+                      <SelectItem key={d} value={d}>{d}</SelectItem>
+                    ))
+                  : DISCIPLINES.map((d) => (
+                      <SelectItem key={d} value={d} className="capitalize">{d}</SelectItem>
+                    ))
+                }
               </SelectContent>
             </Select>
           </div>
 
-          {/* Missing data warning */}
-          {discipline && missingData.length > 0 && (
+          {/* Missing data warning — only for Slovak categories */}
+          {discipline && !hasImportedCategories && missingData.length > 0 && (
             <div className="flex items-start gap-2 rounded-md bg-warning/10 border border-warning/30 p-2 text-xs text-warning-foreground">
               <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0 text-warning" />
               <span>
@@ -137,57 +174,83 @@ export default function AddResultDialog({ competitionId, competitionDate, member
             </div>
           )}
 
-          {/* Category (smart filtered, grouped for kata) */}
+          {/* Category selection */}
           {discipline && (
             <div className="space-y-1.5">
-              <Label className="text-xs">
-                Kategória ({eligibleCategories.length} {eligibleCategories.length === 1 ? "možnosť" : "možností"})
-              </Label>
-              <Select value={categoryCode} onValueChange={setCategoryCode}>
-                <SelectTrigger className="h-9">
-                  <SelectValue placeholder="Vybrať kategóriu" />
-                </SelectTrigger>
-                <SelectContent className="max-h-[300px]">
-                  {eligibleCategories.length > 0 ? (
-                    discipline === "kata" ? (
-                      <>
-                        {/* GOJU RYU group */}
-                        {eligibleCategories.filter(c => !c.subtype || c.subtype !== "RENGO").length > 0 && (
-                          <SelectGroup>
-                            <SelectLabel className="text-xs font-bold text-primary">KATA GOJU RYU</SelectLabel>
-                            {eligibleCategories.filter(c => !c.subtype || c.subtype !== "RENGO").map((cat) => (
-                              <SelectItem key={cat.code} value={cat.code}>
-                                <span className="text-xs">{cat.code} — {cat.name}</span>
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        )}
-                        {/* RENGO OPEN group */}
-                        {eligibleCategories.filter(c => c.subtype === "RENGO").length > 0 && (
-                          <SelectGroup>
-                            <SelectLabel className="text-xs font-bold text-primary">KATA RENGO OPEN</SelectLabel>
-                            {eligibleCategories.filter(c => c.subtype === "RENGO").map((cat) => (
-                              <SelectItem key={cat.code} value={cat.code}>
-                                <span className="text-xs">{cat.code} — {cat.name}</span>
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        )}
-                      </>
-                    ) : (
-                      eligibleCategories.map((cat) => (
-                        <SelectItem key={cat.code} value={cat.code}>
-                          <span className="text-xs">{cat.code} — {cat.name}</span>
-                        </SelectItem>
-                      ))
-                    )
-                  ) : (
-                    <div className="px-2 py-3 text-xs text-muted-foreground text-center">
-                      Žiadna zodpovedajúca kategória
-                    </div>
-                  )}
-                </SelectContent>
-              </Select>
+              {hasImportedCategories ? (
+                <>
+                  <Label className="text-xs">
+                    Kategória ({importedForDiscipline.length} {importedForDiscipline.length === 1 ? "možnosť" : "možností"})
+                  </Label>
+                  <Select value={categoryCode} onValueChange={setCategoryCode}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Vybrať kategóriu" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px]">
+                      {importedForDiscipline.length > 0 ? (
+                        importedForDiscipline.map((cat, idx) => (
+                          <SelectItem key={idx} value={cat.category}>
+                            <span className="text-xs">{cat.category}</span>
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="px-2 py-3 text-xs text-muted-foreground text-center">
+                          Žiadna kategória pre túto disciplínu
+                        </div>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </>
+              ) : (
+                <>
+                  <Label className="text-xs">
+                    Kategória ({eligibleCategories.length} {eligibleCategories.length === 1 ? "možnosť" : "možností"})
+                  </Label>
+                  <Select value={categoryCode} onValueChange={setCategoryCode}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Vybrať kategóriu" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px]">
+                      {eligibleCategories.length > 0 ? (
+                        discipline === "kata" ? (
+                          <>
+                            {eligibleCategories.filter(c => !c.subtype || c.subtype !== "RENGO").length > 0 && (
+                              <SelectGroup>
+                                <SelectLabel className="text-xs font-bold text-primary">KATA GOJU RYU</SelectLabel>
+                                {eligibleCategories.filter(c => !c.subtype || c.subtype !== "RENGO").map((cat) => (
+                                  <SelectItem key={cat.code} value={cat.code}>
+                                    <span className="text-xs">{cat.code} — {cat.name}</span>
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            )}
+                            {eligibleCategories.filter(c => c.subtype === "RENGO").length > 0 && (
+                              <SelectGroup>
+                                <SelectLabel className="text-xs font-bold text-primary">KATA RENGO OPEN</SelectLabel>
+                                {eligibleCategories.filter(c => c.subtype === "RENGO").map((cat) => (
+                                  <SelectItem key={cat.code} value={cat.code}>
+                                    <span className="text-xs">{cat.code} — {cat.name}</span>
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            )}
+                          </>
+                        ) : (
+                          eligibleCategories.map((cat) => (
+                            <SelectItem key={cat.code} value={cat.code}>
+                              <span className="text-xs">{cat.code} — {cat.name}</span>
+                            </SelectItem>
+                          ))
+                        )
+                      ) : (
+                        <div className="px-2 py-3 text-xs text-muted-foreground text-center">
+                          Žiadna zodpovedajúca kategória
+                        </div>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </>
+              )}
             </div>
           )}
 

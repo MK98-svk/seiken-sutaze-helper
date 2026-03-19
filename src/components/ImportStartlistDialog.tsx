@@ -16,10 +16,12 @@ interface MatchedEntry {
   memberId: string;
   memberName: string;
   confidence: number;
+  categories?: Array<{ discipline: string; category: string }>;
 }
 
 interface UnmatchedEntry {
   name: string;
+  categories?: Array<{ discipline: string; category: string }>;
 }
 
 interface TeamEntry {
@@ -172,6 +174,27 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
           .from("member_competition_entries")
           .upsert(entries, { onConflict: "competition_id,member_id" });
         if (error) throw error;
+      }
+
+      // Save imported categories for matched members
+      const categoryRows: Array<{ member_id: string; competition_id: string; discipline: string; category: string }> = [];
+      for (const m of matched) {
+        if (m.categories && m.categories.length > 0) {
+          for (const cat of m.categories) {
+            categoryRows.push({
+              member_id: m.memberId,
+              competition_id: competitionId,
+              discipline: cat.discipline,
+              category: cat.category,
+            });
+          }
+        }
+      }
+      if (categoryRows.length > 0) {
+        const { error: catError } = await (supabase as any)
+          .from("member_competition_categories")
+          .upsert(categoryRows, { onConflict: "member_id,competition_id,discipline,category" });
+        if (catError) throw catError;
       }
 
       // Insert team entries

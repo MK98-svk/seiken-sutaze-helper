@@ -21,6 +21,7 @@ interface MatchedEntry {
 
 interface UnmatchedEntry {
   name: string;
+  categories?: Array<{ discipline: string; category: string }>;
 }
 
 interface TeamEntry {

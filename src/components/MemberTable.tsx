@@ -346,7 +346,7 @@ export default function MemberTable({
             </SelectContent>
           </Select>
         </div>
-        <CompetitorAnalytics members={members} />
+        <CompetitorAnalytics members={members} competitions={competitions} />
       </div>
     );
   }

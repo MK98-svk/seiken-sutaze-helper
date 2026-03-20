@@ -1,10 +1,14 @@
 import { useMemo } from "react";
-import { Member } from "@/types/member";
+import { Member, Competition } from "@/types/member";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { getPlacementScore, getCompetitionTier, SCORING_TIERS } from "@/lib/competitionScoring";
 
 interface CompetitorAnalyticsProps {
   members: Member[];
+  competitions: Competition[];
 }
 
 const AGE_GROUPS = [
@@ -37,7 +41,6 @@ function getMemberAge(m: Member): number | null {
   return age >= 0 ? age : null;
 }
 
-
 interface MedalStats {
   zlato: number;
   striebro: number;
@@ -59,41 +62,72 @@ function aggregateStats(members: Member[]): MedalStats {
   );
 }
 
-function getTop3(members: Member[]): Member[] {
-  return [...members]
-    .sort((a, b) => {
-      const totalA = a.zlato * 3 + a.striebro * 2 + a.bronz;
-      const totalB = b.zlato * 3 + b.striebro * 2 + b.bronz;
-      if (totalB !== totalA) return totalB - totalA;
-      if (b.zlato !== a.zlato) return b.zlato - a.zlato;
-      if (b.striebro !== a.striebro) return b.striebro - a.striebro;
-      return b.bronz - a.bronz;
-    })
-    .filter(m => m.zlato + m.striebro + m.bronz > 0)
-    .slice(0, 3);
+interface ResultWithComp {
+  memberId: string;
+  placement: number | null;
+  competitionId: string;
 }
 
+function getTop3Weighted(
+  members: Member[],
+  allResults: ResultWithComp[],
+  competitionMap: Map<string, Competition>
+): { member: Member; score: number }[] {
+  const scores = new Map<string, number>();
+
+  for (const r of allResults) {
+    if (!r.placement || r.placement < 1 || r.placement > 3) continue;
+    const comp = competitionMap.get(r.competitionId);
+    if (!comp) continue;
+    const score = getPlacementScore(r.placement, comp.nazov);
+    scores.set(r.memberId, (scores.get(r.memberId) ?? 0) + score);
+  }
+
+  const memberIds = new Set(members.map(m => m.id));
+
+  return Array.from(scores.entries())
+    .filter(([id]) => memberIds.has(id))
+    .sort((a, b) => b[1] - a[1])
+    .filter(([, score]) => score > 0)
+    .slice(0, 3)
+    .map(([id, score]) => ({
+      member: members.find(m => m.id === id)!,
+      score,
+    }))
+    .filter(e => e.member);
+}
 
 const PODIUM_ICONS = ["🥇", "🥈", "🥉"];
 
-function Top3List({ members, title }: { members: Member[]; title: string }) {
-  const top = getTop3(members);
+function Top3List({
+  members,
+  allResults,
+  competitionMap,
+  title,
+}: {
+  members: Member[];
+  allResults: ResultWithComp[];
+  competitionMap: Map<string, Competition>;
+  title: string;
+}) {
+  const top = getTop3Weighted(members, allResults, competitionMap);
   if (top.length === 0) return null;
   return (
     <div className="space-y-2">
       <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{title}</h4>
-      {top.map((m, i) => (
-        <div key={m.id} className="flex items-center gap-2 bg-secondary/30 rounded-md px-3 py-2">
+      {top.map((entry, i) => (
+        <div key={entry.member.id} className="flex items-center gap-2 bg-secondary/30 rounded-md px-3 py-2">
           <span className="text-lg">{PODIUM_ICONS[i]}</span>
           <div className="flex-1 min-w-0">
             <span className="text-sm font-medium text-foreground truncate block">
-              {m.meno} {m.priezvisko}
+              {entry.member.meno} {entry.member.priezvisko}
             </span>
           </div>
           <div className="flex gap-2 text-xs font-bold shrink-0">
-            <span style={{ color: MEDAL_COLORS.zlato }}>{m.zlato}</span>
-            <span style={{ color: MEDAL_COLORS.striebro }}>{m.striebro}</span>
-            <span style={{ color: MEDAL_COLORS.bronz }}>{m.bronz}</span>
+            <span className="text-muted-foreground">{entry.score.toFixed(1)} b.</span>
+            <span style={{ color: MEDAL_COLORS.zlato }}>{entry.member.zlato}</span>
+            <span style={{ color: MEDAL_COLORS.striebro }}>{entry.member.striebro}</span>
+            <span style={{ color: MEDAL_COLORS.bronz }}>{entry.member.bronz}</span>
           </div>
         </div>
       ))}
@@ -156,7 +190,54 @@ function MedalBar({ stats, label }: { stats: MedalStats; label: string }) {
   );
 }
 
-export default function CompetitorAnalytics({ members }: CompetitorAnalyticsProps) {
+function ScoringLegend() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.05 }}
+      className="bg-card rounded-lg border border-border p-4"
+    >
+      <h3 className="text-sm font-display font-bold text-foreground mb-3">📋 Bodovanie podľa typu súťaže</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {Object.values(SCORING_TIERS).map((tier) => (
+          <div key={tier.label} className="flex items-center gap-2 bg-secondary/30 rounded-md px-3 py-2">
+            <span className="text-xs font-medium text-foreground flex-1">{tier.label}</span>
+            <div className="flex gap-2 text-xs">
+              <span style={{ color: MEDAL_COLORS.zlato }} className="font-bold">🥇 {tier.gold}</span>
+              <span style={{ color: MEDAL_COLORS.striebro }} className="font-bold">🥈 {tier.silver}</span>
+              <span style={{ color: MEDAL_COLORS.bronz }} className="font-bold">🥉 {tier.bronze}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+export default function CompetitorAnalytics({ members, competitions }: CompetitorAnalyticsProps) {
+  // Fetch ALL competition results for weighted scoring
+  const { data: allResults = [] } = useQuery({
+    queryKey: ["all_competition_results_for_analytics"],
+    queryFn: async (): Promise<ResultWithComp[]> => {
+      const { data, error } = await (supabase as any)
+        .from("competition_results")
+        .select("id, member_id, placement, competition_id");
+      if (error) throw error;
+      return (data ?? []).map((r: any) => ({
+        memberId: r.member_id,
+        placement: r.placement,
+        competitionId: r.competition_id,
+      }));
+    },
+  });
+
+  const competitionMap = useMemo(() => {
+    const map = new Map<string, Competition>();
+    competitions.forEach(c => map.set(c.id, c));
+    return map;
+  }, [competitions]);
+
   const totalStats = useMemo(() => aggregateStats(members), [members]);
 
   const pieData = useMemo(() => [
@@ -191,8 +272,17 @@ export default function CompetitorAnalytics({ members }: CompetitorAnalyticsProp
     return groups.filter(g => g.stats.count > 0);
   }, [members]);
 
+  // Filter results only for the members in scope
+  const memberResultsFilter = useMemo(() => {
+    const ids = new Set(members.map(m => m.id));
+    return allResults.filter(r => ids.has(r.memberId));
+  }, [allResults, members]);
+
   return (
     <div className="space-y-6">
+      {/* Scoring legend */}
+      <ScoringLegend />
+
       {/* Overall pie chart */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -288,10 +378,20 @@ export default function CompetitorAnalytics({ members }: CompetitorAnalyticsProp
         transition={{ delay: 0.15 }}
         className="bg-card rounded-lg border border-border p-4"
       >
-        <h3 className="text-sm font-display font-bold text-foreground mb-3">🏆 Top 3 podľa pohlavia</h3>
+        <h3 className="text-sm font-display font-bold text-foreground mb-3">🏆 Top 3 podľa pohlavia (vážené body)</h3>
         <div className="space-y-4">
-          <Top3List members={members.filter(m => m.pohlavie === "CH")} title="Chlapci / Muži" />
-          <Top3List members={members.filter(m => m.pohlavie === "D")} title="Dievčatá / Ženy" />
+          <Top3List
+            members={members.filter(m => m.pohlavie === "CH")}
+            allResults={memberResultsFilter}
+            competitionMap={competitionMap}
+            title="Chlapci / Muži"
+          />
+          <Top3List
+            members={members.filter(m => m.pohlavie === "D")}
+            allResults={memberResultsFilter}
+            competitionMap={competitionMap}
+            title="Dievčatá / Ženy"
+          />
         </div>
       </motion.div>
 
@@ -317,7 +417,7 @@ export default function CompetitorAnalytics({ members }: CompetitorAnalyticsProp
         transition={{ delay: 0.25 }}
         className="bg-card rounded-lg border border-border p-4"
       >
-        <h3 className="text-sm font-display font-bold text-foreground mb-3">🏆 Top 3 podľa vekovej kategórie</h3>
+        <h3 className="text-sm font-display font-bold text-foreground mb-3">🏆 Top 3 podľa vekovej kategórie (vážené body)</h3>
         <div className="space-y-4">
           {AGE_GROUPS.map(g => (
             <Top3List
@@ -326,6 +426,8 @@ export default function CompetitorAnalytics({ members }: CompetitorAnalyticsProp
                 const age = getMemberAge(m);
                 return age !== null && age >= g.min && age <= g.max;
               })}
+              allResults={memberResultsFilter}
+              competitionMap={competitionMap}
               title={`${g.label} rokov`}
             />
           ))}

@@ -18,6 +18,7 @@ interface TeamResultsSectionProps {
   addTeamResult: (result: { competitionId: string; discipline: string; category?: string; placement?: number; numCompetitors?: number }) => Promise<void>;
   updateTeamResult: (id: string, updates: { placement?: number | null; numCompetitors?: number | null }) => Promise<void>;
   invalidate: () => void;
+  isLoading?: boolean;
 }
 
 function getMedalEmoji(placement: number | null) {
@@ -124,6 +125,7 @@ export default function TeamResultsSection({
   addTeamResult,
   updateTeamResult,
   invalidate,
+  isLoading = false,
 }: TeamResultsSectionProps) {
   const filtered = teamResults.filter((r) => {
     const d = (r.discipline || "").toLowerCase();
@@ -139,7 +141,9 @@ export default function TeamResultsSection({
   return (
     <div className="rounded-lg border border-border bg-card p-3 space-y-2">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">{title}</h3>
+        <h3 className="text-sm font-semibold">
+          {title} <span className="text-muted-foreground font-normal">({isLoading ? "…" : filtered.length})</span>
+        </h3>
         {canManage && (
           <AddTeamResultDialog
             competitionId={competitionId}
@@ -149,7 +153,9 @@ export default function TeamResultsSection({
           />
         )}
       </div>
-      {filtered.length > 0 ? (
+      {isLoading ? (
+        <p className="text-xs text-muted-foreground">Načítavam družstvá…</p>
+      ) : filtered.length > 0 ? (
         <div className="space-y-1">
           {filtered.map((r) => {
             const medal = getMedalEmoji(r.placement);

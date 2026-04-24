@@ -12,6 +12,10 @@ export function useMembers() {
 
   const { data: members = [], isLoading } = useQuery({
     queryKey: ["members"],
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: "always",
+    refetchOnReconnect: "always",
     queryFn: async (): Promise<Member[]> => {
       const { data, error } = await (supabase as any)
         .from("members")
@@ -168,6 +172,10 @@ export function useCompetitionEntries() {
 
   const { data: entries = [] } = useQuery({
     queryKey: ["member_competition_entries"],
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: "always",
+    refetchOnReconnect: "always",
     queryFn: async (): Promise<CompetitionEntry[]> => {
       const { data, error } = await (supabase as any)
         .from("member_competition_entries")

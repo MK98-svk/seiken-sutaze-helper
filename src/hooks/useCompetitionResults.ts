@@ -28,6 +28,11 @@ export function useCompetitionResults(competitionId?: string) {
   const { data: results = [], isLoading } = useQuery({
     queryKey: ["competition_results", competitionId],
     enabled: !!competitionId,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: "always",
+    refetchOnReconnect: "always",
     queryFn: async (): Promise<CompetitionResult[]> => {
       const { data, error } = await (supabase as any)
         .from("competition_results")
@@ -49,6 +54,11 @@ export function useCompetitionResults(competitionId?: string) {
   const { data: teamResults = [], isLoading: teamLoading } = useQuery({
     queryKey: ["team_competition_results", competitionId],
     enabled: !!competitionId,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: "always",
+    refetchOnReconnect: "always",
     queryFn: async (): Promise<TeamResult[]> => {
       const { data, error } = await (supabase as any)
         .from("team_competition_results")

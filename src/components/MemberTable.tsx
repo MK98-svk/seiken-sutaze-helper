@@ -81,7 +81,7 @@ export default function MemberTable({
   const selectedComp = !showStats && selectedCompId !== "all" ? competitions.find((c) => c.id === selectedCompId) : undefined;
 
   // Fetch competition results when a specific competition is selected
-  const { getMemberMedals, teamResults, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult, updateTeamResult } = useCompetitionResults(selectedComp?.id);
+  const { getMemberMedals, teamResults, teamLoading, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult, updateTeamResult } = useCompetitionResults(selectedComp?.id);
 
   // When a specific competition is selected
   if (selectedComp) {
@@ -120,8 +120,42 @@ export default function MemberTable({
             invalidateResults={invalidateResults}
           />
         ) : (
-          /* Desktop table - unchanged */
-          <div className="overflow-x-auto rounded-lg border border-border">
+          <div className="space-y-3">
+            <div className="grid gap-3 sm:grid-cols-2">
+              {(() => {
+                const isRegisteredMember = currentUserId ? registeredMembers.some(m => m.userId === currentUserId) : false;
+                const canManageTeam = isAdmin || isCoach || isRegisteredMember;
+                return (
+                  <>
+                    <TeamResultsSection
+                      competitionId={selectedComp.id}
+                      discipline="kata"
+                      teamResults={teamResults}
+                      canManage={canManageTeam}
+                      canDelete={isAdmin || isCoach}
+                      deleteTeamResult={deleteTeamResult}
+                      addTeamResult={addTeamResult}
+                      updateTeamResult={updateTeamResult}
+                      invalidate={invalidateResults}
+                      isLoading={teamLoading}
+                    />
+                    <TeamResultsSection
+                      competitionId={selectedComp.id}
+                      discipline="kumite"
+                      teamResults={teamResults}
+                      canManage={canManageTeam}
+                      canDelete={isAdmin || isCoach}
+                      deleteTeamResult={deleteTeamResult}
+                      addTeamResult={addTeamResult}
+                      updateTeamResult={updateTeamResult}
+                      invalidate={invalidateResults}
+                      isLoading={teamLoading}
+                    />
+                  </>
+                );
+              })()}
+            </div>
+            <div className="overflow-x-auto rounded-lg border border-border">
             <Table>
               <TableHeader>
                 <TableRow className="bg-secondary/50 hover:bg-secondary/50">
@@ -259,38 +293,6 @@ export default function MemberTable({
                 )}
               </div>
             )}
-            {/* Team results */}
-            <div className="p-3 grid gap-3 sm:grid-cols-2">
-              {(() => {
-                const isRegisteredMember = currentUserId ? registeredMembers.some(m => m.userId === currentUserId) : false;
-                const canManageTeam = isAdmin || isCoach || isRegisteredMember;
-                return (
-                  <>
-                    <TeamResultsSection
-                      competitionId={selectedComp.id}
-                      discipline="kata"
-                      teamResults={teamResults}
-                      canManage={canManageTeam}
-                      canDelete={isAdmin || isCoach}
-                      deleteTeamResult={deleteTeamResult}
-                      addTeamResult={addTeamResult}
-                      updateTeamResult={updateTeamResult}
-                      invalidate={invalidateResults}
-                    />
-                    <TeamResultsSection
-                      competitionId={selectedComp.id}
-                      discipline="kumite"
-                      teamResults={teamResults}
-                      canManage={canManageTeam}
-                      canDelete={isAdmin || isCoach}
-                      deleteTeamResult={deleteTeamResult}
-                      addTeamResult={addTeamResult}
-                      updateTeamResult={updateTeamResult}
-                      invalidate={invalidateResults}
-                    />
-                  </>
-                );
-              })()}
             </div>
           </div>
         );

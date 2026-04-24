@@ -190,10 +190,19 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
           }
         }
       }
-      if (categoryRows.length > 0) {
+      // Deduplicate to avoid "ON CONFLICT DO UPDATE command cannot affect row a second time"
+      const dedupedCategoryRows = Array.from(
+        new Map(
+          categoryRows.map((r) => [
+            `${r.member_id}|${r.competition_id}|${(r.discipline || "").trim().toLowerCase()}|${(r.category || "").trim().toLowerCase()}`,
+            r,
+          ])
+        ).values()
+      );
+      if (dedupedCategoryRows.length > 0) {
         const { error: catError } = await (supabase as any)
           .from("member_competition_categories")
-          .upsert(categoryRows, { onConflict: "member_id,competition_id,discipline,category" });
+          .upsert(dedupedCategoryRows, { onConflict: "member_id,competition_id,discipline,category" });
         if (catError) throw catError;
       }
 

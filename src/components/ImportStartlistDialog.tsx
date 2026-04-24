@@ -384,28 +384,32 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
                     const newData = unmatchedNewData[i];
                     return (
                       <div key={i} className="rounded-md border border-border p-3 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">{r.name}</span>
-                          <div className="flex gap-1">
-                            <Button
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span className="text-sm font-medium break-words">{r.name}</span>
+                          <div className="flex gap-1 shrink-0">
+                            <button
                               type="button"
-                              variant={!isCreateMode ? "default" : "outline"}
-                              size="sm"
-                              className="text-xs h-7 px-2"
-                              onClick={() => setUnmatchedCreateMode((prev) => ({ ...prev, [i]: false }))}
+                              className={`text-xs h-7 px-3 rounded-md border transition-colors ${!isCreateMode ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:bg-accent"}`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setUnmatchedCreateMode((prev) => ({ ...prev, [i]: false }));
+                              }}
                             >
                               Priradiť
-                            </Button>
-                            <Button
+                            </button>
+                            <button
                               type="button"
-                              variant={isCreateMode ? "default" : "outline"}
-                              size="sm"
-                              className="text-xs h-7 px-2 gap-1"
-                              onClick={() => setUnmatchedCreateMode((prev) => ({ ...prev, [i]: true }))}
+                              className={`text-xs h-7 px-3 rounded-md border transition-colors inline-flex items-center gap-1 ${isCreateMode ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:bg-accent"}`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setUnmatchedCreateMode((prev) => ({ ...prev, [i]: true }));
+                              }}
                             >
                               <UserPlus className="h-3 w-3" />
                               Vytvoriť
-                            </Button>
+                            </button>
                           </div>
                         </div>
 

@@ -94,6 +94,32 @@ export default function MobileCompetitionView({
         )}
       </div>
 
+      {/* Team results - visible before the long member list on mobile */}
+      <div className="space-y-3">
+        <TeamResultsSection
+          competitionId={competition.id}
+          discipline="kata"
+          teamResults={teamResults}
+          canManage={canManageTeamResults}
+          canDelete={canDeleteTeamResults}
+          deleteTeamResult={deleteTeamResult}
+          addTeamResult={addTeamResult}
+          updateTeamResult={updateTeamResult}
+          invalidate={invalidateResults}
+        />
+        <TeamResultsSection
+          competitionId={competition.id}
+          discipline="kumite"
+          teamResults={teamResults}
+          canManage={canManageTeamResults}
+          canDelete={canDeleteTeamResults}
+          deleteTeamResult={deleteTeamResult}
+          addTeamResult={addTeamResult}
+          updateTeamResult={updateTeamResult}
+          invalidate={invalidateResults}
+        />
+      </div>
+
       {/* Member cards */}
       <AnimatePresence>
         {members.map((member) => {
@@ -208,32 +234,6 @@ export default function MobileCompetitionView({
           );
         })}
       </AnimatePresence>
-
-      {/* Team results - stacked vertically */}
-      <div className="space-y-3">
-        <TeamResultsSection
-          competitionId={competition.id}
-          discipline="kata"
-          teamResults={teamResults}
-          canManage={canManageTeamResults}
-          canDelete={canDeleteTeamResults}
-          deleteTeamResult={deleteTeamResult}
-          addTeamResult={addTeamResult}
-          updateTeamResult={updateTeamResult}
-          invalidate={invalidateResults}
-        />
-        <TeamResultsSection
-          competitionId={competition.id}
-          discipline="kumite"
-          teamResults={teamResults}
-          canManage={canManageTeamResults}
-          canDelete={canDeleteTeamResults}
-          deleteTeamResult={deleteTeamResult}
-          addTeamResult={addTeamResult}
-          updateTeamResult={updateTeamResult}
-          invalidate={invalidateResults}
-        />
-      </div>
 
       {/* Confirm remove dialog */}
       <AlertDialog open={!!memberToRemove} onOpenChange={(open) => { if (!open) setMemberToRemove(null); }}>

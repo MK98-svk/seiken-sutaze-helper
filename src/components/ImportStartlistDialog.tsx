@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -51,6 +52,7 @@ interface ImportStartlistDialogProps {
 }
 
 export default function ImportStartlistDialog({ competitionId, competitionName, members, onImported }: ImportStartlistDialogProps) {
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -257,6 +259,18 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
       if (teams.length > 0) parts.push(`${teams.length} družstiev`);
       if (createdCount > 0) parts.push(`${createdCount} nových členov vytvorených`);
       toast.success(`Zaregistrovaných ${parts.join(", ")}!`);
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["member_competition_entries"] }),
+        queryClient.invalidateQueries({ queryKey: ["members"] }),
+        queryClient.invalidateQueries({ queryKey: ["competition_results", competitionId] }),
+        queryClient.invalidateQueries({ queryKey: ["team_competition_results", competitionId] }),
+      ]);
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ["member_competition_entries"] }),
+        queryClient.refetchQueries({ queryKey: ["members"] }),
+        queryClient.refetchQueries({ queryKey: ["team_competition_results", competitionId] }),
+      ]);
 
       onImported();
       setOpen(false);

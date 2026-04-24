@@ -63,7 +63,9 @@ export function useCompetitionResults(competitionId?: string) {
       const { data, error } = await (supabase as any)
         .from("team_competition_results")
         .select("*")
-        .eq("competition_id", competitionId);
+        .eq("competition_id", competitionId)
+        .order("discipline", { ascending: true })
+        .order("category", { ascending: true });
       if (error) throw error;
       return (data ?? []).map((r: any) => ({
         id: r.id,
@@ -99,6 +101,8 @@ export function useCompetitionResults(competitionId?: string) {
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["competition_results", competitionId] });
     qc.invalidateQueries({ queryKey: ["team_competition_results", competitionId] });
+    qc.refetchQueries({ queryKey: ["competition_results", competitionId] });
+    qc.refetchQueries({ queryKey: ["team_competition_results", competitionId] });
   };
 
   const deleteResult = async (resultId: string) => {

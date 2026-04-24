@@ -145,14 +145,45 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
         }
       }
 
-      // Create new members first
+      // Create new members first - but check if they already exist (by meno+priezvisko+datum_narodenia)
+      // to prevent creating duplicates if the import is run twice
       for (const { data } of newMembersToCreate) {
+        const trimmedMeno = (data.meno || "").trim();
+        const trimmedPriezvisko = (data.priezvisko || "").trim();
+        const dob = data.datumNarodenia || null;
+
+        // Look for an existing member matching name (case-insensitive) and DOB if available
+        let existingId: string | null = null;
+        try {
+          let q = (supabase as any)
+            .from("members")
+            .select("id, datum_narodenia")
+            .ilike("meno", trimmedMeno)
+            .ilike("priezvisko", trimmedPriezvisko);
+          const { data: existing } = await q;
+          if (existing && existing.length > 0) {
+            if (dob) {
+              const match = existing.find((e: any) => e.datum_narodenia === dob);
+              if (match) existingId = match.id;
+            } else if (existing.length === 1) {
+              existingId = existing[0].id;
+            }
+          }
+        } catch (_) {
+          // ignore lookup errors and fall back to insert
+        }
+
+        if (existingId) {
+          memberIds.push(existingId);
+          continue;
+        }
+
         const { data: inserted, error } = await (supabase as any)
           .from("members")
           .insert({
-            meno: data.meno,
-            priezvisko: data.priezvisko,
-            datum_narodenia: data.datumNarodenia || null,
+            meno: trimmedMeno,
+            priezvisko: trimmedPriezvisko,
+            datum_narodenia: dob,
             stupen: data.stupen || "",
             user_id: null,
           })

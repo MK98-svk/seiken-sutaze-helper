@@ -125,7 +125,15 @@ export default function TeamResultsSection({
   updateTeamResult,
   invalidate,
 }: TeamResultsSectionProps) {
-  const filtered = teamResults.filter((r) => r.discipline === discipline);
+  const filtered = teamResults.filter((r) => {
+    const d = (r.discipline || "").toLowerCase();
+    if (discipline === "kata") {
+      // Kata family: "kata", "KATA TEAM", "Mixed Pairs Kata", "Mixed Team Kata"
+      return d.includes("kata") && !d.includes("kumite");
+    }
+    // Kumite family: "kumite", "KUMITE ROTÁCIE", "Kumite Team"
+    return d.includes("kumite");
+  });
   const title = discipline === "kata" ? "Kata — Družstvá" : "Kumite — Družstvá";
 
   return (

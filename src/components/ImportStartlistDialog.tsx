@@ -239,18 +239,57 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
         if (catError) throw catError;
       }
 
-      // Insert team entries
+      // Insert team entries — normalize discipline to canonical "kata"/"kumite"
+      // so the UI filter is stable regardless of the source PDF wording.
+      const normalizeTeamDiscipline = (raw: string): string => {
+        const d = (raw || "").toLowerCase();
+        if (d.includes("kumite") || d.includes("rotac") || d.includes("rotát")) return "kumite";
+        if (d.includes("kata") || d.includes("pairs") || d.includes("team kata")) return "kata";
+        return raw;
+      };
+
       if (teams.length > 0) {
-        const teamRows = teams.map((t) => ({
-          competition_id: competitionId,
-          discipline: t.discipline,
-          category: t.category,
-          members_text: t.members?.join(", ") || null,
-        }));
-        const { error: teamError } = await (supabase as any)
+        // Avoid creating duplicates if the same startlist is imported twice:
+        // skip teams that already exist for this competition + category + members_text.
+        const { data: existingTeams } = await (supabase as any)
           .from("team_competition_results")
-          .insert(teamRows);
-        if (teamError) throw teamError;
+          .select("category, members_text")
+          .eq("competition_id", competitionId);
+        const existingKeys = new Set<string>(
+          (existingTeams || []).map((r: any) =>
+            `${(r.category || "").trim().toLowerCase()}|${(r.members_text || "").trim().toLowerCase()}`
+          )
+        );
+
+        const teamRows = teams
+          .map((t) => {
+            const membersText = t.members?.join(", ") || null;
+            const normalizedDiscipline = normalizeTeamDiscipline(t.discipline);
+            // Keep the original wording inside category so it stays visible
+            // even though the discipline is normalized.
+            const category = t.category && t.category.trim().length > 0
+              ? t.category
+              : t.discipline;
+            return {
+              competition_id: competitionId,
+              discipline: normalizedDiscipline,
+              category,
+              members_text: membersText,
+            };
+          })
+          .filter((row) => {
+            const key = `${(row.category || "").trim().toLowerCase()}|${(row.members_text || "").trim().toLowerCase()}`;
+            if (existingKeys.has(key)) return false;
+            existingKeys.add(key);
+            return true;
+          });
+
+        if (teamRows.length > 0) {
+          const { error: teamError } = await (supabase as any)
+            .from("team_competition_results")
+            .insert(teamRows);
+          if (teamError) throw teamError;
+        }
       }
 
       const createdCount = newMembersToCreate.length;

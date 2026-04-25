@@ -99,7 +99,12 @@ export function getEligibleCategories(
 ): CompetitionCategory[] {
   const age = member.datumNarodenia ? calculateAge(member.datumNarodenia, competitionDate) : null;
   const rank = member.stupen ? parseRank(member.stupen) : null;
-  const gender = member.pohlavie || null;
+  const rawGender = member.pohlavie?.trim().toUpperCase() || null;
+  const gender = rawGender === "F" || rawGender === "Ž" || rawGender === "Z" || rawGender === "DIEVČA" || rawGender === "ZENA" || rawGender === "ŽENA"
+    ? "D"
+    : rawGender === "M" || rawGender === "MUŽ" || rawGender === "MUZ" || rawGender === "CHLAPEC"
+      ? "CH"
+      : rawGender;
 
   return categories.filter((cat) => {
     // Filter by discipline

@@ -50,10 +50,16 @@ export default function AddResultDialog({ competitionId, competitionDate, member
 
   const hasImportedCategories = importedCategories.length > 0;
 
+  const memberDisciplines = useMemo(() => {
+    return DISCIPLINES.filter((d) => member[d]);
+  }, [member]);
+
   // Get unique disciplines from imported categories
   const importedDisciplines = useMemo(() => {
-    return [...new Set(importedCategories.map(c => c.discipline))];
-  }, [importedCategories]);
+    return [...new Set(importedCategories.map(c => c.discipline))].filter((d) =>
+      memberDisciplines.includes(d as typeof DISCIPLINES[number])
+    );
+  }, [importedCategories, memberDisciplines]);
 
   // Get imported categories filtered by selected discipline
   const importedForDiscipline = useMemo(() => {
@@ -156,7 +162,7 @@ export default function AddResultDialog({ competitionId, competitionDate, member
                   ? importedDisciplines.map((d) => (
                       <SelectItem key={d} value={d}>{d}</SelectItem>
                     ))
-                  : DISCIPLINES.map((d) => (
+                  : memberDisciplines.map((d) => (
                       <SelectItem key={d} value={d} className="capitalize">{d}</SelectItem>
                     ))
                 }

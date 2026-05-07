@@ -9,6 +9,8 @@ import TeamResultsSection from "./TeamResultsSection";
 import { useCompetitionResults } from "@/hooks/useCompetitionResults";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useCompetitionIntents } from "@/hooks/useCompetitionIntents";
+import { formatIntentLabel } from "./SelfRegisterDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,6 +49,7 @@ export default function MobileCompetitionView({
   const canManageTeamResults = canManageResults || isRegisteredMember;
   const canDeleteTeamResults = isAdmin || isCoach;
   const { getMemberMedals, teamResults, teamLoading, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult, updateTeamResult } = useCompetitionResults(competition.id);
+  const { getIntent } = useCompetitionIntents();
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
   const [memberToRemove, setMemberToRemove] = useState<Member | null>(null);
 

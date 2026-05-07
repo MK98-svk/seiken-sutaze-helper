@@ -15,6 +15,7 @@ interface Props {
   competitions: Competition[];
   currentUserId: string;
   isAdmin: boolean;
+  isCoach?: boolean;
 }
 
 type Draft = {
@@ -24,15 +25,16 @@ type Draft = {
 
 const blank = (): Draft => ({ kata: false, kataGoju: false, kataOpen: false, kobudo: false, kumite: false });
 
-export default function SelfRegisterDialog({ members, competitions, currentUserId, isAdmin }: Props) {
+export default function SelfRegisterDialog({ members, competitions, currentUserId, isAdmin, isCoach = false }: Props) {
   const [open, setOpen] = useState(false);
   const { intents, upsertIntent, deleteIntent } = useCompetitionIntents();
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [selectedCompId, setSelectedCompId] = useState<string>("");
 
+  const seesAll = isAdmin || isCoach;
   const myMembers = useMemo(
-    () => isAdmin ? members : members.filter((m) => m.userId === currentUserId),
-    [members, currentUserId, isAdmin]
+    () => seesAll ? members : members.filter((m) => m.userId === currentUserId),
+    [members, currentUserId, seesAll]
   );
 
   const upcoming = useMemo(() => {

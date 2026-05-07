@@ -57,12 +57,13 @@ const Index = () => {
               </>
             )}
             {user && <AddSelfDialog onAdd={addMember} userId={user.id} linkedMembersCount={linkedMembersCount} />}
-            {user && (linkedMembersCount > 0 || isAdmin) && (
+            {user && (linkedMembersCount > 0 || isAdmin || isCoach) && (
               <SelfRegisterDialog
                 members={members}
                 competitions={competitions}
                 currentUserId={user.id}
                 isAdmin={isAdmin}
+                isCoach={isCoach}
               />
             )}
             <Button variant="ghost" size="icon" onClick={signOut} title="Odhlásiť sa" className="h-8 w-8">

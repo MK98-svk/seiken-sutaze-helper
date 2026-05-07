@@ -30,6 +30,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import MobileCompetitionView from "./MobileCompetitionView";
 import MobileMemberList from "./MobileMemberList";
 import CompetitorAnalytics from "./CompetitorAnalytics";
+import { useCompetitionIntents } from "@/hooks/useCompetitionIntents";
+import { formatIntentLabel } from "./SelfRegisterDialog";
 
 interface MemberTableProps {
   members: Member[];
@@ -82,6 +84,7 @@ export default function MemberTable({
 
   // Fetch competition results when a specific competition is selected
   const { getMemberMedals, teamResults, teamLoading, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult, updateTeamResult } = useCompetitionResults(selectedComp?.id);
+  const { getIntent } = useCompetitionIntents();
 
   // When a specific competition is selected
   if (selectedComp) {
@@ -196,37 +199,44 @@ export default function MemberTable({
                           <TableCell className="text-xs text-muted-foreground">
                             {(() => {
                               const canManage = isAdmin || isCoach || (currentUserId != null && member.userId === currentUserId);
+                              const intent = getIntent(member.id, selectedComp.id);
+                              const intentLabel = intent ? formatIntentLabel(intent) : "";
                               return (
-                                <div className="flex items-center gap-1.5 flex-wrap">
-                                  {medals.results.length > 0
-                                    ? medals.results.map((r) => (
-                                      <span key={r.id} className="inline-flex items-center gap-0.5 bg-secondary/80 rounded px-1.5 py-0.5">
-                                        <span className="capitalize">{r.discipline}</span>
-                                        {r.category && <span className="text-muted-foreground">({r.category})</span>}
-                                        <span>— {r.placement}.</span>
-                                        {r.numCompetitors && <span className="text-muted-foreground">z {r.numCompetitors}</span>}
-                                        {canManage && (
-                                          <button
-                                            onClick={async () => {
-                                              try { await deleteResult(r.id); toast.success("Výsledok zmazaný"); }
-                                              catch { toast.error("Chyba pri mazaní"); }
-                                            }}
-                                            className="ml-0.5 text-muted-foreground hover:text-destructive transition-colors"
-                                          >
-                                            <X className="h-3 w-3" />
-                                          </button>
-                                        )}
-                                      </span>
-                                    ))
-                                    : "—"}
-                                  {canManage && selectedComp && (
-                                    <AddResultDialog
-                                      competitionId={selectedComp.id}
-                                      competitionDate={selectedComp.datum}
-                                      member={member}
-                                      onAdded={invalidateResults}
-                                    />
+                                <div className="space-y-1">
+                                  {intentLabel && (
+                                    <div className="text-[11px] text-primary/80">Plán: {intentLabel}</div>
                                   )}
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    {medals.results.length > 0
+                                      ? medals.results.map((r) => (
+                                        <span key={r.id} className="inline-flex items-center gap-0.5 bg-secondary/80 rounded px-1.5 py-0.5">
+                                          <span className="capitalize">{r.discipline}</span>
+                                          {r.category && <span className="text-muted-foreground">({r.category})</span>}
+                                          <span>— {r.placement}.</span>
+                                          {r.numCompetitors && <span className="text-muted-foreground">z {r.numCompetitors}</span>}
+                                          {canManage && (
+                                            <button
+                                              onClick={async () => {
+                                                try { await deleteResult(r.id); toast.success("Výsledok zmazaný"); }
+                                                catch { toast.error("Chyba pri mazaní"); }
+                                              }}
+                                              className="ml-0.5 text-muted-foreground hover:text-destructive transition-colors"
+                                            >
+                                              <X className="h-3 w-3" />
+                                            </button>
+                                          )}
+                                        </span>
+                                      ))
+                                      : !intentLabel && "—"}
+                                    {canManage && selectedComp && (
+                                      <AddResultDialog
+                                        competitionId={selectedComp.id}
+                                        competitionDate={selectedComp.datum}
+                                        member={member}
+                                        onAdded={invalidateResults}
+                                      />
+                                    )}
+                                  </div>
                                 </div>
                               );
                             })()}

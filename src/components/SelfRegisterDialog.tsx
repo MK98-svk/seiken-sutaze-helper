@@ -3,6 +3,7 @@ import { Member, Competition } from "@/types/member";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ClipboardList } from "lucide-react";
 import { useCompetitionIntents, CompetitionIntent } from "@/hooks/useCompetitionIntents";
 import { format } from "date-fns";
@@ -27,6 +28,7 @@ export default function SelfRegisterDialog({ members, competitions, currentUserI
   const [open, setOpen] = useState(false);
   const { intents, upsertIntent, deleteIntent } = useCompetitionIntents();
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
+  const [selectedCompId, setSelectedCompId] = useState<string>("");
 
   const myMembers = useMemo(
     () => isAdmin ? members : members.filter((m) => m.userId === currentUserId),
@@ -105,66 +107,85 @@ export default function SelfRegisterDialog({ members, competitions, currentUserI
         {upcoming.length === 0 ? (
           <p className="text-sm text-muted-foreground">Momentálne nie sú žiadne nadchádzajúce súťaže.</p>
         ) : (
-          <div className="space-y-6">
-            {upcoming.map((comp) => (
-              <div key={comp.id} className="border border-border rounded-lg p-3 space-y-3">
-                <div className="font-display font-semibold text-foreground">
-                  {comp.nazov} <span className="text-muted-foreground text-sm font-normal">— {formatDate(comp.datum)}</span>
-                </div>
-                {myMembers.map((m) => {
-                  const d = getDraft(m.id, comp.id);
-                  const hasIntent = !!intents.find((i) => i.memberId === m.id && i.competitionId === comp.id);
-                  return (
-                    <div key={m.id} className="bg-secondary/30 rounded p-2.5 space-y-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="text-sm font-medium">
-                          {m.meno} {m.priezvisko}
-                          {hasIntent && <span className="ml-2 text-xs text-primary">(prihlásený)</span>}
-                        </div>
-                        <Button size="sm" onClick={() => save(m, comp)}>Uložiť</Button>
-                      </div>
-                      <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
-                        {m.kata && (
-                          <div className="flex items-center gap-3 flex-wrap">
-                            <label className="flex items-center gap-1.5 cursor-pointer">
-                              <Checkbox checked={d.kata} onCheckedChange={(v) => setDraft(m.id, comp.id, { kata: !!v })} />
-                              <span>Kata</span>
-                            </label>
-                            {d.kata && (
-                              <div className="flex items-center gap-3 pl-2 border-l border-border">
-                                <label className="flex items-center gap-1.5 cursor-pointer text-xs">
-                                  <Checkbox checked={d.kataGoju} onCheckedChange={(v) => setDraft(m.id, comp.id, { kataGoju: !!v })} />
-                                  <span>Goju-ryu</span>
-                                </label>
-                                <label className="flex items-center gap-1.5 cursor-pointer text-xs">
-                                  <Checkbox checked={d.kataOpen} onCheckedChange={(v) => setDraft(m.id, comp.id, { kataOpen: !!v })} />
-                                  <span>Open (rengo)</span>
-                                </label>
-                              </div>
-                            )}
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-sm text-muted-foreground font-medium">Vyber súťaž</label>
+              <Select value={selectedCompId} onValueChange={setSelectedCompId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="— vyber súťaž —" />
+                </SelectTrigger>
+                <SelectContent>
+                  {upcoming.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.nazov} — {formatDate(c.datum)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {(() => {
+              const comp = upcoming.find((c) => c.id === selectedCompId);
+              if (!comp) {
+                return <p className="text-sm text-muted-foreground">Najprv vyber súťaž zo zoznamu.</p>;
+              }
+              return (
+                <div className="space-y-2">
+                  {myMembers.map((m) => {
+                    const d = getDraft(m.id, comp.id);
+                    const hasIntent = !!intents.find((i) => i.memberId === m.id && i.competitionId === comp.id);
+                    return (
+                      <div key={m.id} className="bg-secondary/30 rounded p-2.5 space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="text-sm font-medium">
+                            {m.meno} {m.priezvisko}
+                            {hasIntent && <span className="ml-2 text-xs text-primary">(prihlásený)</span>}
                           </div>
-                        )}
-                        {m.kobudo && (
-                          <label className="flex items-center gap-1.5 cursor-pointer">
-                            <Checkbox checked={d.kobudo} onCheckedChange={(v) => setDraft(m.id, comp.id, { kobudo: !!v })} />
-                            <span>Kobudo</span>
-                          </label>
-                        )}
-                        {m.kumite && (
-                          <label className="flex items-center gap-1.5 cursor-pointer">
-                            <Checkbox checked={d.kumite} onCheckedChange={(v) => setDraft(m.id, comp.id, { kumite: !!v })} />
-                            <span>Kumite</span>
-                          </label>
-                        )}
-                        {!m.kata && !m.kobudo && !m.kumite && (
-                          <span className="text-xs text-muted-foreground">V profile nie sú zaškrtnuté žiadne disciplíny — uprav profil cvičenca.</span>
-                        )}
+                          <Button size="sm" onClick={() => save(m, comp)}>Uložiť</Button>
+                        </div>
+                        <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+                          {m.kata && (
+                            <div className="flex items-center gap-3 flex-wrap">
+                              <label className="flex items-center gap-1.5 cursor-pointer">
+                                <Checkbox checked={d.kata} onCheckedChange={(v) => setDraft(m.id, comp.id, { kata: !!v })} />
+                                <span>Kata</span>
+                              </label>
+                              {d.kata && (
+                                <div className="flex items-center gap-3 pl-2 border-l border-border">
+                                  <label className="flex items-center gap-1.5 cursor-pointer text-xs">
+                                    <Checkbox checked={d.kataGoju} onCheckedChange={(v) => setDraft(m.id, comp.id, { kataGoju: !!v })} />
+                                    <span>Goju-ryu</span>
+                                  </label>
+                                  <label className="flex items-center gap-1.5 cursor-pointer text-xs">
+                                    <Checkbox checked={d.kataOpen} onCheckedChange={(v) => setDraft(m.id, comp.id, { kataOpen: !!v })} />
+                                    <span>Open (rengo)</span>
+                                  </label>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          {m.kobudo && (
+                            <label className="flex items-center gap-1.5 cursor-pointer">
+                              <Checkbox checked={d.kobudo} onCheckedChange={(v) => setDraft(m.id, comp.id, { kobudo: !!v })} />
+                              <span>Kobudo</span>
+                            </label>
+                          )}
+                          {m.kumite && (
+                            <label className="flex items-center gap-1.5 cursor-pointer">
+                              <Checkbox checked={d.kumite} onCheckedChange={(v) => setDraft(m.id, comp.id, { kumite: !!v })} />
+                              <span>Kumite</span>
+                            </label>
+                          )}
+                          {!m.kata && !m.kobudo && !m.kumite && (
+                            <span className="text-xs text-muted-foreground">V profile nie sú zaškrtnuté žiadne disciplíny — uprav profil cvičenca.</span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </div>
         )}
       </DialogContent>

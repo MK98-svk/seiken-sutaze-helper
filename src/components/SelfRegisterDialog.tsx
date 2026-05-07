@@ -15,6 +15,7 @@ interface Props {
   competitions: Competition[];
   currentUserId: string;
   isAdmin: boolean;
+  isCoach?: boolean;
 }
 
 type Draft = {

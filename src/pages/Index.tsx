@@ -2,6 +2,7 @@ import { useMembers, useCompetitions, useCompetitionEntries } from "@/hooks/useC
 import { useAuth } from "@/hooks/useAuth";
 import AddMemberDialog from "@/components/AddMemberDialog";
 import AddSelfDialog from "@/components/AddSelfDialog";
+import SelfRegisterDialog from "@/components/SelfRegisterDialog";
 import AddCompetitionDialog from "@/components/AddCompetitionDialog";
 import MemberTable from "@/components/MemberTable";
 import { Button } from "@/components/ui/button";
@@ -56,6 +57,14 @@ const Index = () => {
               </>
             )}
             {user && <AddSelfDialog onAdd={addMember} userId={user.id} linkedMembersCount={linkedMembersCount} />}
+            {user && (linkedMembersCount > 0 || isAdmin) && (
+              <SelfRegisterDialog
+                members={members}
+                competitions={competitions}
+                currentUserId={user.id}
+                isAdmin={isAdmin}
+              />
+            )}
             <Button variant="ghost" size="icon" onClick={signOut} title="Odhlásiť sa" className="h-8 w-8">
               <LogOut className="h-4 w-4" />
             </Button>

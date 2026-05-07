@@ -9,6 +9,8 @@ import TeamResultsSection from "./TeamResultsSection";
 import { useCompetitionResults } from "@/hooks/useCompetitionResults";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useCompetitionIntents } from "@/hooks/useCompetitionIntents";
+import { formatIntentLabel } from "./SelfRegisterDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,6 +49,7 @@ export default function MobileCompetitionView({
   const canManageTeamResults = canManageResults || isRegisteredMember;
   const canDeleteTeamResults = isAdmin || isCoach;
   const { getMemberMedals, teamResults, teamLoading, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult, updateTeamResult } = useCompetitionResults(competition.id);
+  const { getIntent } = useCompetitionIntents();
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
   const [memberToRemove, setMemberToRemove] = useState<Member | null>(null);
 
@@ -129,6 +132,8 @@ export default function MobileCompetitionView({
           const registered = isRegistered(member.id, competition.id);
           const isExpanded = expandedMember === member.id;
           const hasResults = medals.results.length > 0;
+          const intent = getIntent(member.id, competition.id);
+          const intentLabel = intent ? formatIntentLabel(intent) : "";
 
           return (
             <motion.div
@@ -147,6 +152,9 @@ export default function MobileCompetitionView({
                   <div className="font-medium text-sm truncate">
                     {member.meno} {member.priezvisko}
                   </div>
+                  {intentLabel && (
+                    <div className="text-[11px] text-primary/80 mt-0.5">Plán: {intentLabel}</div>
+                  )}
                   {hasResults && (
                     <div className="flex gap-2 text-xs text-muted-foreground mt-0.5">
                       {medals.zlato > 0 && <span>🥇{medals.zlato}</span>}

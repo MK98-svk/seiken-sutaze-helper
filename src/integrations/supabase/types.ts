@@ -197,6 +197,45 @@ export type Database = {
           },
         ]
       }
+      member_competition_intents: {
+        Row: {
+          competition_id: string
+          created_at: string
+          id: string
+          kata: boolean
+          kata_goju: boolean
+          kata_open: boolean
+          kobudo: boolean
+          kumite: boolean
+          member_id: string
+          updated_at: string
+        }
+        Insert: {
+          competition_id: string
+          created_at?: string
+          id?: string
+          kata?: boolean
+          kata_goju?: boolean
+          kata_open?: boolean
+          kobudo?: boolean
+          kumite?: boolean
+          member_id: string
+          updated_at?: string
+        }
+        Update: {
+          competition_id?: string
+          created_at?: string
+          id?: string
+          kata?: boolean
+          kata_goju?: boolean
+          kata_open?: boolean
+          kobudo?: boolean
+          kumite?: boolean
+          member_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       members: {
         Row: {
           bronz: number

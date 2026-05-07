@@ -3,6 +3,7 @@ import { Member, Competition } from "@/types/member";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ClipboardList } from "lucide-react";
 import { useCompetitionIntents, CompetitionIntent } from "@/hooks/useCompetitionIntents";
 import { format } from "date-fns";
@@ -27,6 +28,7 @@ export default function SelfRegisterDialog({ members, competitions, currentUserI
   const [open, setOpen] = useState(false);
   const { intents, upsertIntent, deleteIntent } = useCompetitionIntents();
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
+  const [selectedCompId, setSelectedCompId] = useState<string>("");
 
   const myMembers = useMemo(
     () => isAdmin ? members : members.filter((m) => m.userId === currentUserId),

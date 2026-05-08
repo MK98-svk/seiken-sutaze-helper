@@ -199,8 +199,7 @@ export default function MemberTable({
                           <TableCell className="text-xs text-muted-foreground">
                             {(() => {
                               const canManage = isAdmin || isCoach || (currentUserId != null && member.userId === currentUserId);
-                              const intent = getIntent(member.id, selectedComp.id);
-                              const intentLabel = intent ? formatIntentLabel(intent) : "";
+                              const intentLabel = "";
                               return (
                                 <div className="space-y-1">
                                   {intentLabel && (

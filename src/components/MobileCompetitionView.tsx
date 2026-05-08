@@ -132,8 +132,7 @@ export default function MobileCompetitionView({
           const registered = isRegistered(member.id, competition.id);
           const isExpanded = expandedMember === member.id;
           const hasResults = medals.results.length > 0;
-          const intent = getIntent(member.id, competition.id);
-          const intentLabel = intent ? formatIntentLabel(intent) : "";
+          const intentLabel = "";
 
           return (
             <motion.div

@@ -35,6 +35,15 @@ export default function AddResultDialog({ competitionId, competitionDate, member
 
   const competitionReferenceDate = competitionDate ?? new Date().toISOString().slice(0, 10);
 
+  // Normalize raw discipline strings (e.g. "KUMITE NIHON", "KATA") to base codes
+  const normalizeDiscipline = (raw: string): string => {
+    const s = (raw || "").toLowerCase();
+    if (s.includes("kata")) return "kata";
+    if (s.includes("kumite")) return "kumite";
+    if (s.includes("kobudo")) return "kobudo";
+    return s;
+  };
+
   // Fetch imported categories for this member + competition
   useEffect(() => {
     const fetchImported = async () => {
@@ -43,7 +52,11 @@ export default function AddResultDialog({ competitionId, competitionDate, member
         .select("discipline, category")
         .eq("member_id", member.id)
         .eq("competition_id", competitionId);
-      setImportedCategories(data || []);
+      const normalized = (data || []).map((c: any) => ({
+        discipline: normalizeDiscipline(c.discipline),
+        category: c.category,
+      }));
+      setImportedCategories(normalized);
     };
     fetchImported();
   }, [member.id, competitionId]);

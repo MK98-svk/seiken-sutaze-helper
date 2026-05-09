@@ -173,7 +173,7 @@ export default function AddResultDialog({ competitionId, competitionDate, member
               <SelectContent>
                 {hasImportedCategories
                   ? importedDisciplines.map((d) => (
-                      <SelectItem key={d} value={d}>{d}</SelectItem>
+                      <SelectItem key={d} value={d} className="capitalize">{d}</SelectItem>
                     ))
                   : memberDisciplines.map((d) => (
                       <SelectItem key={d} value={d} className="capitalize">{d}</SelectItem>

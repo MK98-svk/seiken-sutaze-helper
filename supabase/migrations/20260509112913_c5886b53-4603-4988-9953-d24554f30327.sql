@@ -1,0 +1,1 @@
+DELETE FROM public.member_competition_categories WHERE competition_id='1f4ebd7f-0598-41f1-939c-c4130d94f7e3' AND (discipline = 'KATA' OR discipline = 'KUMITE NIHON');

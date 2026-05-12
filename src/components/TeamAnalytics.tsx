@@ -101,6 +101,11 @@ function normalizeMembers(text: string | null): string {
     .join(" · ");
 }
 
+function countMembers(text: string | null): number {
+  if (!text) return 0;
+  return text.split(/[,;/]+/).map(s => s.trim()).filter(Boolean).length;
+}
+
 interface AggregatedTeam {
   key: string;
   membersDisplay: string;

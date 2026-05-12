@@ -1,7 +1,8 @@
 /**
  * Competition scoring tiers based on competition name/type.
  *
- * Tier 1 – Slovak domestic (pohár, Rovné Cup, kolo SP, …): 1 / 2 / 3
+ * Tier 0 – Začiatočnícke (Rovné Cup, …): 0.5 / 1 / 1.5
+ * Tier 1 – Slovak domestic (pohár, kolo SP, …): 1 / 2 / 3
  * Tier 2 – International (WUKF, open, cup except Rovné Cup): 1.5 / 2.5 / 3.5
  * Tier 3 – ME WUKF (European Championships): 2 / 3 / 4
  * Tier 4 – MS WUKF (World Championships): 2.5 / 3.5 / 4.5

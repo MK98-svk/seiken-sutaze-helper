@@ -101,6 +101,11 @@ function normalizeMembers(text: string | null): string {
     .join(" · ");
 }
 
+function countMembers(text: string | null): number {
+  if (!text) return 0;
+  return text.split(/[,;/]+/).map(s => s.trim()).filter(Boolean).length;
+}
+
 interface AggregatedTeam {
   key: string;
   membersDisplay: string;
@@ -209,6 +214,8 @@ export default function TeamAnalytics({ competitions }: TeamAnalyticsProps) {
   const grouped = useMemo(() => {
     const buckets = new Map<string, TeamRow[]>();
     for (const r of teamRows) {
+      // Only show real 3+ member teams (skip pairs and singles)
+      if (countMembers(r.membersText) < 3) continue;
       const disc = r.discipline.includes("kumite") ? "kumite" : r.discipline.includes("kata") ? "kata" : null;
       if (!disc) continue;
       const age = parseAge(r.category);

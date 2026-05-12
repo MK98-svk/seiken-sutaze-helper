@@ -274,7 +274,8 @@ export default function TeamAnalytics({ competitions }: TeamAnalyticsProps) {
   }
 
   const totalParsed = Array.from(grouped.values()).reduce((a, arr) => a + arr.length, 0);
-  const unparsed = teamRows.length - totalParsed;
+  const eligibleRows = teamRows.filter(r => countMembers(r.membersText) >= 3).length;
+  const unparsed = eligibleRows - totalParsed;
 
   return (
     <div className="space-y-6">

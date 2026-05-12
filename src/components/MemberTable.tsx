@@ -339,8 +339,8 @@ export default function MemberTable({
     );
   }
 
-  // Stats view
-  if (showStats) {
+  // Stats view (competitor or team)
+  if (showStats || showTeamStats) {
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-3 flex-wrap">
@@ -352,6 +352,7 @@ export default function MemberTable({
             <SelectContent>
               <SelectItem value="all">Všetky (prehľad členov)</SelectItem>
               <SelectItem value="stats">📊 Úspešnosť pretekárov</SelectItem>
+              <SelectItem value="team-stats">👥 Úspešnosť tímov</SelectItem>
               {competitions.map((comp) => (
                 <SelectItem key={comp.id} value={comp.id}>
                   {comp.nazov} — {formatDate(comp.datum)}
@@ -360,7 +361,9 @@ export default function MemberTable({
             </SelectContent>
           </Select>
         </div>
-        <CompetitorAnalytics members={members} competitions={competitions} />
+        {showStats
+          ? <CompetitorAnalytics members={members} competitions={competitions} />
+          : <TeamAnalytics competitions={competitions} />}
       </div>
     );
   }

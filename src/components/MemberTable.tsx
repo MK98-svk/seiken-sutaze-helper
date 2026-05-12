@@ -380,6 +380,7 @@ export default function MemberTable({
           <SelectContent>
             <SelectItem value="all">Všetky (prehľad členov)</SelectItem>
             <SelectItem value="stats">📊 Úspešnosť pretekárov</SelectItem>
+            <SelectItem value="team-stats">👥 Úspešnosť tímov</SelectItem>
             {competitions.map((comp) => (
               <SelectItem key={comp.id} value={comp.id}>
                 {comp.nazov} — {formatDate(comp.datum)}

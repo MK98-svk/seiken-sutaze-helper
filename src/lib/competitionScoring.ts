@@ -16,6 +16,7 @@ export interface ScoringTier {
 }
 
 export const SCORING_TIERS: Record<string, ScoringTier> = {
+  beginner: { label: "Začiatočnícke súťaže", bronze: 0.5, silver: 1, gold: 1.5 },
   domestic: { label: "Slovenské súťaže", bronze: 1, silver: 2, gold: 3 },
   international: { label: "Medzinárodné súťaže", bronze: 1.5, silver: 2.5, gold: 3.5 },
   me_wukf: { label: "ME WUKF", bronze: 2, silver: 3, gold: 4 },
@@ -31,10 +32,13 @@ export function getCompetitionTier(competitionName: string): keyof typeof SCORIN
   // ME WUKF – European Championships
   if (name.includes("me") && name.includes("wukf")) return "me_wukf";
 
-  // International: WUKF, open, or cup (but NOT "rovné cup" which is domestic)
+  // Beginner: Rovné Cup (must check before generic cup)
+  if (name.includes("rovné") || name.includes("rovne")) return "beginner";
+
+  // International: WUKF, open, or cup
   if (name.includes("wukf")) return "international";
   if (name.includes("open")) return "international";
-  if (name.includes("cup") && !name.includes("rovné")) return "international";
+  if (name.includes("cup")) return "international";
 
   // Everything else is domestic
   return "domestic";

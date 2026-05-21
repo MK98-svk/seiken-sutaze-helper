@@ -254,47 +254,65 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
         // skip teams that already exist for this competition + team_name (or members_text fallback).
         const { data: existingTeams } = await (supabase as any)
           .from("team_competition_results")
-          .select("team_name, category, members_text")
+          .select("id, team_name, category, members_text")
           .eq("competition_id", competitionId);
         const existingNameKeys = new Set<string>();
-        const existingMemKeys = new Set<string>();
+        const existingByMemKey = new Map<string, { id: string; team_name: string | null }>();
         for (const r of (existingTeams || [])) {
           const tn = (r.team_name || "").trim().toLowerCase();
           if (tn) existingNameKeys.add(tn);
-          existingMemKeys.add(
-            `${(r.category || "").trim().toLowerCase()}|${(r.members_text || "").trim().toLowerCase()}`
-          );
+          const memKey = `${(r.category || "").trim().toLowerCase()}|${(r.members_text || "").trim().toLowerCase()}`;
+          existingByMemKey.set(memKey, { id: r.id, team_name: r.team_name });
         }
 
-        const teamRows = teams
-          .map((t) => {
-            const membersText = t.members?.join(", ") || null;
-            const normalizedDiscipline = normalizeTeamDiscipline(t.discipline);
-            const category = t.category && t.category.trim().length > 0
-              ? t.category
-              : t.discipline;
-            return {
-              competition_id: competitionId,
-              team_name: t.team_name?.trim() || null,
-              discipline: normalizedDiscipline,
-              category,
-              members_text: membersText,
-            };
-          })
-          .filter((row) => {
-            const tn = (row.team_name || "").trim().toLowerCase();
-            const memKey = `${(row.category || "").trim().toLowerCase()}|${(row.members_text || "").trim().toLowerCase()}`;
-            if (tn && existingNameKeys.has(tn)) return false;
-            if (existingMemKeys.has(memKey)) return false;
-            if (tn) existingNameKeys.add(tn);
-            existingMemKeys.add(memKey);
-            return true;
-          });
+        const teamRowsToInsert: Array<{ competition_id: string; team_name: string | null; discipline: string; category: string; members_text: string | null }> = [];
+        const backfillUpdates: Array<{ id: string; team_name: string }> = [];
 
-        if (teamRows.length > 0) {
+        for (const t of teams) {
+          const membersText = t.members?.join(", ") || null;
+          const normalizedDiscipline = normalizeTeamDiscipline(t.discipline);
+          const category = t.category && t.category.trim().length > 0 ? t.category : t.discipline;
+          const tnRaw = t.team_name?.trim() || "";
+          const tn = tnRaw.toLowerCase();
+          const memKey = `${category.trim().toLowerCase()}|${(membersText || "").trim().toLowerCase()}`;
+
+          // Already exists by team_name → skip
+          if (tn && existingNameKeys.has(tn)) continue;
+
+          // Already exists by members → backfill team_name if missing, then skip insert
+          const existingMem = existingByMemKey.get(memKey);
+          if (existingMem) {
+            if (tnRaw && !existingMem.team_name) {
+              backfillUpdates.push({ id: existingMem.id, team_name: tnRaw });
+              if (tn) existingNameKeys.add(tn);
+            }
+            continue;
+          }
+
+          // New team → insert
+          teamRowsToInsert.push({
+            competition_id: competitionId,
+            team_name: tnRaw || null,
+            discipline: normalizedDiscipline,
+            category,
+            members_text: membersText,
+          });
+          if (tn) existingNameKeys.add(tn);
+          existingByMemKey.set(memKey, { id: "pending", team_name: tnRaw || null });
+        }
+
+        // Backfill team_name on already-existing rows
+        for (const u of backfillUpdates) {
+          await (supabase as any)
+            .from("team_competition_results")
+            .update({ team_name: u.team_name })
+            .eq("id", u.id);
+        }
+
+        if (teamRowsToInsert.length > 0) {
           const { error: teamError } = await (supabase as any)
             .from("team_competition_results")
-            .insert(teamRows);
+            .insert(teamRowsToInsert);
           if (teamError) throw teamError;
         }
       }

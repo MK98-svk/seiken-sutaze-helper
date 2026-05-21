@@ -38,6 +38,7 @@ export function useMembers() {
         striebro: r.striebro ?? 0,
         bronz: r.bronz ?? 0,
         userId: r.user_id ?? null,
+        email: r.email ?? null,
       }));
     },
   });

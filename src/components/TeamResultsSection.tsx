@@ -162,8 +162,13 @@ export default function TeamResultsSection({
             return (
               <div key={r.id} className="flex items-center bg-secondary/60 rounded px-2.5 py-1.5 text-sm gap-2">
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     {medal && <span className="shrink-0">{medal}</span>}
+                    {r.teamName && (
+                      <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide bg-primary/15 text-primary rounded px-1.5 py-0.5">
+                        {r.teamName}
+                      </span>
+                    )}
                     <span className="font-medium truncate">{r.category || "—"}</span>
                     {r.placement != null && (
                       <span className="text-xs text-muted-foreground shrink-0">

@@ -256,13 +256,15 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
           .from("team_competition_results")
           .select("team_name, category, members_text")
           .eq("competition_id", competitionId);
-        const existingKeys = new Set<string>(
-          (existingTeams || []).map((r: any) => {
-            const tn = (r.team_name || "").trim().toLowerCase();
-            if (tn) return `name:${tn}`;
-            return `mem:${(r.category || "").trim().toLowerCase()}|${(r.members_text || "").trim().toLowerCase()}`;
-          })
-        );
+        const existingNameKeys = new Set<string>();
+        const existingMemKeys = new Set<string>();
+        for (const r of (existingTeams || [])) {
+          const tn = (r.team_name || "").trim().toLowerCase();
+          if (tn) existingNameKeys.add(tn);
+          existingMemKeys.add(
+            `${(r.category || "").trim().toLowerCase()}|${(r.members_text || "").trim().toLowerCase()}`
+          );
+        }
 
         const teamRows = teams
           .map((t) => {
@@ -281,11 +283,11 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
           })
           .filter((row) => {
             const tn = (row.team_name || "").trim().toLowerCase();
-            const key = tn
-              ? `name:${tn}`
-              : `mem:${(row.category || "").trim().toLowerCase()}|${(row.members_text || "").trim().toLowerCase()}`;
-            if (existingKeys.has(key)) return false;
-            existingKeys.add(key);
+            const memKey = `${(row.category || "").trim().toLowerCase()}|${(row.members_text || "").trim().toLowerCase()}`;
+            if (tn && existingNameKeys.has(tn)) return false;
+            if (existingMemKeys.has(memKey)) return false;
+            if (tn) existingNameKeys.add(tn);
+            existingMemKeys.add(memKey);
             return true;
           });
 

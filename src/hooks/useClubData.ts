@@ -96,6 +96,7 @@ export function useMembers() {
       if (updates.striebro !== undefined) dbUpdates.striebro = updates.striebro;
       if (updates.bronz !== undefined) dbUpdates.bronz = updates.bronz;
       if (updates.userId !== undefined) dbUpdates.user_id = updates.userId;
+      if (updates.email !== undefined) dbUpdates.email = updates.email || null;
       const { error } = await (supabase as any).from("members").update(dbUpdates).eq("id", id);
       if (error) throw error;
     },

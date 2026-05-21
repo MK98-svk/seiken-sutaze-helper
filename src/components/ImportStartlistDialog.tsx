@@ -251,35 +251,39 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
 
       if (teams.length > 0) {
         // Avoid creating duplicates if the same startlist is imported twice:
-        // skip teams that already exist for this competition + category + members_text.
+        // skip teams that already exist for this competition + team_name (or members_text fallback).
         const { data: existingTeams } = await (supabase as any)
           .from("team_competition_results")
-          .select("category, members_text")
+          .select("team_name, category, members_text")
           .eq("competition_id", competitionId);
         const existingKeys = new Set<string>(
-          (existingTeams || []).map((r: any) =>
-            `${(r.category || "").trim().toLowerCase()}|${(r.members_text || "").trim().toLowerCase()}`
-          )
+          (existingTeams || []).map((r: any) => {
+            const tn = (r.team_name || "").trim().toLowerCase();
+            if (tn) return `name:${tn}`;
+            return `mem:${(r.category || "").trim().toLowerCase()}|${(r.members_text || "").trim().toLowerCase()}`;
+          })
         );
 
         const teamRows = teams
           .map((t) => {
             const membersText = t.members?.join(", ") || null;
             const normalizedDiscipline = normalizeTeamDiscipline(t.discipline);
-            // Keep the original wording inside category so it stays visible
-            // even though the discipline is normalized.
             const category = t.category && t.category.trim().length > 0
               ? t.category
               : t.discipline;
             return {
               competition_id: competitionId,
+              team_name: t.team_name?.trim() || null,
               discipline: normalizedDiscipline,
               category,
               members_text: membersText,
             };
           })
           .filter((row) => {
-            const key = `${(row.category || "").trim().toLowerCase()}|${(row.members_text || "").trim().toLowerCase()}`;
+            const tn = (row.team_name || "").trim().toLowerCase();
+            const key = tn
+              ? `name:${tn}`
+              : `mem:${(row.category || "").trim().toLowerCase()}|${(row.members_text || "").trim().toLowerCase()}`;
             if (existingKeys.has(key)) return false;
             existingKeys.add(key);
             return true;

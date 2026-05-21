@@ -241,6 +241,7 @@ export type Database = {
           bronz: number
           created_at: string
           datum_narodenia: string | null
+          email: string | null
           id: string
           kata: boolean
           kobudo: boolean
@@ -260,6 +261,7 @@ export type Database = {
           bronz?: number
           created_at?: string
           datum_narodenia?: string | null
+          email?: string | null
           id?: string
           kata?: boolean
           kobudo?: boolean
@@ -279,6 +281,7 @@ export type Database = {
           bronz?: number
           created_at?: string
           datum_narodenia?: string | null
+          email?: string | null
           id?: string
           kata?: boolean
           kobudo?: boolean

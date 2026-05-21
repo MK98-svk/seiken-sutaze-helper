@@ -30,6 +30,7 @@ export default function EditMemberDialog({ member, open, onOpenChange, onSave }:
     datumNarodenia: "",
     vyska: "",
     vaha: "",
+    email: "",
     kata: false,
     kobudo: false,
     kumite: false,

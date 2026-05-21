@@ -20,6 +20,7 @@ export interface TeamResult {
   placement: number | null;
   numCompetitors: number | null;
   membersText: string | null;
+  teamName: string | null;
 }
 
 export function useCompetitionResults(competitionId?: string) {

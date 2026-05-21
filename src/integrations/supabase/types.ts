@@ -351,6 +351,7 @@ export type Database = {
           members_text: string | null
           num_competitors: number | null
           placement: number | null
+          team_name: string | null
         }
         Insert: {
           category?: string | null
@@ -361,6 +362,7 @@ export type Database = {
           members_text?: string | null
           num_competitors?: number | null
           placement?: number | null
+          team_name?: string | null
         }
         Update: {
           category?: string | null
@@ -371,6 +373,7 @@ export type Database = {
           members_text?: string | null
           num_competitors?: number | null
           placement?: number | null
+          team_name?: string | null
         }
         Relationships: [
           {

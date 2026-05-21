@@ -99,22 +99,23 @@ async function handleStartlist(pdfBase64: string) {
 
 Return a JSON object with two arrays:
 1. "individuals" - array of objects with:
-   - name: full name of the competitor (format: "Meno Priezvisko"). List each person ONLY ONCE even if they appear in multiple categories/divisions.
-   - categories: array of objects with { discipline, category } listing ALL divisions/categories this person is registered in. Use the EXACT division/category text from the PDF. For example:
-     - For WUKF format: discipline could be "Individual Kata", "Kumite Shobu Nihon", "Kobudo Short Weapons", "Kobudo Long Weapons", etc. Category should be the full description like "Open | Female | 11 to 12 Years | 4th kyu & below"
-     - For Slovak format: discipline is "kata", "kumite", "kobudo". Category is the Slovak name like "Mladší žiaci", "Kadeti", etc.
-     - Always preserve the original text from the PDF as closely as possible.
+   - name: full name of the competitor (format: "Meno Priezvisko"). List each person ONLY ONCE even if they appear in multiple rows or pages.
+   - categories: REQUIRED array (NEVER empty, NEVER omitted). Scan EVERY row across ALL pages. If the same person appears in 5 different rows with 5 different divisions, the categories array MUST contain 5 entries — one per row. Each entry: { discipline, category }.
+     - For WUKF-style PDFs with divisions like "KATA FEMALE | 14-15 years | All Grades | Open Style" or "KUMITE SHOBU NIHON MALE | 12 years | 155 cm & Over" or "KOBUDO LONG MALE | 16-17 years":
+       * discipline = the leading type token, normalized to one of: "KATA", "KUMITE", "KOBUDO LONG", "KOBUDO SHORT"
+       * category = the FULL remaining division text including gender, age, grade and style, joined with " | " (e.g. "FEMALE | 14-15 years | All Grades | Open Style")
+     - For Slovak-format PDFs: discipline = "kata"/"kumite"/"kobudo", category = Slovak text (e.g. "Mladší žiaci").
+     - Preserve the original PDF text. Do NOT translate. Do NOT skip rows. Do NOT merge categories that differ.
 2. "teams" - array of objects with:
-   - discipline: the team discipline (e.g. "Mixed Team Kata", "Mixed Pairs Kata", "kata družstvá", "kumite družstvá")
-   - category: the full category description as written in the PDF
-   - members: array of strings with the names/surnames of team members as written in the PDF
+   - discipline: the team discipline as written (e.g. "TEAM KATA", "KATA PAIRS - MIXED GENDER", "KATA FAMILY PAIRS - MIXED GENDER", "kata družstvá")
+   - category: full category description as written (e.g. "FEMALE | 16-17 years | Open", "Parent with Child 12 & Under")
+   - members: array of surname strings parsed from the team name parentheses (e.g. "Seiken 10 (Šulková, Janáková, Janečková)" -> ["Šulková","Janáková","Janečková"])
 
-IMPORTANT:
-- Each individual competitor must appear ONLY ONCE in the individuals array, with ALL their categories listed
-- Preserve the EXACT division/category names from the PDF - do NOT translate or normalize them
-- Include ALL individual competitors AND all team entries
-- Look through all pages carefully
-- Return ONLY the JSON object, no markdown, no explanation`;
+CRITICAL RULES:
+- EVERY individual MUST have a non-empty categories array. An individual with categories=[] is INVALID output.
+- Read ALL pages — registration PDFs typically span many pages (often 5-10 pages).
+- Include team entries from "Team Divisions" sections.
+- Return ONLY the JSON object, no markdown, no explanation.`;
 
   const content = await callAI(pdfBase64, systemPrompt);
   let parsed: { individuals: Array<{ name: string; categories?: Array<{ discipline: string; category: string }> }>; teams: Array<{ discipline: string; category: string; members?: string[] }> };

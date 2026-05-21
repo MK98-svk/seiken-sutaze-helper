@@ -14,6 +14,7 @@ export interface Member {
   striebro: number;
   bronz: number;
   userId: string | null;
+  email?: string | null;
 }
 
 export interface Competition {

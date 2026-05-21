@@ -30,6 +30,7 @@ export default function EditMemberDialog({ member, open, onOpenChange, onSave }:
     datumNarodenia: "",
     vyska: "",
     vaha: "",
+    email: "",
     kata: false,
     kobudo: false,
     kumite: false,
@@ -48,6 +49,7 @@ export default function EditMemberDialog({ member, open, onOpenChange, onSave }:
         datumNarodenia: member.datumNarodenia,
         vyska: member.vyska?.toString() ?? "",
         vaha: member.vaha?.toString() ?? "",
+        email: member.email ?? "",
         kata: member.kata,
         kobudo: member.kobudo,
         kumite: member.kumite,
@@ -69,6 +71,7 @@ export default function EditMemberDialog({ member, open, onOpenChange, onSave }:
       datumNarodenia: form.datumNarodenia,
       vyska: form.vyska ? Number(form.vyska) : null,
       vaha: form.vaha ? Number(form.vaha) : null,
+      email: form.email.trim() || null,
       kata: form.kata,
       kobudo: form.kobudo,
       kumite: form.kumite,
@@ -126,6 +129,18 @@ export default function EditMemberDialog({ member, open, onOpenChange, onSave }:
           <div className="space-y-1.5">
             <Label>Dátum narodenia</Label>
             <Input type="date" value={form.datumNarodenia} onChange={(e) => setForm({ ...form, datumNarodenia: e.target.value })} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Email (pre prihlásenie do appky)</Label>
+            <Input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              placeholder="napr. clen@email.sk"
+            />
+            <p className="text-xs text-muted-foreground">
+              Keď sa člen zaregistruje s týmto emailom, automaticky sa prepojí s týmto profilom.
+            </p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">

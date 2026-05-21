@@ -71,6 +71,7 @@ export function useMembers() {
         striebro: member.striebro,
         bronz: member.bronz,
         user_id: member.userId,
+        email: member.email ?? null,
       });
       if (error) throw error;
     },

@@ -444,6 +444,7 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-secondary/50">
+                        <TableHead className="text-xs">Názov</TableHead>
                         <TableHead className="text-xs">Disciplína</TableHead>
                         <TableHead className="text-xs">Kategória</TableHead>
                         <TableHead className="text-xs">Členovia</TableHead>
@@ -452,6 +453,9 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
                     <TableBody>
                       {teams.map((t, i) => (
                         <TableRow key={i}>
+                          <TableCell className="text-sm font-medium whitespace-nowrap">
+                            {t.team_name || "—"}
+                          </TableCell>
                           <TableCell className="text-sm">
                             <Badge variant="secondary" className="text-xs capitalize">{t.discipline} družstvá</Badge>
                           </TableCell>

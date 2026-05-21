@@ -26,6 +26,7 @@ interface UnmatchedEntry {
 }
 
 interface TeamEntry {
+  team_name?: string;
   discipline: string;
   category: string;
   members?: string[];

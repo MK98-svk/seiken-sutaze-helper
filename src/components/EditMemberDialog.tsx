@@ -71,6 +71,7 @@ export default function EditMemberDialog({ member, open, onOpenChange, onSave }:
       datumNarodenia: form.datumNarodenia,
       vyska: form.vyska ? Number(form.vyska) : null,
       vaha: form.vaha ? Number(form.vaha) : null,
+      email: form.email.trim() || null,
       kata: form.kata,
       kobudo: form.kobudo,
       kumite: form.kumite,

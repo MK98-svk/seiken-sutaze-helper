@@ -107,18 +107,20 @@ Return a JSON object with two arrays:
      - For Slovak-format PDFs: discipline = "kata"/"kumite"/"kobudo", category = Slovak text (e.g. "Mladší žiaci").
      - Preserve the original PDF text. Do NOT translate. Do NOT skip rows. Do NOT merge categories that differ.
 2. "teams" - array of objects with:
+   - team_name: the team label / number as written BEFORE the parentheses (e.g. "Seiken 10", "Seiken Pair 2", "Seiken Family 1", "Seiken 5"). This is REQUIRED — used to call out teams during the competition.
    - discipline: the team discipline as written (e.g. "TEAM KATA", "KATA PAIRS - MIXED GENDER", "KATA FAMILY PAIRS - MIXED GENDER", "kata družstvá")
    - category: full category description as written (e.g. "FEMALE | 16-17 years | Open", "Parent with Child 12 & Under")
-   - members: array of surname strings parsed from the team name parentheses (e.g. "Seiken 10 (Šulková, Janáková, Janečková)" -> ["Šulková","Janáková","Janečková"])
+   - members: array of surname strings parsed from the team name parentheses (e.g. "Seiken 10 (Šulková, Janáková, Janečková)" -> team_name="Seiken 10", members=["Šulková","Janáková","Janečková"])
 
 CRITICAL RULES:
 - EVERY individual MUST have a non-empty categories array. An individual with categories=[] is INVALID output.
+- EVERY team MUST have a team_name (the "Seiken N" / "Seiken Pair N" / "Seiken Family N" label).
 - Read ALL pages — registration PDFs typically span many pages (often 5-10 pages).
 - Include team entries from "Team Divisions" sections.
 - Return ONLY the JSON object, no markdown, no explanation.`;
 
   const content = await callAI(pdfBase64, systemPrompt);
-  let parsed: { individuals: Array<{ name: string; categories?: Array<{ discipline: string; category: string }> }>; teams: Array<{ discipline: string; category: string; members?: string[] }> };
+  let parsed: { individuals: Array<{ name: string; categories?: Array<{ discipline: string; category: string }> }>; teams: Array<{ team_name?: string; discipline: string; category: string; members?: string[] }> };
   try {
     const raw = JSON.parse(content);
     if (Array.isArray(raw)) {

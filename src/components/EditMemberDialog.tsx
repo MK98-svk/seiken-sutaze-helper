@@ -49,6 +49,7 @@ export default function EditMemberDialog({ member, open, onOpenChange, onSave }:
         datumNarodenia: member.datumNarodenia,
         vyska: member.vyska?.toString() ?? "",
         vaha: member.vaha?.toString() ?? "",
+        email: member.email ?? "",
         kata: member.kata,
         kobudo: member.kobudo,
         kumite: member.kumite,

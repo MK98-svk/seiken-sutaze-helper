@@ -130,6 +130,18 @@ export default function EditMemberDialog({ member, open, onOpenChange, onSave }:
             <Label>Dátum narodenia</Label>
             <Input type="date" value={form.datumNarodenia} onChange={(e) => setForm({ ...form, datumNarodenia: e.target.value })} />
           </div>
+          <div className="space-y-1.5">
+            <Label>Email (pre prihlásenie do appky)</Label>
+            <Input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              placeholder="napr. clen@email.sk"
+            />
+            <p className="text-xs text-muted-foreground">
+              Keď sa člen zaregistruje s týmto emailom, automaticky sa prepojí s týmto profilom.
+            </p>
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Výška (cm)</Label>

@@ -20,6 +20,7 @@ export interface TeamResult {
   placement: number | null;
   numCompetitors: number | null;
   membersText: string | null;
+  teamName: string | null;
 }
 
 export function useCompetitionResults(competitionId?: string) {
@@ -75,6 +76,7 @@ export function useCompetitionResults(competitionId?: string) {
         placement: r.placement ?? null,
         numCompetitors: r.num_competitors ?? null,
         membersText: r.members_text ?? null,
+        teamName: r.team_name ?? null,
       }));
     },
   });

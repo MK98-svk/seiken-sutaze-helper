@@ -7,11 +7,12 @@ import AddCompetitionDialog from "@/components/AddCompetitionDialog";
 import MemberTable from "@/components/MemberTable";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Navigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { Navigate, useNavigate } from "react-router-dom";
+import { LogOut, ArrowLeft } from "lucide-react";
 import seikenLogo from "@/assets/seiken-logo.jpg";
 
 const Index = () => {
+  const navigate = useNavigate();
   const { user, loading: authLoading, isAdmin, isCoach, signOut } = useAuth();
   const { members, isLoading: membersLoading, addMember, updateMember, deleteMember } = useMembers();
   const { competitions, isLoading: compsLoading, addCompetition, deleteCompetition } = useCompetitions();

@@ -888,7 +888,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: "mountain-climber",
     name: "Mountain climbers",
-    modes: ["bezpomocok", "kardio" as never],
+    modes: ["bezpomocok"],
     group: "core",
     equipment: "Žiadne",
     difficulty: "začiatočník",

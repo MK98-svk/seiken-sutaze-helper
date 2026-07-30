@@ -7,11 +7,12 @@ import AddCompetitionDialog from "@/components/AddCompetitionDialog";
 import MemberTable from "@/components/MemberTable";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Navigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { Navigate, useNavigate } from "react-router-dom";
+import { LogOut, ArrowLeft } from "lucide-react";
 import seikenLogo from "@/assets/seiken-logo.jpg";
 
 const Index = () => {
+  const navigate = useNavigate();
   const { user, loading: authLoading, isAdmin, isCoach, signOut } = useAuth();
   const { members, isLoading: membersLoading, addMember, updateMember, deleteMember } = useMembers();
   const { competitions, isLoading: compsLoading, addCompetition, deleteCompetition } = useCompetitions();
@@ -35,8 +36,11 @@ const Index = () => {
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-2 min-w-0"
+            className="flex items-center gap-1 sm:gap-2 min-w-0"
           >
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate("/")} title="Domov">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
             <img src={seikenLogo} alt="KK SEIKEN logo" className="h-8 w-8 sm:h-12 sm:w-12 rounded-lg object-cover ring-1 ring-primary/30 shrink-0" />
             <div className="min-w-0">
               <h1 className="text-sm sm:text-xl font-display font-bold tracking-wider text-foreground truncate">

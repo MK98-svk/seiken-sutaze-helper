@@ -1,25 +1,74 @@
-## Čo si overil
+## Cieľ
 
-V DB pri **14. MS WUKF – Cluj-Napoca (22.7.2026)** je:
-- 0 registrácií v `member_competition_entries`
-- 0 kategórií v `member_competition_categories`
-- 0 intentov, 0 výsledkov
+Appka už nebude po prihlásení hneď hádzať do súťaží. Vznikne domovská obrazovka s tromi dlaždicami a kompletná nová sekcia **Posilňovanie**.
 
-Kód v `MemberTable.tsx` (riadok 115) filtruje `members.filter(m => isRegistered(m.id, selectedComp.id))`, čiže pri tejto súťaži **má zobraziť prázdnu tabuľku** s textom „Žiadni registrovaní členovia na túto súťaž." Aktuálne pravidlo je teda správne — údaj v DB tvrdí, že tam nikto nie je.
+## 1. Domovská obrazovka (`/`)
 
-**Preto tie mená, ktoré vidíš, s najväčšou pravdepodobnosťou pochádzajú zo starej vyrovnávacej pamäte prehliadača / PWA** (appka drží staré `entries`), nie z reálnych dát. Zopár krokov to overí — a ak áno, len refresh to vyrieši, netreba zásah do kódu.
+Po prihlásení sa zobrazia tri dlaždice v štýle appky (tmavá téma, Oswald, oranžovo-červený akcent):
 
-## Plán
+- **Súťaže** → `/sutaze` (presne dnešná obrazovka, nič sa na nej nemení)
+- **Posilňovanie** → `/posilnovanie`
+- **Tréningy** → dlaždica so štítkom „Čoskoro", zatiaľ neaktívna
 
-1. **Ty:** v appke daj tvrdý refresh (pull-to-refresh na mobile, alebo Ctrl+Shift+R / zavri a znova otvor PWA). Ak sa po refreshi pri **14. MS WUKF – Cluj-Napoca** ukáže „Žiadni registrovaní členovia", je to len cache — pokračujeme bodom 3.
-2. **Ak sa po refreshi stále zobrazujú mená:** pošli mi screenshot, pozriem sa, či ide o iný pohľad (napr. „Všetky – prehľad členov") alebo o skutočnú chybu, a opravím to.
-3. **Import jednotlivcov na MS WUKF Cluj-Napoca:**
-   - Pošli sem PDF štartovku (individuálov, prípadne aj tímy zvlášť).
-   - Ja z nej vyparsujem mená + kategórie (Kata / Kumite / Kobudo, WUKF formát), spárujem s existujúcimi členmi (fuzzy match ako predtým).
-   - Členov, ktorých v systéme ešte nemáme, vypíšem najprv na potvrdenie (aby sme nepridali cudzích, ako Daniel Haas pri Rovne Cup).
-   - Po odsúhlasení: vložím ich ako registrovaných na WUKF a doplním im WUKF kategórie do `member_competition_categories` (aby sa dali pri pridávaní výsledku presne vybrať).
-   - Tímy nechám bokom, kým nepošleš aj tímové zápisy — tie potom pridám samostatne do `team_competition_results`.
+Späť na domov sa dá cez logo/šípku v hlavičke.
 
-## Otázka pred implementáciou
+## 2. Posilňovanie – výber režimu (`/posilnovanie`)
 
-Buď priamo pripoj **PDF štartovku pre MS WUKF Cluj-Napoca (jednotlivci)** do ďalšej správy, alebo mi najprv daj vedieť výsledok tvrdého refreshu, ak chceš aby som najskôr vyriešil ten cache problém.
+Tri karty:
+1. **Fitko**
+2. **Doma s pomôckami** (činky, expandéry, guma, lavička)
+3. **Doma bez pomôcok** (vlastná váha)
+
+Plus dve akcie navrchu: **Tréning s AI** a **Výsledky**.
+
+## 3. Partie tela a cviky
+
+Po výbere režimu → výber partie: hrudník, chrbát, ramená, biceps, triceps, nohy, brucho/core, celé telo, kardio.
+
+Karta cviku obsahuje:
+- názov (slovensky), obtiažnosť, potrebné vybavenie
+- zapojené svaly
+- popis techniky krok po kroku + typické chyby
+- odporúčané série/opakovania
+- tlačidlo **Pozrieť na YouTube** (odkaz na vyhľadávanie/konkrétne video)
+- tlačidlo **Pridať do tréningu**
+
+Katalóg pripravím priamo v appke – cca 80–100 cvikov naprieč tromi režimami. YouTube odkazy si po nasadení prejdi a povedz mi, čo vymeniť.
+
+## 4. Tréning s AI
+
+- Ak má účet priradených viac členov (napr. rodič s deťmi), najprv **výber osoby**.
+- Z profilu člena sa automaticky načíta vek, pohlavie, výška, váha, disciplíny (kata/kobudo/kumite).
+- Používateľ si vyklikne: cieľ (sila / objem / vytrvalosť / rýchlosť pre karate), režim (fitko / doma s pomôckami / bez pomôcok), partie, dĺžku tréningu (20/30/45/60 min), počet dní v týždni.
+- AI vygeneruje tréning zo **schváleného katalógu** (nevymýšľa si cviky) – zoznam cvikov, série, opakovania, oddych, rozcvička a strečing.
+- Tréning sa dá uložiť a spustiť.
+
+## 5. Spustený tréning
+
+- Zoznam cvikov s odškrtávaním hotových sérií
+- Zápis váhy a počtu opakovaní pre každú sériu
+- **Časovač oddychu** – štartuje po dokončení série, dĺžka podľa cieľa:
+  - sila: 2–3 min
+  - objem/hypertrofia: 60–90 s
+  - vytrvalosť: 30–45 s
+  - dá sa prestaviť ručne, zvukový/vibračný signál na konci
+- Po ukončení sa tréning automaticky uloží do výsledkov (dátum, trvanie, cviky, váhy, opakovania).
+
+## 6. Výsledky (`/posilnovanie/vysledky`)
+
+- Hist)ória tréningov podľa dátumu: čo sa cvičilo, aké váhy, koľko opakovaní, celkový objem (kg)
+- Detail tréningu
+- Jednoduchá štatistika: počet tréningov za mesiac, najčastejšie partie, progres váh pri vybranom cviku
+- Pretekár/rodič vidí svoje záznamy, **tréner a admin vidia všetkých**
+
+## Technická časť
+
+- Router: nové routy `/`, `/sutaze`, `/posilnovanie`, `/posilnovanie/:mode`, `/posilnovanie/ai`, `/posilnovanie/trening/:id`, `/posilnovanie/vysledky`. Dnešný `Index.tsx` sa presunie na `/sutaze` bez zmeny logiky.
+- Katalóg cvikov: statický TypeScript súbor `src/data/exercises.ts` (bez DB, funguje aj offline v PWA).
+- Nové tabuľky v Cloud databáze:
+  - `workout_sessions` – member_id, dátum, režim, cieľ, trvanie, poznámka
+  - `workout_sets` – session_id, exercise_id, číslo série, váha, opakovania, hotovo
+  - `workout_plans` – uložené AI plány (member_id, konfigurácia, zoznam cvikov v JSON)
+  - RLS: vlastník (`members.user_id = auth.uid()`) plný prístup; `coach`/`admin` cez `has_role()` čítanie všetkého; GRANT-y pre `authenticated` a `service_role`.
+- AI tréning: Edge Function `generate-workout` cez Lovable AI Gateway (model `openai/gpt-5.6-sol`), na vstupe profil + katalóg ID-čiek, na výstupe štruktúrovaný plán. Ošetrené chyby 429 (limit) a 402 (kredity) so zrozumiteľnou hláškou.
+- Mobil-first, karty s framer-motion ako v zvyšku appky, žiadny horizontálny scroll.

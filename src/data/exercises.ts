@@ -446,7 +446,7 @@ export const EXERCISES: Exercise[] = [
     equipment: "Žiadne",
     difficulty: "pokročilý",
     muscles: "Delty, triceps",
-    steps: ["Zo vzporu vysaď boky nahor do tvaru „V".", "Spusti temeno hlavy k zemi medzi ruky.", "Vytlač sa späť nahor."],
+    steps: ["Zo vzporu vysaď boky nahor do tvaru písmena V.", "Spusti temeno hlavy k zemi medzi ruky.", "Vytlač sa späť nahor."],
     mistakes: ["Prehnutý driek", "Príliš plochá pozícia (mení sa na obyčajný kľuk)"],
     sets: "3",
     reps: "8–12",

@@ -26,6 +26,7 @@ export default function MobileMemberList({
   isRegistered,
 }: MobileMemberListProps) {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const [historyMember, setHistoryMember] = useState<Member | null>(null);
 
   return (
     <>

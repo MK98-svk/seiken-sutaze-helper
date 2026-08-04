@@ -51,6 +51,7 @@ export default function MobileCompetitionView({
   const { getMemberMedals, teamResults, teamLoading, invalidate: invalidateResults, deleteResult, deleteTeamResult, addTeamResult, updateTeamResult } = useCompetitionResults(competition.id);
   const { getIntent } = useCompetitionIntents();
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
+  const [historyMember, setHistoryMember] = useState<Member | null>(null);
   const [memberToRemove, setMemberToRemove] = useState<Member | null>(null);
 
   const totalMedals = members.reduce((acc, m) => {

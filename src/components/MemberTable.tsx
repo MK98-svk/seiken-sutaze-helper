@@ -197,8 +197,16 @@ export default function MemberTable({
                           exit={{ opacity: 0, x: -20 }}
                           className="border-b border-border hover:bg-secondary/30 transition-colors"
                         >
-                          <TableCell className="font-medium">{member.meno}</TableCell>
-                          <TableCell className="font-medium">{member.priezvisko}</TableCell>
+                          <TableCell className="font-medium">
+                            <button onClick={() => setHistoryMember(member)} className="hover:text-primary hover:underline transition-colors text-left">
+                              {member.meno}
+                            </button>
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            <button onClick={() => setHistoryMember(member)} className="hover:text-primary hover:underline transition-colors text-left">
+                              {member.priezvisko}
+                            </button>
+                          </TableCell>
                           <TableCell className="text-center text-sm font-bold">{medals.zlato || "—"}</TableCell>
                           <TableCell className="text-center text-sm font-bold">{medals.striebro || "—"}</TableCell>
                           <TableCell className="text-center text-sm font-bold">{medals.bronz || "—"}</TableCell>

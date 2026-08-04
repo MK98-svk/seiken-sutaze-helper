@@ -56,6 +56,27 @@ const Strength = () => {
         </div>
 
 
+        {draft.items.length > 0 && (
+          <div className="rounded-lg border border-primary/50 bg-primary/10 p-3 flex items-center gap-2">
+            <ClipboardList className="h-5 w-5 text-primary shrink-0" />
+            <button className="min-w-0 flex-1 text-left" onClick={() => navigate(`/posilnovanie/${draft.mode || "gym"}`)}>
+              <div className="font-display text-sm tracking-wider uppercase">Rozpracovaný tréning</div>
+              <div className="text-[11px] text-muted-foreground truncate">{draft.items.length} cvikov pripravených</div>
+            </button>
+            <button
+              className="h-8 w-8 shrink-0 rounded-md border border-border flex items-center justify-center hover:bg-muted"
+              title="Zrušiť rozpracovaný tréning"
+              onClick={() => {
+                clearDraft();
+                setDraft(readDraft());
+                toast.success("Rozpracovaný tréning zrušený");
+              }}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
         <p className="text-xs uppercase tracking-widest text-muted-foreground pt-2">Kde cvičíš?</p>
         <div className="grid gap-3 sm:grid-cols-3">
           {MODES.map((m, i) => (

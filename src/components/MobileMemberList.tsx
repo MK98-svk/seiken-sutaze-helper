@@ -53,7 +53,7 @@ export default function MobileMemberList({
                     <div className="flex-1 min-w-0">
                       <button
                         onClick={() => setHistoryMember(member)}
-                        className="font-medium text-sm text-left hover:text-primary hover:underline transition-colors"
+                        className="font-medium text-sm text-left text-primary underline decoration-dotted underline-offset-4"
                       >
                         {member.meno} {member.priezvisko}
                       </button>

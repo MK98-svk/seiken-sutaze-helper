@@ -198,12 +198,12 @@ export default function MemberTable({
                           className="border-b border-border hover:bg-secondary/30 transition-colors"
                         >
                           <TableCell className="font-medium">
-                            <button onClick={() => setHistoryMember(member)} className="hover:text-primary hover:underline transition-colors text-left">
+                            <button onClick={() => setHistoryMember(member)} className="text-primary underline decoration-dotted underline-offset-4 hover:decoration-solid transition-colors text-left">
                               {member.meno}
                             </button>
                           </TableCell>
                           <TableCell className="font-medium">
-                            <button onClick={() => setHistoryMember(member)} className="hover:text-primary hover:underline transition-colors text-left">
+                            <button onClick={() => setHistoryMember(member)} className="text-primary underline decoration-dotted underline-offset-4 hover:decoration-solid transition-colors text-left">
                               {member.priezvisko}
                             </button>
                           </TableCell>
@@ -460,12 +460,12 @@ export default function MemberTable({
                       className="border-b border-border hover:bg-secondary/30 transition-colors"
                     >
                       <TableCell className="font-medium">
-                        <button onClick={() => setHistoryMember(member)} className="hover:text-primary hover:underline transition-colors text-left">
+                        <button onClick={() => setHistoryMember(member)} className="text-primary underline decoration-dotted underline-offset-4 hover:decoration-solid transition-colors text-left">
                           {member.meno}
                         </button>
                       </TableCell>
                       <TableCell className="font-medium">
-                        <button onClick={() => setHistoryMember(member)} className="hover:text-primary hover:underline transition-colors text-left">
+                        <button onClick={() => setHistoryMember(member)} className="text-primary underline decoration-dotted underline-offset-4 hover:decoration-solid transition-colors text-left">
                           {member.priezvisko}
                         </button>
                       </TableCell>

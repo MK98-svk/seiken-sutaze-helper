@@ -60,6 +60,7 @@ export default function MemberTable({
   currentUserId,
 }: MemberTableProps) {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const [historyMember, setHistoryMember] = useState<Member | null>(null);
   const [memberToRemove, setMemberToRemove] = useState<Member | null>(null);
   const [selectedCompId, setSelectedCompId] = useState<string>(() => {
     return localStorage.getItem("seiken_selectedCompId") || "all";

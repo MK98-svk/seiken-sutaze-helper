@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -17,6 +18,8 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [forgotMode, setForgotMode] = useState(false);
+  const [wantsCompetitor, setWantsCompetitor] = useState(true);
+  const [wantsTrainee, setWantsTrainee] = useState(true);
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Načítavam…</div>;
   if (user) return <Navigate to="/" replace />;
@@ -37,7 +40,15 @@ export default function Auth() {
       const { error } = await signIn(email, password);
       if (error) toast.error(error.message);
     } else {
-      const { error } = await signUp(email, password);
+      if (!wantsCompetitor && !wantsTrainee) {
+        toast.error("Vyber aspoň jednu možnosť: pretekár alebo cvičenec.");
+        setSubmitting(false);
+        return;
+      }
+      const { error } = await signUp(email, password, {
+        is_competitor: wantsCompetitor,
+        is_trainee: wantsTrainee,
+      });
       if (error) toast.error(error.message);
       else toast.success("Registrácia úspešná! Skontrolujte email pre overenie.");
     }
@@ -63,6 +74,20 @@ export default function Auth() {
                 <div className="space-y-1.5">
                   <Label>Heslo</Label>
                   <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+                </div>
+              )}
+              {!isLogin && !forgotMode && (
+                <div className="space-y-2 rounded-lg border border-border p-3">
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground">Ako budeš appku používať?</p>
+                  <label className="flex items-center gap-2 cursor-pointer text-sm">
+                    <Checkbox checked={wantsCompetitor} onCheckedChange={(v) => setWantsCompetitor(!!v)} />
+                    <span>Pretekár – súťaže a výsledky</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer text-sm">
+                    <Checkbox checked={wantsTrainee} onCheckedChange={(v) => setWantsTrainee(!!v)} />
+                    <span>Cvičenec – posilňovanie a tréningy</span>
+                  </label>
+                  <p className="text-[11px] text-muted-foreground">Po prihlásení si vytvoríš svoj profil.</p>
                 </div>
               )}
               <Button type="submit" className="w-full" disabled={submitting}>

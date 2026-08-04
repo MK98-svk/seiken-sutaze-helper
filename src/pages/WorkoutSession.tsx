@@ -1,12 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { Check, Pause, Play, RotateCcw, Youtube, Flag } from "lucide-react";
+import { Check, Pause, Play, RotateCcw, Youtube, Flag, Trash2 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/hooks/useAuth";
-import { useWorkoutSession } from "@/hooks/useWorkouts";
+import { useWorkoutSession, useCreateWorkout } from "@/hooks/useWorkouts";
 import { exerciseById, restForGoal, GOALS } from "@/data/exercises";
 import { useCatalog } from "@/hooks/useCatalog";
 import { IMG, muscleLabel, equipmentLabel } from "@/lib/catalog";
@@ -19,8 +29,10 @@ const WorkoutSessionPage = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const { session, sets, updateSet, finish } = useWorkoutSession(id);
+  const { remove } = useCreateWorkout();
   const { catalog } = useCatalog();
 
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const [rest, setRest] = useState<number | null>(null);
   const [running, setRunning] = useState(false);
@@ -80,6 +92,16 @@ const WorkoutSessionPage = () => {
         navigate("/posilnovanie/vysledky");
       },
     });
+  };
+
+  const deleteWorkout = async () => {
+    try {
+      await remove(id!);
+      toast.success("Tréning zrušený");
+      navigate("/posilnovanie");
+    } catch (e: any) {
+      toast.error("Nepodarilo sa zrušiť: " + e.message);
+    }
   };
 
   const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
@@ -194,11 +216,29 @@ const WorkoutSessionPage = () => {
               </Button>
             </div>
           </div>
+          <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" title="Zrušiť tréning" onClick={() => setConfirmDelete(true)}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
           <Button onClick={endWorkout} className="gap-1 shrink-0">
             <Flag className="h-4 w-4" /> Ukončiť
           </Button>
         </div>
       </div>
+
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Zrušiť tréning?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tréning aj so všetkými sériami sa nenávratne vymaže. Môžeš si potom vybrať iný.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Nie</AlertDialogCancel>
+            <AlertDialogAction onClick={deleteWorkout}>Áno, zrušiť</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

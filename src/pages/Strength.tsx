@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Navigate } from "react-router-dom";
-import { Sparkles, History, ClipboardList, TrendingUp, Users, Dumbbell } from "lucide-react";
+import { Sparkles, History, ClipboardList, TrendingUp, Users, Dumbbell, X } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { useAuth } from "@/hooks/useAuth";
-import { readDraft } from "@/hooks/useWorkouts";
+import { readDraft, clearDraft } from "@/hooks/useWorkouts";
+import { toast } from "sonner";
 
 const MODES = [
   { id: "gym", label: "Fitko", icon: "🏋️", desc: "Činky, stroje, kladky – plný katalóg" },
@@ -15,7 +17,7 @@ const MODES = [
 const Strength = () => {
   const { user, loading, isAdmin, isCoach } = useAuth();
   const navigate = useNavigate();
-  const draft = readDraft();
+  const [draft, setDraft] = useState(readDraft());
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Načítavam…</div>;
   if (!user) return <Navigate to="/auth" replace />;
@@ -27,14 +29,6 @@ const Strength = () => {
     { to: "/posilnovanie/vysledky", icon: History, title: "Výsledky", desc: "História tréningov a váh" },
     ...(isAdmin || isCoach
       ? [{ to: "/posilnovanie/cvicenci", icon: Users, title: "Cvičenci", desc: "Progres celého klubu" }]
-      : []),
-    ...(draft.items.length > 0
-      ? [{
-          to: `/posilnovanie/${draft.mode || "gym"}`,
-          icon: ClipboardList,
-          title: "Rozpracovaný tréning",
-          desc: `${draft.items.length} cvikov pripravených`,
-        }]
       : []),
   ];
 
@@ -61,6 +55,27 @@ const Strength = () => {
           ))}
         </div>
 
+
+        {draft.items.length > 0 && (
+          <div className="rounded-lg border border-primary/50 bg-primary/10 p-3 flex items-center gap-2">
+            <ClipboardList className="h-5 w-5 text-primary shrink-0" />
+            <button className="min-w-0 flex-1 text-left" onClick={() => navigate(`/posilnovanie/${draft.mode || "gym"}`)}>
+              <div className="font-display text-sm tracking-wider uppercase">Rozpracovaný tréning</div>
+              <div className="text-[11px] text-muted-foreground truncate">{draft.items.length} cvikov pripravených</div>
+            </button>
+            <button
+              className="h-8 w-8 shrink-0 rounded-md border border-border flex items-center justify-center hover:bg-muted"
+              title="Zrušiť rozpracovaný tréning"
+              onClick={() => {
+                clearDraft();
+                setDraft(readDraft());
+                toast.success("Rozpracovaný tréning zrušený");
+              }}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
 
         <p className="text-xs uppercase tracking-widest text-muted-foreground pt-2">Kde cvičíš?</p>
         <div className="grid gap-3 sm:grid-cols-3">

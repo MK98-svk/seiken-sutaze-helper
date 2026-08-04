@@ -123,6 +123,13 @@ export default function MobileMemberList({
         onOpenChange={(open) => !open && setEditingMember(null)}
         onSave={onUpdateMember}
       />
+
+      <MemberResultsDialog
+        member={historyMember}
+        competitions={competitions}
+        open={!!historyMember}
+        onOpenChange={(o) => !o && setHistoryMember(null)}
+      />
     </>
   );
 }

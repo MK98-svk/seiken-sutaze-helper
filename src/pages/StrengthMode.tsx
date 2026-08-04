@@ -245,15 +245,14 @@ const StrengthMode = () => {
                   </ol>
                 </div>
                 <div className="flex gap-2 pt-1">
-                  <Button asChild variant="outline" className="flex-1 gap-1">
-                    <a
-                      href={`https://www.youtube.com/results?search_query=${encodeURIComponent(detail.name + " exercise technique")}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <Youtube className="h-4 w-4" /> Video
-                    </a>
+                  <Button
+                    variant="outline"
+                    className="flex-1 gap-1"
+                    onClick={() => openExternal(youtubeSearch(detail.name + " exercise technique"))}
+                  >
+                    <Youtube className="h-4 w-4" /> Video
                   </Button>
+
                   <Button
                     className="flex-1 gap-1"
                     onClick={() => {

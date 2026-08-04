@@ -20,13 +20,6 @@ const tiles = [
     icon: Dumbbell,
     ready: true,
   },
-  {
-    to: "#",
-    label: "Tréningy",
-    desc: "Dochádzka a plán klubových tréningov",
-    icon: Users,
-    ready: false,
-  },
 ];
 
 const Home = () => {

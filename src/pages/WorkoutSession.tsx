@@ -94,6 +94,16 @@ const WorkoutSessionPage = () => {
     });
   };
 
+  const deleteWorkout = async () => {
+    try {
+      await remove(id!);
+      toast.success("Tréning zrušený");
+      navigate("/posilnovanie");
+    } catch (e: any) {
+      toast.error("Nepodarilo sa zrušiť: " + e.message);
+    }
+  };
+
   const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
   return (
@@ -206,11 +216,29 @@ const WorkoutSessionPage = () => {
               </Button>
             </div>
           </div>
+          <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" title="Zrušiť tréning" onClick={() => setConfirmDelete(true)}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
           <Button onClick={endWorkout} className="gap-1 shrink-0">
             <Flag className="h-4 w-4" /> Ukončiť
           </Button>
         </div>
       </div>
+
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Zrušiť tréning?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tréning aj so všetkými sériami sa nenávratne vymaže. Môžeš si potom vybrať iný.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Nie</AlertDialogCancel>
+            <AlertDialogAction onClick={deleteWorkout}>Áno, zrušiť</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

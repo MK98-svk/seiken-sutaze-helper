@@ -50,9 +50,13 @@ export default function AddSelfDialog({
     kumite: false,
   });
 
+  const traineeFieldsMissing =
+    isTrainee && (!form.pohlavie || !form.datumNarodenia || !form.vyska || !form.vaha);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.meno || !form.priezvisko) return;
+    if (traineeFieldsMissing) return;
     onAdd({
       meno: form.meno,
       priezvisko: form.priezvisko,

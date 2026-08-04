@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Navigate } from "react-router-dom";
-import { Sparkles, History, ClipboardList, TrendingUp, Users, Dumbbell } from "lucide-react";
+import { Sparkles, History, ClipboardList, TrendingUp, Users, Dumbbell, X } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { useAuth } from "@/hooks/useAuth";
-import { readDraft } from "@/hooks/useWorkouts";
+import { readDraft, clearDraft } from "@/hooks/useWorkouts";
+import { toast } from "sonner";
 
 const MODES = [
   { id: "gym", label: "Fitko", icon: "🏋️", desc: "Činky, stroje, kladky – plný katalóg" },

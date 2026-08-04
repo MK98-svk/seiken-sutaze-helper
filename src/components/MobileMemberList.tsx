@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import EditMemberDialog from "./EditMemberDialog";
+import MemberResultsDialog from "./MemberResultsDialog";
 import { useState } from "react";
 
 interface MobileMemberListProps {

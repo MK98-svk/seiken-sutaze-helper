@@ -211,9 +211,25 @@ export default function MemberProgress({ memberId }: { memberId: string }) {
                     {s.durationMin ? ` · ${s.durationMin} min` : ""}
                   </div>
                 </div>
-                <Badge variant={s.completed ? "default" : "outline"} className="shrink-0 text-[10px]">
-                  {s.completed ? "hotové" : "rozpracované"}
-                </Badge>
+                <div className="flex items-center gap-1 shrink-0">
+                  <Badge variant={s.completed ? "default" : "outline"} className="text-[10px]">
+                    {s.completed ? "hotové" : "rozpracované"}
+                  </Badge>
+                  {!s.completed && (
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7"
+                      title="Pokračovať v tréningu"
+                      onClick={() => navigate(`/posilnovanie/trening/${s.id}`)}
+                    >
+                      <Play className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                  <Button size="icon" variant="ghost" className="h-7 w-7" title="Zmazať tréning" onClick={() => setToDelete(s.id)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
               </div>
               {names.length > 0 && (
                 <div className="text-[11px] text-muted-foreground mt-1.5 line-clamp-2">{names.join(" · ")}</div>
@@ -223,6 +239,19 @@ export default function MemberProgress({ memberId }: { memberId: string }) {
           );
         })}
       </section>
+
+      <AlertDialog open={!!toDelete} onOpenChange={(o) => !o && setToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Zmazať tréning?</AlertDialogTitle>
+            <AlertDialogDescription>Tréning aj so všetkými sériami sa nenávratne odstráni.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Nie</AlertDialogCancel>
+            <AlertDialogAction onClick={deleteSession}>Áno, zmazať</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

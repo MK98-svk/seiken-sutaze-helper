@@ -15,7 +15,10 @@ export interface Member {
   bronz: number;
   userId: string | null;
   email?: string | null;
+  isCompetitor?: boolean;
+  isTrainee?: boolean;
 }
+
 
 export interface Competition {
   id: string;

@@ -243,6 +243,8 @@ export type Database = {
           datum_narodenia: string | null
           email: string | null
           id: string
+          is_competitor: boolean
+          is_trainee: boolean
           kata: boolean
           kobudo: boolean
           kumite: boolean
@@ -263,6 +265,8 @@ export type Database = {
           datum_narodenia?: string | null
           email?: string | null
           id?: string
+          is_competitor?: boolean
+          is_trainee?: boolean
           kata?: boolean
           kobudo?: boolean
           kumite?: boolean
@@ -283,6 +287,8 @@ export type Database = {
           datum_narodenia?: string | null
           email?: string | null
           id?: string
+          is_competitor?: boolean
+          is_trainee?: boolean
           kata?: boolean
           kobudo?: boolean
           kumite?: boolean

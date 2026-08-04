@@ -39,6 +39,8 @@ export function useMembers() {
         bronz: r.bronz ?? 0,
         userId: r.user_id ?? null,
         email: r.email ?? null,
+        isCompetitor: r.is_competitor ?? true,
+        isTrainee: r.is_trainee ?? true,
       }));
     },
   });
@@ -72,6 +74,8 @@ export function useMembers() {
         bronz: member.bronz,
         user_id: member.userId,
         email: member.email ?? null,
+        is_competitor: member.isCompetitor ?? true,
+        is_trainee: member.isTrainee ?? true,
       });
       if (error) throw error;
     },
@@ -97,6 +101,8 @@ export function useMembers() {
       if (updates.bronz !== undefined) dbUpdates.bronz = updates.bronz;
       if (updates.userId !== undefined) dbUpdates.user_id = updates.userId;
       if (updates.email !== undefined) dbUpdates.email = updates.email || null;
+      if (updates.isCompetitor !== undefined) dbUpdates.is_competitor = updates.isCompetitor;
+      if (updates.isTrainee !== undefined) dbUpdates.is_trainee = updates.isTrainee;
       const { error } = await (supabase as any).from("members").update(dbUpdates).eq("id", id);
       if (error) throw error;
     },

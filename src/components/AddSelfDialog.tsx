@@ -19,10 +19,24 @@ interface AddSelfDialogProps {
   onAdd: (member: Omit<Member, "id">) => void;
   userId: string;
   linkedMembersCount: number;
+  trigger?: React.ReactNode;
+  title?: string;
+  defaultCompetitor?: boolean;
+  defaultTrainee?: boolean;
 }
 
-export default function AddSelfDialog({ onAdd, userId, linkedMembersCount }: AddSelfDialogProps) {
+export default function AddSelfDialog({
+  onAdd,
+  userId,
+  linkedMembersCount,
+  trigger,
+  title = "Pridať ďalšieho cvičenca",
+  defaultCompetitor = true,
+  defaultTrainee = true,
+}: AddSelfDialogProps) {
   const [open, setOpen] = useState(false);
+  const [isCompetitor, setIsCompetitor] = useState(defaultCompetitor);
+  const [isTrainee, setIsTrainee] = useState(defaultTrainee);
   const [form, setForm] = useState({
     meno: "",
     priezvisko: "",
@@ -54,6 +68,8 @@ export default function AddSelfDialog({ onAdd, userId, linkedMembersCount }: Add
       striebro: 0,
       bronz: 0,
       userId: userId,
+      isCompetitor,
+      isTrainee,
     });
     setForm({ meno: "", priezvisko: "", stupen: "", pohlavie: "", datumNarodenia: "", vyska: "", vaha: "", kata: false, kobudo: false, kumite: false });
     setOpen(false);
@@ -62,14 +78,16 @@ export default function AddSelfDialog({ onAdd, userId, linkedMembersCount }: Add
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
+        {trigger ?? (
         <Button variant="outline" size="icon" className="h-8 w-8 sm:h-9 sm:w-auto sm:px-3 sm:gap-2" title="Pridať cvičenca">
           <UserPlus className="h-4 w-4" />
           <span className="hidden sm:inline">Pridať cvičenca</span>
         </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Pridať ďalšieho cvičenca</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <p className="text-sm text-muted-foreground">Pod jedným prihlásením môžete spravovať aj viac detí. Údaje potom upravíte cez ikonu ceruzky pri danom mene.</p>
@@ -125,6 +143,20 @@ export default function AddSelfDialog({ onAdd, userId, linkedMembersCount }: Add
             </div>
           </div>
           <div className="space-y-2">
+            <Label>Čo bude robiť?</Label>
+            <div className="flex flex-col gap-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox checked={isCompetitor} onCheckedChange={(v) => setIsCompetitor(!!v)} />
+                <span>Pretekár – súťaže, kategórie, výsledky</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox checked={isTrainee} onCheckedChange={(v) => setIsTrainee(!!v)} />
+                <span>Cvičenec – posilňovanie a tréningy</span>
+              </label>
+            </div>
+          </div>
+          {isCompetitor && (
+          <div className="space-y-2">
             <Label>Disciplíny</Label>
             <div className="flex gap-6">
               {(["kata", "kobudo", "kumite"] as const).map((d) => (
@@ -135,7 +167,8 @@ export default function AddSelfDialog({ onAdd, userId, linkedMembersCount }: Add
               ))}
             </div>
           </div>
-          <Button type="submit" className="w-full">Uložiť cvičenca</Button>
+          )}
+          <Button type="submit" className="w-full" disabled={!isCompetitor && !isTrainee}>Uložiť profil</Button>
         </form>
       </DialogContent>
     </Dialog>

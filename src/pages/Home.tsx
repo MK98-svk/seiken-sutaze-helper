@@ -3,6 +3,8 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { LogOut, Trophy, Dumbbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { useMembers } from "@/hooks/useClubData";
+import AddSelfDialog from "@/components/AddSelfDialog";
 import seikenLogo from "@/assets/seiken-logo.jpg";
 
 const tiles = [
@@ -23,8 +25,13 @@ const tiles = [
 ];
 
 const Home = () => {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, isAdmin, isCoach, signOut } = useAuth();
+  const { members, isLoading: membersLoading, addMember } = useMembers();
   const navigate = useNavigate();
+
+  const myMembers = members.filter((m) => m.userId && m.userId === user?.id);
+  const needsProfile = !!user && !membersLoading && myMembers.length === 0 && !isAdmin && !isCoach;
+  const meta = (user?.user_metadata ?? {}) as { is_competitor?: boolean; is_trainee?: boolean };
 
   if (loading) {
     return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Načítavam…</div>;
@@ -49,6 +56,24 @@ const Home = () => {
       </header>
 
       <main className="max-w-5xl mx-auto px-3 py-6 space-y-3">
+        {needsProfile && (
+          <div className="rounded-xl border border-primary/50 bg-primary/10 p-4 space-y-2">
+            <div className="font-display text-base tracking-wider uppercase">Vytvor si profil</div>
+            <p className="text-xs text-muted-foreground">
+              Zatiaľ nemáš vytvorený profil. Vyplň si základné údaje a vyber, či budeš pretekár, cvičenec, alebo oboje.
+            </p>
+            <AddSelfDialog
+              onAdd={addMember}
+              userId={user!.id}
+              linkedMembersCount={0}
+              title="Môj profil"
+              defaultCompetitor={meta.is_competitor ?? true}
+              defaultTrainee={meta.is_trainee ?? true}
+              trigger={<Button className="mt-1">Vytvoriť profil</Button>}
+            />
+          </div>
+        )}
+
         <p className="text-xs uppercase tracking-widest text-muted-foreground">Vyber si sekciu</p>
         <div className="grid gap-3 sm:grid-cols-2">
           {tiles.map((t, i) => (

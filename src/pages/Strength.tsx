@@ -17,7 +17,7 @@ const MODES = [
 const Strength = () => {
   const { user, loading, isAdmin, isCoach } = useAuth();
   const navigate = useNavigate();
-  const draft = readDraft();
+  const [draft, setDraft] = useState(readDraft());
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Načítavam…</div>;
   if (!user) return <Navigate to="/auth" replace />;
@@ -29,14 +29,6 @@ const Strength = () => {
     { to: "/posilnovanie/vysledky", icon: History, title: "Výsledky", desc: "História tréningov a váh" },
     ...(isAdmin || isCoach
       ? [{ to: "/posilnovanie/cvicenci", icon: Users, title: "Cvičenci", desc: "Progres celého klubu" }]
-      : []),
-    ...(draft.items.length > 0
-      ? [{
-          to: `/posilnovanie/${draft.mode || "gym"}`,
-          icon: ClipboardList,
-          title: "Rozpracovaný tréning",
-          desc: `${draft.items.length} cvikov pripravených`,
-        }]
       : []),
   ];
 

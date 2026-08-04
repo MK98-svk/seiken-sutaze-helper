@@ -113,16 +113,16 @@ const WorkoutSessionPage = () => {
                     ) : null}
                   </div>
                 </div>
-                <Button asChild size="icon" variant="ghost" className="h-8 w-8 shrink-0">
-                  <a
-                    href={legacy?.youtube ?? `https://www.youtube.com/results?search_query=${encodeURIComponent(name + " exercise technique")}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    title="Video"
-                  >
-                    <Youtube className="h-4 w-4" />
-                  </a>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 shrink-0"
+                  title="Video"
+                  onClick={() => openExternal(legacy?.youtube ?? youtubeSearch(name + " exercise technique"))}
+                >
+                  <Youtube className="h-4 w-4" />
                 </Button>
+
               </div>
 
 

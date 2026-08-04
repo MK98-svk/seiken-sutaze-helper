@@ -274,6 +274,12 @@ export default function MobileCompetitionView({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <MemberResultsDialog
+        member={historyMember}
+        open={!!historyMember}
+        onOpenChange={(o) => !o && setHistoryMember(null)}
+      />
     </div>
   );
 }

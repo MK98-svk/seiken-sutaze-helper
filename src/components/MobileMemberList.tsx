@@ -51,9 +51,12 @@ export default function MobileMemberList({
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm">
+                      <button
+                        onClick={() => setHistoryMember(member)}
+                        className="font-medium text-sm text-left hover:text-primary hover:underline transition-colors"
+                      >
                         {member.meno} {member.priezvisko}
-                      </div>
+                      </button>
                       <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-xs text-muted-foreground">
                         <span className="inline-block px-1.5 py-0.5 rounded bg-primary/20 text-primary font-medium whitespace-nowrap">
                           {member.stupen || "—"}

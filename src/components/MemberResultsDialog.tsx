@@ -14,7 +14,7 @@ import { Loader2 } from "lucide-react";
 
 interface Props {
   member: Member | null;
-  competitions: Competition[];
+  competitions?: Competition[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }

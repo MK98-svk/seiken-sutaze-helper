@@ -145,7 +145,7 @@ const StrengthMode = () => {
                   equipment === e ? "border-primary bg-primary/15 text-foreground" : "border-border bg-card text-muted-foreground"
                 }`}
               >
-                {equipmentLabel(e)}
+                {e}
               </button>
             ))}
           </div>

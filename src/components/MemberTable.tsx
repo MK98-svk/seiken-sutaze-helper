@@ -33,6 +33,8 @@ import CompetitorAnalytics from "./CompetitorAnalytics";
 import TeamAnalytics from "./TeamAnalytics";
 import { useCompetitionIntents } from "@/hooks/useCompetitionIntents";
 import { formatIntentLabel } from "./SelfRegisterDialog";
+import MemberResultsDialog from "./MemberResultsDialog";
+
 
 interface MemberTableProps {
   members: Member[];
@@ -60,6 +62,7 @@ export default function MemberTable({
   currentUserId,
 }: MemberTableProps) {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const [historyMember, setHistoryMember] = useState<Member | null>(null);
   const [memberToRemove, setMemberToRemove] = useState<Member | null>(null);
   const [selectedCompId, setSelectedCompId] = useState<string>(() => {
     return localStorage.getItem("seiken_selectedCompId") || "all";
@@ -194,8 +197,16 @@ export default function MemberTable({
                           exit={{ opacity: 0, x: -20 }}
                           className="border-b border-border hover:bg-secondary/30 transition-colors"
                         >
-                          <TableCell className="font-medium">{member.meno}</TableCell>
-                          <TableCell className="font-medium">{member.priezvisko}</TableCell>
+                          <TableCell className="font-medium">
+                            <button onClick={() => setHistoryMember(member)} className="hover:text-primary hover:underline transition-colors text-left">
+                              {member.meno}
+                            </button>
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            <button onClick={() => setHistoryMember(member)} className="hover:text-primary hover:underline transition-colors text-left">
+                              {member.priezvisko}
+                            </button>
+                          </TableCell>
                           <TableCell className="text-center text-sm font-bold">{medals.zlato || "—"}</TableCell>
                           <TableCell className="text-center text-sm font-bold">{medals.striebro || "—"}</TableCell>
                           <TableCell className="text-center text-sm font-bold">{medals.bronz || "—"}</TableCell>
@@ -335,7 +346,15 @@ export default function MemberTable({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <MemberResultsDialog
+          member={historyMember}
+          competitions={competitions}
+          open={!!historyMember}
+          onOpenChange={(o) => !o && setHistoryMember(null)}
+        />
       </div>
+
     );
   }
 
@@ -440,8 +459,16 @@ export default function MemberTable({
                       exit={{ opacity: 0, x: -20 }}
                       className="border-b border-border hover:bg-secondary/30 transition-colors"
                     >
-                      <TableCell className="font-medium">{member.meno}</TableCell>
-                      <TableCell className="font-medium">{member.priezvisko}</TableCell>
+                      <TableCell className="font-medium">
+                        <button onClick={() => setHistoryMember(member)} className="hover:text-primary hover:underline transition-colors text-left">
+                          {member.meno}
+                        </button>
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        <button onClick={() => setHistoryMember(member)} className="hover:text-primary hover:underline transition-colors text-left">
+                          {member.priezvisko}
+                        </button>
+                      </TableCell>
                       <TableCell>
                         <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-primary/20 text-primary whitespace-nowrap">
                           {member.stupen || "—"}
@@ -541,6 +568,13 @@ export default function MemberTable({
         />
       </div>
       )}
+
+      <MemberResultsDialog
+        member={historyMember}
+        competitions={competitions}
+        open={!!historyMember}
+        onOpenChange={(o) => !o && setHistoryMember(null)}
+      />
     </div>
   );
 }

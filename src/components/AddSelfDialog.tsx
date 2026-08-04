@@ -133,16 +133,16 @@ export default function AddSelfDialog({
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label>Dátum narodenia</Label>
+            <Label>Dátum narodenia {isTrainee && "*"}</Label>
             <Input type="date" value={form.datumNarodenia} onChange={(e) => setForm({ ...form, datumNarodenia: e.target.value })} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Výška (cm)</Label>
+              <Label>Výška (cm) {isTrainee && "*"}</Label>
               <Input type="number" value={form.vyska} onChange={(e) => setForm({ ...form, vyska: e.target.value })} placeholder="cm" />
             </div>
             <div className="space-y-1.5">
-              <Label>Váha (kg)</Label>
+              <Label>Váha (kg) {isTrainee && "*"}</Label>
               <Input type="number" value={form.vaha} onChange={(e) => setForm({ ...form, vaha: e.target.value })} placeholder="kg" />
             </div>
           </div>

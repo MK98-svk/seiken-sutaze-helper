@@ -346,7 +346,15 @@ export default function MemberTable({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <MemberResultsDialog
+          member={historyMember}
+          competitions={competitions}
+          open={!!historyMember}
+          onOpenChange={(o) => !o && setHistoryMember(null)}
+        />
       </div>
+
     );
   }
 

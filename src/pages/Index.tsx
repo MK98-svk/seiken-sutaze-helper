@@ -19,6 +19,7 @@ const Index = () => {
   const { isRegistered, toggleEntry } = useCompetitionEntries();
 
   const linkedMembersCount = members.filter((m) => m.userId === user?.id).length;
+  const competitors = members.filter((m) => m.isCompetitor !== false);
 
   if (authLoading) {
     return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Načítavam…</div>;
@@ -66,7 +67,7 @@ const Index = () => {
             {user && <AddSelfDialog onAdd={addMember} userId={user.id} linkedMembersCount={linkedMembersCount} />}
             {user && (linkedMembersCount > 0 || isAdmin || isCoach) && (
               <SelfRegisterDialog
-                members={members}
+                members={competitors}
                 competitions={competitions}
                 currentUserId={user.id}
                 isAdmin={isAdmin}
@@ -90,10 +91,10 @@ const Index = () => {
           className="grid grid-cols-5 gap-1.5 sm:gap-3 mb-3 sm:mb-6"
         >
           {[
-            { label: "Členov", value: members.length },
-            { label: "Kata", value: members.filter((m) => m.kata).length },
-            { label: "Kobudo", value: members.filter((m) => m.kobudo).length },
-            { label: "Kumite", value: members.filter((m) => m.kumite).length },
+            { label: "Členov", value: competitors.length },
+            { label: "Kata", value: competitors.filter((m) => m.kata).length },
+            { label: "Kobudo", value: competitors.filter((m) => m.kobudo).length },
+            { label: "Kumite", value: competitors.filter((m) => m.kumite).length },
             { label: "Súťaží", value: competitions.length },
           ].map((stat) => (
             <div key={stat.label} className="bg-card rounded-lg border border-border p-2 sm:p-4 text-center">
@@ -112,7 +113,7 @@ const Index = () => {
             transition={{ delay: 0.2 }}
           >
             <MemberTable
-              members={members}
+              members={competitors}
               competitions={competitions}
               onUpdateMember={updateMember}
               onDeleteMember={isAdmin ? deleteMember : () => {}}

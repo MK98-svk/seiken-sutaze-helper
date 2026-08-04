@@ -95,7 +95,7 @@ export function useTrainableMembers() {
     },
   });
 
-  const mine = useMemo(() => members.filter((m) => m.userId && m.userId === user?.id), [members, user?.id]);
+  const mine = useMemo(() => members.filter((m) => m.userId && m.userId === user?.id && m.isTrainee !== false), [members, user?.id]);
   const selectable = useMemo(() => (mine.length > 0 ? mine : isAdmin || isCoach ? members : []), [mine, members, isAdmin, isCoach]);
 
   return { members, mine, selectable, isStaff: isAdmin || isCoach, isLoading };

@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useCatalog } from "@/hooks/useCatalog";
+import { openExternal, youtubeSearch } from "@/lib/openExternal";
+
 import {
   CATALOG_GROUPS,
   CatalogExercise,

@@ -47,16 +47,17 @@ export default function MobileMemberList({
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="bg-card rounded-lg border border-border p-3"
+                  className="bg-card rounded-lg border border-border p-3 cursor-pointer"
+                  onClick={(e) => {
+                    if ((e.target as HTMLElement).closest("button, a, input, select, [role='dialog']")) return;
+                    setHistoryMember(member);
+                  }}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
-                      <button
-                        onClick={() => setHistoryMember(member)}
-                        className="font-medium text-sm text-left text-primary underline decoration-dotted underline-offset-4"
-                      >
+                      <div className="font-medium text-sm text-left">
                         {member.meno} {member.priezvisko}
-                      </button>
+                      </div>
                       <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-xs text-muted-foreground">
                         <span className="inline-block px-1.5 py-0.5 rounded bg-primary/20 text-primary font-medium whitespace-nowrap">
                           {member.stupen || "—"}

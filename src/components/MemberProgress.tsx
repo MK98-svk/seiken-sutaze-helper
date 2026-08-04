@@ -1,7 +1,21 @@
 import { useMemo, useState } from "react";
-import { useWorkoutSessions } from "@/hooks/useWorkouts";
+import { useNavigate } from "react-router-dom";
+import { Play, Trash2 } from "lucide-react";
+import { useWorkoutSessions, useCreateWorkout } from "@/hooks/useWorkouts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 const fmtDate = (d: string) => new Date(d).toLocaleDateString("sk-SK", { day: "numeric", month: "numeric" });
@@ -9,6 +23,21 @@ const fmtDate = (d: string) => new Date(d).toLocaleDateString("sk-SK", { day: "n
 export default function MemberProgress({ memberId }: { memberId: string }) {
   const { sessions, sets, isLoading } = useWorkoutSessions(memberId);
   const [exercise, setExercise] = useState<string>("");
+  const navigate = useNavigate();
+  const { remove } = useCreateWorkout();
+  const [toDelete, setToDelete] = useState<string | null>(null);
+
+  const deleteSession = async () => {
+    if (!toDelete) return;
+    try {
+      await remove(toDelete);
+      toast.success("Tréning zmazaný");
+    } catch (e: any) {
+      toast.error("Nepodarilo sa zmazať: " + e.message);
+    } finally {
+      setToDelete(null);
+    }
+  };
 
   const setsBySession = useMemo(() => {
     const m = new Map<string, typeof sets>();

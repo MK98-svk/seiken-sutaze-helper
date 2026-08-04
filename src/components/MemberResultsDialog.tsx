@@ -33,20 +33,25 @@ export default function MemberResultsDialog({ member, competitions, open, onOpen
     queryKey: ["member_history", member?.id],
     enabled: open && !!member,
     queryFn: async () => {
-      const [indiv, teams] = await Promise.all([
+      const [indiv, teams, comps] = await Promise.all([
         (supabase as any)
           .from("competition_results")
           .select("*")
           .eq("member_id", member!.id),
         (supabase as any).from("team_competition_results").select("*"),
+        (supabase as any).from("competitions").select("id, nazov, datum"),
       ]);
       if (indiv.error) throw indiv.error;
       if (teams.error) throw teams.error;
-      return { indiv: indiv.data ?? [], teams: teams.data ?? [] };
+      if (comps.error) throw comps.error;
+      return { indiv: indiv.data ?? [], teams: teams.data ?? [], comps: comps.data ?? [] };
     },
   });
 
-  const compById = new Map(competitions.map((c) => [c.id, c]));
+  const compById = new Map<string, { nazov: string; datum: string }>(
+    [...(competitions ?? []), ...((data?.comps ?? []) as any[])].map((c: any) => [c.id, c])
+  );
+
 
   const surname = member ? norm(member.priezvisko) : "";
   const firstName = member ? norm(member.meno) : "";

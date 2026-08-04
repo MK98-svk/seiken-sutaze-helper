@@ -89,6 +89,8 @@ export function useTrainableMembers() {
         bronz: r.bronz ?? 0,
         userId: r.user_id ?? null,
         email: r.email ?? null,
+        isCompetitor: r.is_competitor ?? true,
+        isTrainee: r.is_trainee ?? true,
       }));
     },
   });

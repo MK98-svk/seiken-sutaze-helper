@@ -148,9 +148,12 @@ export default function MobileCompetitionView({
                 onClick={() => setExpandedMember(isExpanded ? null : member.id)}
               >
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm truncate">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setHistoryMember(member); }}
+                    className="font-medium text-sm truncate text-left hover:text-primary hover:underline transition-colors"
+                  >
                     {member.meno} {member.priezvisko}
-                  </div>
+                  </button>
                   {intentLabel && (
                     <div className="text-[11px] text-primary/80 mt-0.5">Plán: {intentLabel}</div>
                   )}

@@ -229,6 +229,25 @@ export default function TeamAnalytics({ competitions }: TeamAnalyticsProps) {
     },
   });
 
+  const { data: genderBySurname = new Map<string, "CH" | "D" | null>() } = useQuery({
+    queryKey: ["members_gender_map"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("members")
+        .select("meno, priezvisko, pohlavie");
+      if (error) throw error;
+      const map = new Map<string, "CH" | "D" | null>();
+      for (const m of data ?? []) {
+        const key = normalizeText(m.priezvisko ?? "");
+        if (!key) continue;
+        const g = m.pohlavie === "CH" || m.pohlavie === "D" ? m.pohlavie : null;
+        if (map.has(key) && map.get(key) !== g) map.set(key, null); // ambiguous surname
+        else map.set(key, g);
+      }
+      return map;
+    },
+  });
+
   const competitionMap = useMemo(() => {
     const map = new Map<string, Competition>();
     competitions.forEach(c => map.set(c.id, c));
@@ -247,7 +266,8 @@ export default function TeamAnalytics({ competitions }: TeamAnalyticsProps) {
       if (!age) continue;
       const ag = ageGroupOf(age.min, age.max);
       if (!ag) continue;
-      const gender = parseGender(r.category);
+      const gender = genderFromRoster(r.membersText, genderBySurname) ?? parseGender(r.category);
+
       const key = `${disc}|${ag.label}|${gender}`;
       let arr = buckets.get(key);
       if (!arr) {

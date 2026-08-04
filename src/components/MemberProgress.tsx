@@ -1,7 +1,21 @@
 import { useMemo, useState } from "react";
-import { useWorkoutSessions } from "@/hooks/useWorkouts";
+import { useNavigate } from "react-router-dom";
+import { Play, Trash2 } from "lucide-react";
+import { useWorkoutSessions, useCreateWorkout } from "@/hooks/useWorkouts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 const fmtDate = (d: string) => new Date(d).toLocaleDateString("sk-SK", { day: "numeric", month: "numeric" });
@@ -9,6 +23,21 @@ const fmtDate = (d: string) => new Date(d).toLocaleDateString("sk-SK", { day: "n
 export default function MemberProgress({ memberId }: { memberId: string }) {
   const { sessions, sets, isLoading } = useWorkoutSessions(memberId);
   const [exercise, setExercise] = useState<string>("");
+  const navigate = useNavigate();
+  const { remove } = useCreateWorkout();
+  const [toDelete, setToDelete] = useState<string | null>(null);
+
+  const deleteSession = async () => {
+    if (!toDelete) return;
+    try {
+      await remove(toDelete);
+      toast.success("Tréning zmazaný");
+    } catch (e: any) {
+      toast.error("Nepodarilo sa zmazať: " + e.message);
+    } finally {
+      setToDelete(null);
+    }
+  };
 
   const setsBySession = useMemo(() => {
     const m = new Map<string, typeof sets>();
@@ -182,9 +211,25 @@ export default function MemberProgress({ memberId }: { memberId: string }) {
                     {s.durationMin ? ` · ${s.durationMin} min` : ""}
                   </div>
                 </div>
-                <Badge variant={s.completed ? "default" : "outline"} className="shrink-0 text-[10px]">
-                  {s.completed ? "hotové" : "rozpracované"}
-                </Badge>
+                <div className="flex items-center gap-1 shrink-0">
+                  <Badge variant={s.completed ? "default" : "outline"} className="text-[10px]">
+                    {s.completed ? "hotové" : "rozpracované"}
+                  </Badge>
+                  {!s.completed && (
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7"
+                      title="Pokračovať v tréningu"
+                      onClick={() => navigate(`/posilnovanie/trening/${s.id}`)}
+                    >
+                      <Play className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                  <Button size="icon" variant="ghost" className="h-7 w-7" title="Zmazať tréning" onClick={() => setToDelete(s.id)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
               </div>
               {names.length > 0 && (
                 <div className="text-[11px] text-muted-foreground mt-1.5 line-clamp-2">{names.join(" · ")}</div>
@@ -194,6 +239,19 @@ export default function MemberProgress({ memberId }: { memberId: string }) {
           );
         })}
       </section>
+
+      <AlertDialog open={!!toDelete} onOpenChange={(o) => !o && setToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Zmazať tréning?</AlertDialogTitle>
+            <AlertDialogDescription>Tréning aj so všetkými sériami sa nenávratne odstráni.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Nie</AlertDialogCancel>
+            <AlertDialogAction onClick={deleteSession}>Áno, zmazať</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

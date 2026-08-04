@@ -50,9 +50,13 @@ export default function AddSelfDialog({
     kumite: false,
   });
 
+  const traineeFieldsMissing =
+    isTrainee && (!form.pohlavie || !form.datumNarodenia || !form.vyska || !form.vaha);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.meno || !form.priezvisko) return;
+    if (traineeFieldsMissing) return;
     onAdd({
       meno: form.meno,
       priezvisko: form.priezvisko,
@@ -129,16 +133,16 @@ export default function AddSelfDialog({
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label>Dátum narodenia</Label>
+            <Label>Dátum narodenia {isTrainee && "*"}</Label>
             <Input type="date" value={form.datumNarodenia} onChange={(e) => setForm({ ...form, datumNarodenia: e.target.value })} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Výška (cm)</Label>
+              <Label>Výška (cm) {isTrainee && "*"}</Label>
               <Input type="number" value={form.vyska} onChange={(e) => setForm({ ...form, vyska: e.target.value })} placeholder="cm" />
             </div>
             <div className="space-y-1.5">
-              <Label>Váha (kg)</Label>
+              <Label>Váha (kg) {isTrainee && "*"}</Label>
               <Input type="number" value={form.vaha} onChange={(e) => setForm({ ...form, vaha: e.target.value })} placeholder="kg" />
             </div>
           </div>
@@ -168,7 +172,10 @@ export default function AddSelfDialog({
             </div>
           </div>
           )}
-          <Button type="submit" className="w-full" disabled={!isCompetitor && !isTrainee}>Uložiť profil</Button>
+          {traineeFieldsMissing && (
+            <p className="text-xs text-muted-foreground">Pre časť Posilňovanie vyplň pohlavie, dátum narodenia, výšku a váhu – podľa nich sa počítajú tréningy a štatistiky.</p>
+          )}
+          <Button type="submit" className="w-full" disabled={(!isCompetitor && !isTrainee) || !form.meno || !form.priezvisko || traineeFieldsMissing}>Uložiť profil</Button>
         </form>
       </DialogContent>
     </Dialog>

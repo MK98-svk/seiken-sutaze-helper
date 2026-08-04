@@ -79,10 +79,35 @@ function parseGender(category: string): Gender {
   const c = normalizeText(category);
   if (/\bmixed\b/.test(c)) return "MIXED";
   // Check after OPEN or end of string for CH/D marker
-  if (/\b(ch|chlapci|muzi|boys|men)\b/.test(c)) return "CH";
-  if (/\b(d|dievcata|zeny|girls|women)\b/.test(c)) return "D";
+  if (/\b(ch|chlapci|muzi|boys|men|male)\b/.test(c)) return "CH";
+  if (/\b(d|dievcata|zeny|girls|women|female)\b/.test(c)) return "D";
   return "MIXED";
 }
+
+/** Determine gender from the actual roster; MIXED only when both genders are present. */
+function genderFromRoster(
+  membersText: string | null,
+  genderBySurname: Map<string, "CH" | "D" | null>
+): Gender | null {
+  if (!membersText) return null;
+  const names = membersText
+    .split(/[,;/]+/)
+    .map(s => normalizeText(s.trim()))
+    .filter(Boolean);
+  if (names.length === 0) return null;
+  const found = new Set<"CH" | "D">();
+  let unknown = 0;
+  for (const n of names) {
+    const surname = n.split(/\s+/).pop()!;
+    const g = genderBySurname.get(surname);
+    if (g === "CH" || g === "D") found.add(g);
+    else unknown++;
+  }
+  if (found.size === 2) return "MIXED";
+  if (found.size === 1 && unknown === 0) return [...found][0];
+  return null;
+}
+
 
 function ageGroupOf(min: number, max: number): typeof AGE_GROUPS[number] | null {
   // Find best-fitting group: prefer one that contains the midpoint

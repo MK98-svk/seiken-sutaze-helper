@@ -277,7 +277,7 @@ export default function TeamAnalytics({ competitions }: TeamAnalyticsProps) {
       arr.push(r);
     }
     return buckets;
-  }, [teamRows]);
+  }, [teamRows, genderBySurname]);
 
   const renderDiscipline = (discipline: "kata" | "kumite", title: string, emoji: string) => (
     <motion.div

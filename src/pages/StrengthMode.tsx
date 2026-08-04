@@ -51,15 +51,19 @@ const StrengthMode = () => {
     let base: CatalogExercise[] = [];
     if (query.trim().length >= 2) base = catalog.search(query, m);
     else if (group) base = catalog.inGroup(CATALOG_GROUPS.find((g) => g.id === group)!, m);
-    if (equipment) base = base.filter((e) => e.equipment === equipment);
+    if (equipment) base = base.filter((e) => equipmentLabel(e.equipment) === equipment);
     return base;
   }, [catalog, query, group, equipment, m]);
 
   const equipmentOptions = useMemo(() => {
     const counts = new Map<string, number>();
-    for (const e of list) counts.set(e.equipment, (counts.get(e.equipment) ?? 0) + 1);
+    for (const e of list) {
+      const label = equipmentLabel(e.equipment);
+      counts.set(label, (counts.get(label) ?? 0) + 1);
+    }
     return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([e]) => e);
   }, [list]);
+
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Načítavam…</div>;
   if (!user) return <Navigate to="/auth" replace />;

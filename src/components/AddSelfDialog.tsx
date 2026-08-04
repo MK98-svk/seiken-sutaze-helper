@@ -172,7 +172,10 @@ export default function AddSelfDialog({
             </div>
           </div>
           )}
-          <Button type="submit" className="w-full" disabled={!isCompetitor && !isTrainee}>Uložiť profil</Button>
+          {traineeFieldsMissing && (
+            <p className="text-xs text-muted-foreground">Pre časť Posilňovanie vyplň pohlavie, dátum narodenia, výšku a váhu – podľa nich sa počítajú tréningy a štatistiky.</p>
+          )}
+          <Button type="submit" className="w-full" disabled={(!isCompetitor && !isTrainee) || !form.meno || !form.priezvisko || traineeFieldsMissing}>Uložiť profil</Button>
         </form>
       </DialogContent>
     </Dialog>

@@ -29,8 +29,10 @@ const WorkoutSessionPage = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const { session, sets, updateSet, finish } = useWorkoutSession(id);
+  const { remove } = useCreateWorkout();
   const { catalog } = useCatalog();
 
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const [rest, setRest] = useState<number | null>(null);
   const [running, setRunning] = useState(false);

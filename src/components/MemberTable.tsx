@@ -459,8 +459,16 @@ export default function MemberTable({
                       exit={{ opacity: 0, x: -20 }}
                       className="border-b border-border hover:bg-secondary/30 transition-colors"
                     >
-                      <TableCell className="font-medium">{member.meno}</TableCell>
-                      <TableCell className="font-medium">{member.priezvisko}</TableCell>
+                      <TableCell className="font-medium">
+                        <button onClick={() => setHistoryMember(member)} className="hover:text-primary hover:underline transition-colors text-left">
+                          {member.meno}
+                        </button>
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        <button onClick={() => setHistoryMember(member)} className="hover:text-primary hover:underline transition-colors text-left">
+                          {member.priezvisko}
+                        </button>
+                      </TableCell>
                       <TableCell>
                         <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-primary/20 text-primary whitespace-nowrap">
                           {member.stupen || "—"}

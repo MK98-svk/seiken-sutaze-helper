@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useWorkoutSession } from "@/hooks/useWorkouts";
 import { exerciseById, restForGoal, GOALS } from "@/data/exercises";
+import { useCatalog } from "@/hooks/useCatalog";
+import { IMG, muscleLabel, equipmentLabel } from "@/lib/catalog";
 import { toast } from "sonner";
 
 const WorkoutSessionPage = () => {
@@ -15,6 +17,8 @@ const WorkoutSessionPage = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const { session, sets, updateSet, finish } = useWorkoutSession(id);
+  const { catalog } = useCatalog();
+
 
   const [rest, setRest] = useState<number | null>(null);
   const [running, setRunning] = useState(false);
@@ -88,22 +92,39 @@ const WorkoutSessionPage = () => {
         </div>
 
         {grouped.map(([exId, list]) => {
-          const ex = exerciseById(exId);
+          const legacy = exerciseById(exId);
+          const cat = catalog?.get(exId);
+          const name = list[0].exerciseName;
           return (
             <div key={exId} className="rounded-lg border border-border bg-card p-3 space-y-2">
               <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <div className="font-display text-sm tracking-wide uppercase leading-tight">{list[0].exerciseName}</div>
-                  {ex && <div className="text-[11px] text-muted-foreground">{ex.muscles}</div>}
+                <div className="flex items-start gap-2 min-w-0">
+                  {cat && (
+                    <img src={IMG(cat.image)} alt={name} loading="lazy" className="h-12 w-12 rounded-md bg-white object-contain shrink-0" />
+                  )}
+                  <div className="min-w-0">
+                    <div className="font-display text-sm tracking-wide uppercase leading-tight">{name}</div>
+                    {legacy ? (
+                      <div className="text-[11px] text-muted-foreground">{legacy.muscles}</div>
+                    ) : cat ? (
+                      <div className="text-[11px] text-muted-foreground">
+                        {muscleLabel(cat.target)} · {equipmentLabel(cat.equipment)}
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
-                {ex && (
-                  <Button asChild size="icon" variant="ghost" className="h-8 w-8 shrink-0">
-                    <a href={ex.youtube} target="_blank" rel="noreferrer" title="Video">
-                      <Youtube className="h-4 w-4" />
-                    </a>
-                  </Button>
-                )}
+                <Button asChild size="icon" variant="ghost" className="h-8 w-8 shrink-0">
+                  <a
+                    href={legacy?.youtube ?? `https://www.youtube.com/results?search_query=${encodeURIComponent(name + " exercise technique")}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    title="Video"
+                  >
+                    <Youtube className="h-4 w-4" />
+                  </a>
+                </Button>
               </div>
+
 
               <div className="space-y-1.5">
                 {list.map((s) => (

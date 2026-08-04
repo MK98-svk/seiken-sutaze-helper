@@ -10,6 +10,10 @@ import StrengthMode from "./pages/StrengthMode";
 import WorkoutAI from "./pages/WorkoutAI";
 import WorkoutSession from "./pages/WorkoutSession";
 import WorkoutResults from "./pages/WorkoutResults";
+import WorkoutPlans from "./pages/WorkoutPlans";
+import WorkoutProgress from "./pages/WorkoutProgress";
+import CoachMembers from "./pages/CoachMembers";
+import CoachMemberDetail from "./pages/CoachMemberDetail";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
@@ -27,9 +31,14 @@ const App = () => (
           <Route path="/sutaze" element={<Index />} />
           <Route path="/posilnovanie" element={<Strength />} />
           <Route path="/posilnovanie/ai" element={<WorkoutAI />} />
+          <Route path="/posilnovanie/plany" element={<WorkoutPlans />} />
+          <Route path="/posilnovanie/progres" element={<WorkoutProgress />} />
+          <Route path="/posilnovanie/cvicenci" element={<CoachMembers />} />
+          <Route path="/posilnovanie/cvicenci/:memberId" element={<CoachMemberDetail />} />
           <Route path="/posilnovanie/vysledky" element={<WorkoutResults />} />
           <Route path="/posilnovanie/trening/:id" element={<WorkoutSession />} />
           <Route path="/posilnovanie/:mode" element={<StrengthMode />} />
+
           <Route path="/auth" element={<Auth />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

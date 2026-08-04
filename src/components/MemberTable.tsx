@@ -195,18 +195,14 @@ export default function MemberTable({
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, x: -20 }}
-                          className="border-b border-border hover:bg-secondary/30 transition-colors"
+                          className="border-b border-border hover:bg-secondary/30 transition-colors cursor-pointer"
+                          onClick={(e) => {
+                            if ((e.target as HTMLElement).closest("button, a, input, select, [role='dialog']")) return;
+                            setHistoryMember(member);
+                          }}
                         >
-                          <TableCell className="font-medium">
-                            <button onClick={() => setHistoryMember(member)} className="text-primary underline decoration-dotted underline-offset-4 hover:decoration-solid transition-colors text-left">
-                              {member.meno}
-                            </button>
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            <button onClick={() => setHistoryMember(member)} className="text-primary underline decoration-dotted underline-offset-4 hover:decoration-solid transition-colors text-left">
-                              {member.priezvisko}
-                            </button>
-                          </TableCell>
+                          <TableCell className="font-medium">{member.meno}</TableCell>
+                          <TableCell className="font-medium">{member.priezvisko}</TableCell>
                           <TableCell className="text-center text-sm font-bold">{medals.zlato || "—"}</TableCell>
                           <TableCell className="text-center text-sm font-bold">{medals.striebro || "—"}</TableCell>
                           <TableCell className="text-center text-sm font-bold">{medals.bronz || "—"}</TableCell>
@@ -457,18 +453,14 @@ export default function MemberTable({
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, x: -20 }}
-                      className="border-b border-border hover:bg-secondary/30 transition-colors"
+                      className="border-b border-border hover:bg-secondary/30 transition-colors cursor-pointer"
+                      onClick={(e) => {
+                        if ((e.target as HTMLElement).closest("button, a, input, select, [role='dialog']")) return;
+                        setHistoryMember(member);
+                      }}
                     >
-                      <TableCell className="font-medium">
-                        <button onClick={() => setHistoryMember(member)} className="text-primary underline decoration-dotted underline-offset-4 hover:decoration-solid transition-colors text-left">
-                          {member.meno}
-                        </button>
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        <button onClick={() => setHistoryMember(member)} className="text-primary underline decoration-dotted underline-offset-4 hover:decoration-solid transition-colors text-left">
-                          {member.priezvisko}
-                        </button>
-                      </TableCell>
+                      <TableCell className="font-medium">{member.meno}</TableCell>
+                      <TableCell className="font-medium">{member.priezvisko}</TableCell>
                       <TableCell>
                         <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-primary/20 text-primary whitespace-nowrap">
                           {member.stupen || "—"}

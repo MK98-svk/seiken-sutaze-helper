@@ -77,7 +77,7 @@ export default function MobileMemberList({
                           <span className="text-muted-foreground">Žiadne medaily</span>
                         )}
                         {compCount > 0 && (
-                          <span className="text-muted-foreground">• {compCount} súťaží</span>
+                          <span className="text-muted-foreground">• {compCount} {compCount === 1 ? "súťaž" : compCount < 5 ? "súťaže" : "súťaží"}</span>
                         )}
                       </div>
                     </div>

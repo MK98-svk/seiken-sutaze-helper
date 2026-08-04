@@ -135,7 +135,7 @@ export default function MemberResultsDialog({ member, competitions, open, onOpen
               <span>🥇 <strong>{medals.zlato}</strong></span>
               <span>🥈 <strong>{medals.striebro}</strong></span>
               <span>🥉 <strong>{medals.bronz}</strong></span>
-              <span className="text-muted-foreground ml-auto">{orderedComps.length} súťaží</span>
+              <span className="text-muted-foreground ml-auto">{orderedComps.length} {orderedComps.length === 1 ? "súťaž" : orderedComps.length < 5 ? "súťaže" : "súťaží"}</span>
             </div>
 
             {orderedComps.map(([compId, list]) => {

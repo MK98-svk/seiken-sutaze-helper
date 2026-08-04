@@ -7,8 +7,17 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { MODES, GROUPS, GOALS, exercisesFor, exerciseById, WorkoutMode, MuscleGroup } from "@/data/exercises";
+import { GOALS } from "@/data/exercises";
+import { useCatalog } from "@/hooks/useCatalog";
+import { CATALOG_GROUPS, CatalogMode, availableIn, equipmentLabel, muscleLabel } from "@/lib/catalog";
 import { useTrainableMembers, useCreateWorkout, readDraft, clearDraft, PlannedItem } from "@/hooks/useWorkouts";
+
+const MODES: { id: CatalogMode; label: string; icon: string }[] = [
+  { id: "gym", label: "Fitko", icon: "🏋️" },
+  { id: "pomocky", label: "Doma s pomôckami", icon: "🏠" },
+  { id: "bezpomocok", label: "Doma bez pomôcok", icon: "🤸" },
+];
+
 import { toast } from "sonner";
 
 const DURATIONS = [20, 30, 45, 60];
@@ -30,13 +39,14 @@ const WorkoutAI = () => {
   const fromDraft = params.get("draft") === "1";
   const { selectable, isLoading: membersLoading } = useTrainableMembers();
   const { create } = useCreateWorkout();
+  const { catalog } = useCatalog();
 
   const [memberId, setMemberId] = useState<string>("");
-  const [mode, setMode] = useState<WorkoutMode>("gym");
+  const [mode, setMode] = useState<CatalogMode>("gym");
   const [goal, setGoal] = useState<string>("objem");
   const [duration, setDuration] = useState(45);
   const [days, setDays] = useState(3);
-  const [groups, setGroups] = useState<MuscleGroup[]>([]);
+  const [groups, setGroups] = useState<string[]>([]);
   const [generating, setGenerating] = useState(false);
   const [plan, setPlan] = useState<{ title: string; warmup: string[]; stretch: string[]; items: PlannedItem[]; note?: string } | null>(null);
 
@@ -48,7 +58,7 @@ const WorkoutAI = () => {
     if (!fromDraft) return;
     const d = readDraft();
     if (d.items.length) {
-      setMode((d.mode as WorkoutMode) || "gym");
+      setMode((d.mode as CatalogMode) || "gym");
       setPlan({ title: "Môj tréning", warmup: [], stretch: [], items: d.items });
     }
   }, [fromDraft]);
@@ -58,19 +68,32 @@ const WorkoutAI = () => {
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Načítavam…</div>;
   if (!user) return <Navigate to="/auth" replace />;
 
-  const toggleGroup = (g: MuscleGroup) => setGroups((prev) => (prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]));
+  const toggleGroup = (g: string) => setGroups((prev) => (prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]));
 
   const generate = async () => {
     if (!member) return toast.error("Vyber pretekára");
+    if (!catalog) return toast.error("Katalóg cvikov sa ešte načítava");
     setGenerating(true);
     try {
-      const catalog = exercisesFor(mode)
-        .filter((e) => groups.length === 0 || groups.includes(e.group))
-        .map((e) => ({ id: e.id, name: e.name, group: e.group, difficulty: e.difficulty, equipment: e.equipment }));
+      const selectedGroups = groups.length ? CATALOG_GROUPS.filter((g) => groups.includes(g.id)) : CATALOG_GROUPS;
+      const pool = new Map<string, { id: string; name: string; group: string; muscle: string; equipment: string }>();
+      for (const g of selectedGroups) {
+        for (const e of catalog.inGroup(g, mode).slice(0, 60)) {
+          if (!availableIn(e, mode)) continue;
+          pool.set(e.id, {
+            id: e.id,
+            name: e.name,
+            group: g.name,
+            muscle: muscleLabel(e.target),
+            equipment: equipmentLabel(e.equipment),
+          });
+        }
+      }
+      const catalogPayload = [...pool.values()];
 
       const { data, error } = await supabase.functions.invoke("generate-workout", {
         body: {
-          catalog,
+          catalog: catalogPayload,
           profile: {
             meno: `${member.meno} ${member.priezvisko}`,
             vek: ageOf(member.datumNarodenia),
@@ -84,7 +107,7 @@ const WorkoutAI = () => {
           goal,
           duration,
           days,
-          groups,
+          groups: selectedGroups.map((g) => g.name),
         },
       });
 
@@ -93,17 +116,18 @@ const WorkoutAI = () => {
 
       const items: PlannedItem[] = (data.exercises ?? [])
         .map((it: any) => {
-          const ex = exerciseById(it.id);
+          const ex = catalog.get(String(it.id));
           if (!ex) return null;
           return {
             exerciseId: ex.id,
             exerciseName: ex.name,
-            muscleGroup: ex.group,
+            muscleGroup: catalog.groupOf(ex)?.name ?? muscleLabel(ex.target),
             sets: Math.min(6, Math.max(1, Number(it.sets) || 3)),
             reps: Math.min(60, Math.max(1, Number(it.reps) || 10)),
           } as PlannedItem;
         })
         .filter(Boolean);
+
 
       if (!items.length) throw new Error("AI nevrátila žiadne cviky, skús to znova");
 
@@ -211,15 +235,16 @@ const WorkoutAI = () => {
             <section className="space-y-2">
               <label className="text-xs uppercase tracking-widest text-muted-foreground">Partie tela (nepovinné)</label>
               <div className="flex flex-wrap gap-2">
-                {GROUPS.map((g) => (
+                {CATALOG_GROUPS.map((g) => (
                   <button
                     key={g.id}
                     onClick={() => toggleGroup(g.id)}
                     className={`rounded-lg border px-2.5 py-1.5 text-xs ${groups.includes(g.id) ? "border-primary bg-primary/15" : "border-border bg-card text-muted-foreground"}`}
                   >
-                    {g.icon} {g.label}
+                    {g.icon} {g.name}
                   </button>
                 ))}
+
               </div>
             </section>
 

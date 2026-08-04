@@ -79,10 +79,35 @@ function parseGender(category: string): Gender {
   const c = normalizeText(category);
   if (/\bmixed\b/.test(c)) return "MIXED";
   // Check after OPEN or end of string for CH/D marker
-  if (/\b(ch|chlapci|muzi|boys|men)\b/.test(c)) return "CH";
-  if (/\b(d|dievcata|zeny|girls|women)\b/.test(c)) return "D";
+  if (/\b(ch|chlapci|muzi|boys|men|male)\b/.test(c)) return "CH";
+  if (/\b(d|dievcata|zeny|girls|women|female)\b/.test(c)) return "D";
   return "MIXED";
 }
+
+/** Determine gender from the actual roster; MIXED only when both genders are present. */
+function genderFromRoster(
+  membersText: string | null,
+  genderBySurname: Map<string, "CH" | "D" | null>
+): Gender | null {
+  if (!membersText) return null;
+  const names = membersText
+    .split(/[,;/]+/)
+    .map(s => normalizeText(s.trim()))
+    .filter(Boolean);
+  if (names.length === 0) return null;
+  const found = new Set<"CH" | "D">();
+  let unknown = 0;
+  for (const n of names) {
+    const surname = n.split(/\s+/).pop()!;
+    const g = genderBySurname.get(surname);
+    if (g === "CH" || g === "D") found.add(g);
+    else unknown++;
+  }
+  if (found.size === 2) return "MIXED";
+  if (found.size === 1 && unknown === 0) return [...found][0];
+  return null;
+}
+
 
 function ageGroupOf(min: number, max: number): typeof AGE_GROUPS[number] | null {
   // Find best-fitting group: prefer one that contains the midpoint
@@ -204,6 +229,25 @@ export default function TeamAnalytics({ competitions }: TeamAnalyticsProps) {
     },
   });
 
+  const { data: genderBySurname = new Map<string, "CH" | "D" | null>() } = useQuery({
+    queryKey: ["members_gender_map"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("members")
+        .select("meno, priezvisko, pohlavie");
+      if (error) throw error;
+      const map = new Map<string, "CH" | "D" | null>();
+      for (const m of data ?? []) {
+        const key = normalizeText(m.priezvisko ?? "");
+        if (!key) continue;
+        const g = m.pohlavie === "CH" || m.pohlavie === "D" ? m.pohlavie : null;
+        if (map.has(key) && map.get(key) !== g) map.set(key, null); // ambiguous surname
+        else map.set(key, g);
+      }
+      return map;
+    },
+  });
+
   const competitionMap = useMemo(() => {
     const map = new Map<string, Competition>();
     competitions.forEach(c => map.set(c.id, c));
@@ -222,7 +266,8 @@ export default function TeamAnalytics({ competitions }: TeamAnalyticsProps) {
       if (!age) continue;
       const ag = ageGroupOf(age.min, age.max);
       if (!ag) continue;
-      const gender = parseGender(r.category);
+      const gender = genderFromRoster(r.membersText, genderBySurname) ?? parseGender(r.category);
+
       const key = `${disc}|${ag.label}|${gender}`;
       let arr = buckets.get(key);
       if (!arr) {
@@ -232,7 +277,7 @@ export default function TeamAnalytics({ competitions }: TeamAnalyticsProps) {
       arr.push(r);
     }
     return buckets;
-  }, [teamRows]);
+  }, [teamRows, genderBySurname]);
 
   const renderDiscipline = (discipline: "kata" | "kumite", title: string, emoji: string) => (
     <motion.div

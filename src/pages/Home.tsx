@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Navigate, useNavigate } from "react-router-dom";
-import { LogOut, Trophy, Dumbbell, Users } from "lucide-react";
+import { LogOut, Trophy, Dumbbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import seikenLogo from "@/assets/seiken-logo.jpg";
@@ -50,7 +50,7 @@ const Home = () => {
 
       <main className="max-w-5xl mx-auto px-3 py-6 space-y-3">
         <p className="text-xs uppercase tracking-widest text-muted-foreground">Vyber si sekciu</p>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           {tiles.map((t, i) => (
             <motion.button
               key={t.label}

@@ -41,6 +41,9 @@ const Index = () => {
             <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate("/")} title="Domov">
               <ArrowLeft className="h-4 w-4" />
             </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate("/posilnovanie")} title="Posilňovanie">
+              <Dumbbell className="h-4 w-4" />
+            </Button>
             <img src={seikenLogo} alt="KK SEIKEN logo" className="h-8 w-8 sm:h-12 sm:w-12 rounded-lg object-cover ring-1 ring-primary/30 shrink-0" />
             <div className="min-w-0">
               <h1 className="text-sm sm:text-xl font-display font-bold tracking-wider text-foreground truncate">

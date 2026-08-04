@@ -1,12 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { Check, Pause, Play, RotateCcw, Youtube, Flag } from "lucide-react";
+import { Check, Pause, Play, RotateCcw, Youtube, Flag, Trash2 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/hooks/useAuth";
-import { useWorkoutSession } from "@/hooks/useWorkouts";
+import { useWorkoutSession, useCreateWorkout } from "@/hooks/useWorkouts";
 import { exerciseById, restForGoal, GOALS } from "@/data/exercises";
 import { useCatalog } from "@/hooks/useCatalog";
 import { IMG, muscleLabel, equipmentLabel } from "@/lib/catalog";

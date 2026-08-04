@@ -10,6 +10,8 @@ import { useWorkoutSession } from "@/hooks/useWorkouts";
 import { exerciseById, restForGoal, GOALS } from "@/data/exercises";
 import { useCatalog } from "@/hooks/useCatalog";
 import { IMG, muscleLabel, equipmentLabel } from "@/lib/catalog";
+import { openExternal, youtubeSearch } from "@/lib/openExternal";
+
 import { toast } from "sonner";
 
 const WorkoutSessionPage = () => {

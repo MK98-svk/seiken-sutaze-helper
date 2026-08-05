@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import MemberPicker from "@/components/MemberPicker";
 import { useAuth } from "@/hooks/useAuth";
 import { useTrainableMembers } from "@/hooks/useWorkouts";
 import MemberProgress from "@/components/MemberProgress";
@@ -29,16 +29,8 @@ const WorkoutProgress = () => {
           <div className="text-sm text-muted-foreground">K tvojmu účtu nie je priradený žiadny pretekár.</div>
         ) : (
           <>
-            {selectable.length > 1 && (
-              <Select value={memberId} onValueChange={setMemberId}>
-                <SelectTrigger><SelectValue placeholder="Vyber pretekára" /></SelectTrigger>
-                <SelectContent>
-                  {selectable.map((m) => (
-                    <SelectItem key={m.id} value={m.id}>{m.meno} {m.priezvisko}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+            <MemberPicker members={selectable} value={memberId} onChange={setMemberId} label="Pre koho" />
+
             {memberId && <MemberProgress memberId={memberId} />}
           </>
         )}

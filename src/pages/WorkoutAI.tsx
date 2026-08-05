@@ -4,7 +4,7 @@ import { Sparkles, Loader2, Play, Trash2 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import MemberPicker from "@/components/MemberPicker";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { GOALS } from "@/data/exercises";
@@ -39,7 +39,7 @@ const WorkoutAI = () => {
   const fromDraft = params.get("draft") === "1";
   const { selectable, isLoading: membersLoading } = useTrainableMembers();
   const { create } = useCreateWorkout();
-  const { catalog } = useCatalog();
+  const { catalog, isLoading: catalogLoading, error: catalogError } = useCatalog();
 
   const [memberId, setMemberId] = useState<string>("");
   const [mode, setMode] = useState<CatalogMode>("gym");
@@ -71,15 +71,19 @@ const WorkoutAI = () => {
   const toggleGroup = (g: string) => setGroups((prev) => (prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]));
 
   const generate = async () => {
-    if (!member) return toast.error("Vyber pretekára");
-    if (!catalog) return toast.error("Katalóg cvikov sa ešte načítava");
+    if (!member) return toast.error("Vyber cvičenca");
+    if (!catalog) return toast.error("Katalóg cvikov sa ešte načítava, skús o chvíľu znova");
     setGenerating(true);
     try {
       const selectedGroups = groups.length ? CATALOG_GROUPS.filter((g) => groups.includes(g.id)) : CATALOG_GROUPS;
+      const perGroup = Math.max(8, Math.floor(120 / Math.max(1, selectedGroups.length)));
       const pool = new Map<string, { id: string; name: string; group: string; muscle: string; equipment: string }>();
       for (const g of selectedGroups) {
-        for (const e of catalog.inGroup(g, mode).slice(0, 60)) {
+        let taken = 0;
+        for (const e of catalog.inGroup(g, mode)) {
+          if (taken >= perGroup) break;
           if (!availableIn(e, mode)) continue;
+          taken++;
           pool.set(e.id, {
             id: e.id,
             name: e.name,
@@ -90,6 +94,8 @@ const WorkoutAI = () => {
         }
       }
       const catalogPayload = [...pool.values()];
+      if (!catalogPayload.length) throw new Error("Pre zvolené prostredie a partie nie sú dostupné žiadne cviky");
+
 
       const { data, error } = await supabase.functions.invoke("generate-workout", {
         body: {

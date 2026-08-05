@@ -185,17 +185,16 @@ const WorkoutAI = () => {
         ) : (
           <>
             <section className="space-y-2">
-              <label className="text-xs uppercase tracking-widest text-muted-foreground">Pre koho</label>
-              <Select value={memberId} onValueChange={setMemberId}>
-                <SelectTrigger><SelectValue placeholder="Vyber pretekára" /></SelectTrigger>
-                <SelectContent>
-                  {selectable.map((m) => (
-                    <SelectItem key={m.id} value={m.id}>
-                      {m.meno} {m.priezvisko}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <MemberPicker
+                members={selectable}
+                value={memberId}
+                onChange={(id) => {
+                  setMemberId(id);
+                  setPlan(null);
+                }}
+                label="Pre koho"
+              />
+
               {member && (
                 <div className="flex flex-wrap gap-1 pt-1">
                   {ageOf(member.datumNarodenia) !== null && <Badge variant="outline">{ageOf(member.datumNarodenia)} r.</Badge>}

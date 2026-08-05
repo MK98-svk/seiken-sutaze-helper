@@ -5,7 +5,7 @@ import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import MemberPicker from "@/components/MemberPicker";
 import { useAuth } from "@/hooks/useAuth";
 import { useTrainableMembers, useCreateWorkout, readDraft, clearDraft } from "@/hooks/useWorkouts";
 import { useWorkoutPlans } from "@/hooks/useWorkoutPlans";

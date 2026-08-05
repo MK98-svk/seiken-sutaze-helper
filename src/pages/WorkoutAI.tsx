@@ -284,10 +284,18 @@ const WorkoutAI = () => {
               </div>
             </section>
 
-            <Button onClick={generate} disabled={generating} className="w-full gap-2">
-              {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-              {generating ? "Generujem tréning…" : "Vygenerovať tréning"}
+            {catalogError && (
+              <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm space-y-2">
+                <div>Nepodarilo sa načítať katalóg cvikov. Skontroluj pripojenie a skús to znova.</div>
+                <Button size="sm" variant="outline" onClick={() => window.location.reload()}>Načítať znova</Button>
+              </div>
+            )}
+
+            <Button onClick={generate} disabled={generating || catalogLoading || !catalog} className="w-full gap-2">
+              {generating || catalogLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              {catalogLoading ? "Načítavam katalóg cvikov…" : generating ? "Generujem tréning…" : "Vygenerovať tréning"}
             </Button>
+
 
             {plan && (
               <section className="rounded-xl border border-border bg-card p-4 space-y-3">

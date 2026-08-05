@@ -27,6 +27,16 @@ export default defineConfig(({ mode }) => ({
         skipWaiting: true,
         navigateFallbackDenylist: [/^\/~oauth/],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,woff2}"],
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }: { url: URL }) => url.pathname.startsWith("/data/"),
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "exercise-catalog",
+              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
+        ],
       },
       manifest: {
         name: "KK SEIKEN Bratislava – Checklist súťaží",

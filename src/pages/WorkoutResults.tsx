@@ -5,7 +5,7 @@ import { CalendarDays, Dumbbell, Trash2 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import MemberPicker from "@/components/MemberPicker";
 import { useAuth } from "@/hooks/useAuth";
 import { useTrainableMembers, useWorkoutSessions, useCreateWorkout } from "@/hooks/useWorkouts";
 import { MODES, GROUPS } from "@/data/exercises";
@@ -59,15 +59,7 @@ const WorkoutResults = () => {
 
       <main className="max-w-3xl mx-auto px-3 py-4 space-y-4">
         {(selectable.length > 1 || isStaff) && (
-          <Select value={memberId} onValueChange={setMemberId}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Všetci</SelectItem>
-              {selectable.map((m) => (
-                <SelectItem key={m.id} value={m.id}>{m.meno} {m.priezvisko}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <MemberPicker members={selectable} value={memberId} onChange={setMemberId} withAll />
         )}
 
         <div className="grid grid-cols-4 gap-1.5">

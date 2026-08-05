@@ -75,17 +75,8 @@ const WorkoutPlans = () => {
           <div className="text-sm text-muted-foreground">K tvojmu účtu nie je priradený žiadny pretekár.</div>
         ) : (
           <>
-            <section className="space-y-2">
-              <label className="text-xs uppercase tracking-widest text-muted-foreground">Pre koho</label>
-              <Select value={memberId} onValueChange={setMemberId}>
-                <SelectTrigger><SelectValue placeholder="Vyber pretekára" /></SelectTrigger>
-                <SelectContent>
-                  {selectable.map((m) => (
-                    <SelectItem key={m.id} value={m.id}>{m.meno} {m.priezvisko}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </section>
+            <MemberPicker members={selectable} value={memberId} onChange={setMemberId} label="Pre koho" />
+
 
             {draft.items.length > 0 && (
               <section className="rounded-xl border border-primary/50 bg-primary/10 p-3 space-y-2">

@@ -134,8 +134,8 @@ const WorkoutPlans = () => {
                         <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => deletePlan(p.id)} title="Zmazať">
                           <Trash2 className="h-4 w-4" />
                         </Button>
-                        <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => setEditing(p)} title="Upraviť">
-                          <Pencil className="h-4 w-4" />
+                        <Button size="sm" variant="outline" className="h-8 gap-1 px-2" onClick={() => setEditing(p)} title="Upraviť plán">
+                          <Pencil className="h-4 w-4" /> Upraviť
                         </Button>
                         <Button size="sm" className="gap-1" onClick={() => startPlan(p.id)}>
                           <Play className="h-4 w-4" /> Spustiť

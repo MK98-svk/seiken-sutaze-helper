@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Search, Trash2, Save } from "lucide-react";
+import { Minus, Plus, Search, Trash2, Save } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -134,20 +134,45 @@ export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Pro
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                       <div>
                         <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Série</label>
-                        <Input
-                          type="number"
-                          inputMode="numeric"
-                          min={1}
-                          max={12}
-                          value={it.sets}
-                          onChange={(e) => patch(it.exerciseId, { sets: Math.max(1, Math.min(12, Number(e.target.value) || 1)) })}
-                          className="h-9"
-                        />
+                        <div className="flex items-center gap-1">
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="outline"
+                            className="h-9 w-9 shrink-0"
+                            onClick={() => patch(it.exerciseId, { sets: Math.max(1, it.sets - 1) })}
+                            disabled={it.sets <= 1}
+                            title="Odobrať sériu"
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                          <Input
+                            type="number"
+                            inputMode="numeric"
+                            min={1}
+                            max={12}
+                            value={it.sets}
+                            onChange={(e) => patch(it.exerciseId, { sets: Math.max(1, Math.min(12, Number(e.target.value) || 1)) })}
+                            className="h-9 min-w-0 text-center px-1"
+                            aria-label={`Počet sérií pre ${it.exerciseName}`}
+                          />
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="outline"
+                            className="h-9 w-9 shrink-0"
+                            onClick={() => patch(it.exerciseId, { sets: Math.min(12, it.sets + 1) })}
+                            disabled={it.sets >= 12}
+                            title="Pridať sériu"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                      <div>
+                      <div className="col-span-2 sm:col-span-1">
                         <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Opakovania</label>
                         <Input
                           type="number"

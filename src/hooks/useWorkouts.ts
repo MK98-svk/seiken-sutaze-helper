@@ -98,7 +98,7 @@ export function useTrainableMembers() {
   });
 
   const mine = useMemo(() => members.filter((m) => m.userId && m.userId === user?.id && m.isTrainee !== false), [members, user?.id]);
-  const selectable = useMemo(() => (mine.length > 0 ? mine : isAdmin || isCoach ? members : []), [mine, members, isAdmin, isCoach]);
+  const selectable = useMemo(() => (isAdmin || isCoach ? members : mine), [mine, members, isAdmin, isCoach]);
 
   return { members, mine, selectable, isStaff: isAdmin || isCoach, isLoading };
 }
@@ -164,7 +164,10 @@ export function useWorkoutSession(sessionId?: string) {
       const { error } = await db.from("workout_sets").update(payload).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["workout_session_sets", sessionId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["workout_session_sets", sessionId] });
+      qc.invalidateQueries({ queryKey: ["workout_sets"] });
+    },
     onError: (e: any) => toast.error("Chyba: " + e.message),
   });
 
@@ -181,7 +184,10 @@ export function useWorkoutSession(sessionId?: string) {
       });
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["workout_session_sets", sessionId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["workout_session_sets", sessionId] });
+      qc.invalidateQueries({ queryKey: ["workout_sets"] });
+    },
     onError: (e: any) => toast.error("Chyba: " + e.message),
   });
 

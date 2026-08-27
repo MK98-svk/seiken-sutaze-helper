@@ -161,8 +161,13 @@ const WorkoutSessionPage = () => {
       <PageHeader title={session?.title || "Tréning"} subtitle={goalLabel ? `Cieľ: ${goalLabel}` : undefined} backTo="/posilnovanie" />
 
       <main className="max-w-3xl mx-auto px-3 py-4 space-y-3">
-        <div className="text-xs text-muted-foreground">
-          Hotové série: <span className="text-foreground">{doneCount}/{sets.length}</span>
+        <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3">
+          <div className="text-xs text-muted-foreground">
+            Hotové série: <span className="text-foreground">{doneCount}/{sets.length}</span>
+          </div>
+          <Button size="sm" className="h-9 shrink-0 gap-1" onClick={() => setAddExerciseOpen(true)}>
+            <Plus className="h-4 w-4" /> Pridať cvik
+          </Button>
         </div>
 
         {grouped.map(([exId, list]) => {
@@ -199,7 +204,7 @@ const WorkoutSessionPage = () => {
                     disabled={addSet.isPending}
                     title="Pridať ďalšiu sériu"
                   >
-                    <Plus className="h-4 w-4" /> Séria
+                    <Plus className="h-4 w-4" /> Pridať sériu
                   </Button>
                   <Button
                     size="icon"
@@ -225,7 +230,7 @@ const WorkoutSessionPage = () => {
 
               <div className="space-y-1.5">
                 {list.map((s) => (
-                  <div key={s.id} className="flex items-center gap-2">
+                  <div key={s.id} className="flex min-w-0 items-center gap-2">
                     <Badge variant="outline" className="w-10 justify-center shrink-0">{s.setNumber}.</Badge>
                     <Input
                       type="number"
@@ -235,7 +240,7 @@ const WorkoutSessionPage = () => {
                       onBlur={(e) =>
                         updateSet.mutate({ id: s.id, updates: { weight: e.target.value === "" ? null : Number(e.target.value) } })
                       }
-                      className="h-9"
+                      className="h-9 min-w-0 flex-1"
                     />
                     <Input
                       type="number"
@@ -243,7 +248,7 @@ const WorkoutSessionPage = () => {
                       placeholder="opak."
                       defaultValue={s.reps ?? ""}
                       onBlur={(e) => updateSet.mutate({ id: s.id, updates: { reps: e.target.value === "" ? null : Number(e.target.value) } })}
-                      className="h-9"
+                      className="h-9 min-w-0 flex-1"
                     />
                     <Button
                       size="icon"
@@ -261,19 +266,18 @@ const WorkoutSessionPage = () => {
           );
         })}
 
-        {sets.length === 0 && <div className="text-sm text-muted-foreground">Tréning neobsahuje žiadne cviky.</div>}
+        {sets.length === 0 && (
+          <div className="rounded-lg border border-dashed border-border p-5 text-center space-y-3">
+            <div className="text-sm text-muted-foreground">Tréning neobsahuje žiadne cviky.</div>
+            <Button size="sm" className="gap-1" onClick={() => setAddExerciseOpen(true)}>
+              <Plus className="h-4 w-4" /> Pridať prvý cvik
+            </Button>
+          </div>
+        )}
       </main>
 
-      <div className="fixed bottom-[73px] left-0 right-0 z-40 px-3 pointer-events-none">
-        <div className="mx-auto flex max-w-3xl justify-end">
-          <Button className="gap-2 shadow-lg pointer-events-auto" onClick={() => setAddExerciseOpen(true)}>
-            <Plus className="h-4 w-4" /> Pridať cvik
-          </Button>
-        </div>
-      </div>
-
       <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-sm p-3">
-        <div className="max-w-3xl mx-auto flex items-center gap-2">
+        <div className="max-w-3xl mx-auto flex min-w-0 items-center gap-1.5 sm:gap-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <div className="font-display text-2xl tabular-nums text-primary w-16">{fmt(rest ?? defaultRest)}</div>
             <div className="flex gap-1">
@@ -292,7 +296,7 @@ const WorkoutSessionPage = () => {
               >
                 <RotateCcw className="h-4 w-4" />
               </Button>
-              <Button size="sm" variant="ghost" className="h-9 px-2 text-xs" onClick={() => setRest((r) => (r ?? defaultRest) + 15)}>
+              <Button size="sm" variant="ghost" className="hidden h-9 px-2 text-xs min-[400px]:inline-flex" onClick={() => setRest((r) => (r ?? defaultRest) + 15)}>
                 +15s
               </Button>
             </div>

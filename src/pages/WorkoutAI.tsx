@@ -41,6 +41,7 @@ const WorkoutAI = () => {
   const { selectable, isLoading: membersLoading } = useTrainableMembers();
   const { create } = useCreateWorkout();
   const { catalog, isLoading: catalogLoading, error: catalogError } = useCatalog();
+  const { savePlan } = useWorkoutPlans();
 
   const [memberId, setMemberId] = useState<string>("");
   const [mode, setMode] = useState<CatalogMode>("gym");

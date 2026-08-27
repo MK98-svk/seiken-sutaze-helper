@@ -169,13 +169,15 @@ export function useWorkoutSession(sessionId?: string) {
   });
 
   const addSet = useMutation({
-    mutationFn: async (base: WorkoutSet) => {
+    mutationFn: async (base: Omit<WorkoutSet, "id" | "done">) => {
       const { error } = await db.from("workout_sets").insert({
         session_id: base.sessionId,
         exercise_id: base.exerciseId,
         exercise_name: base.exerciseName,
         muscle_group: base.muscleGroup,
         set_number: base.setNumber,
+        reps: base.reps,
+        weight: base.weight,
       });
       if (error) throw error;
     },

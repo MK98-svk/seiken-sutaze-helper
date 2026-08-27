@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { Play, Trash2, Save, ClipboardList } from "lucide-react";
+import { Play, Trash2, Save, ClipboardList, Pencil } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

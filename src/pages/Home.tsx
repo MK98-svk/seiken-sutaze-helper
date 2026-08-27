@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
 import { Navigate, useNavigate } from "react-router-dom";
-import { LogOut, Trophy, Dumbbell } from "lucide-react";
+import { LogOut, Trophy, Dumbbell, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useMembers } from "@/hooks/useClubData";
 import AddSelfDialog from "@/components/AddSelfDialog";
+import { hardRefreshApp, APP_VERSION } from "@/lib/appUpdate";
 import seikenLogo from "@/assets/seiken-logo.jpg";
 
 const tiles = [

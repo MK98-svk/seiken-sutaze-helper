@@ -21,6 +21,8 @@ import { exerciseById, restForGoal, GOALS } from "@/data/exercises";
 import { useCatalog } from "@/hooks/useCatalog";
 import { IMG, muscleLabel, equipmentLabel } from "@/lib/catalog";
 import { openExternal, youtubeSearch } from "@/lib/openExternal";
+import ExerciseDetailDialog from "@/components/ExerciseDetailDialog";
+import { CatalogExercise } from "@/lib/catalog";
 
 import { toast } from "sonner";
 
@@ -33,6 +35,7 @@ const WorkoutSessionPage = () => {
   const { catalog } = useCatalog();
 
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [detail, setDetail] = useState<CatalogExercise | null>(null);
 
   const [rest, setRest] = useState<number | null>(null);
   const [running, setRunning] = useState(false);
@@ -235,6 +238,8 @@ const WorkoutSessionPage = () => {
           </Button>
         </div>
       </div>
+
+      <ExerciseDetailDialog exercise={detail} onOpenChange={(o) => !o && setDetail(null)} />
 
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <AlertDialogContent>

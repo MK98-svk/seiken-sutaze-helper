@@ -50,9 +50,14 @@ const Home = () => {
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">Bratislava • klubová aplikácia</p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={signOut} title="Odhlásiť sa" className="h-8 w-8">
-            <LogOut className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-1 shrink-0">
+            <Button variant="ghost" size="icon" onClick={hardRefreshApp} title="Aktualizovať appku" className="h-8 w-8">
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={signOut} title="Odhlásiť sa" className="h-8 w-8">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </header>
 

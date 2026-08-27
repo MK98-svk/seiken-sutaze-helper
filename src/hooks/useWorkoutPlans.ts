@@ -85,5 +85,5 @@ export function useWorkoutPlans(memberId?: string | null) {
     qc.invalidateQueries({ queryKey: ["workout_plans"] });
   };
 
-  return { plans, isLoading, savePlan, deletePlan };
+  return { plans, isLoading, savePlan, updatePlan, deletePlan };
 }

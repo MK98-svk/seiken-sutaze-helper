@@ -184,6 +184,79 @@ export function availableIn(ex: CatalogExercise, mode: CatalogMode) {
   return ex.equipment === "body weight" || ex.equipment === "assisted";
 }
 
+// ── Bezpečnosť podľa veku / telesných parametrov ────────────────────
+export type AgeBand = "kids" | "teens" | "adult";
+
+export function ageBandOf(age: number | null | undefined): AgeBand {
+  if (age === null || age === undefined || Number.isNaN(age)) return "adult";
+  if (age <= 12) return "kids";
+  if (age <= 15) return "teens";
+  return "adult";
+}
+
+export const AGE_BAND_LABEL: Record<AgeBand, string> = {
+  kids: "do 12 rokov – bez záťaže, dôraz na techniku",
+  teens: "13–15 rokov – technika a stredná záťaž, bez maximálok",
+  adult: "16+ – plný rozsah cvikov",
+};
+
+/** Vybavenie, ktoré je pre deti do 12 rokov v poriadku (vlastná váha a ľahké pomôcky). */
+const KIDS_EQUIPMENT = new Set([
+  "body weight",
+  "assisted",
+  "band",
+  "resistance band",
+  "medicine ball",
+  "stability ball",
+  "bosu ball",
+  "rope",
+  "roller",
+  "wheel roller",
+]);
+
+/** Ťažké osi a stroje – nevhodné pre mládež do 15 rokov. */
+const HEAVY_EQUIPMENT = new Set([
+  "barbell",
+  "olympic barbell",
+  "trap bar",
+  "smith machine",
+  "sled machine",
+  "tire",
+  "hammer",
+  "weighted",
+]);
+
+const RISKY_NAME =
+  /(deadlift|clean|snatch|jerk|behind neck|good morning|overhead press|military press|jefferson|zercher|one arm handstand|handstand push)/i;
+
+const IMPACT_NAME = /(jump|jumping|burpee|plyo|depth drop|box hop|hop |bound|tuck jump)/i;
+
+/** Je cvik vhodný pre daný vek a telesné parametre? */
+export function suitableForProfile(
+  ex: CatalogExercise,
+  opts: { age?: number | null; weightKg?: number | null; heightCm?: number | null }
+) {
+  const band = ageBandOf(opts.age);
+  const name = ex.name ?? "";
+
+  if (band === "kids") {
+    if (!KIDS_EQUIPMENT.has(ex.equipment)) return false;
+    if (RISKY_NAME.test(name)) return false;
+  } else if (band === "teens") {
+    if (HEAVY_EQUIPMENT.has(ex.equipment)) return false;
+    if (RISKY_NAME.test(name)) return false;
+  }
+
+  // Vyššia hmotnosť → bez nárazových/skokových cvikov (šetríme kĺby).
+  const w = opts.weightKg ?? null;
+  const h = opts.heightCm ?? null;
+  const bmi = w && h ? w / Math.pow(h / 100, 2) : null;
+  if (((bmi !== null && bmi >= 27) || (w !== null && w >= 90)) && IMPACT_NAME.test(name)) return false;
+
+  return true;
+}
+
+
 const norm = (s: string) =>
   s
     .toLowerCase()

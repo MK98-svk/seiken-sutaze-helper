@@ -161,11 +161,11 @@ const WorkoutSessionPage = () => {
       <PageHeader title={session?.title || "Tréning"} subtitle={goalLabel ? `Cieľ: ${goalLabel}` : undefined} backTo="/posilnovanie" />
 
       <main className="max-w-3xl mx-auto px-3 py-4 space-y-3">
-        <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3">
+        <div className="grid grid-cols-1 gap-2 rounded-lg border border-primary/50 bg-card p-3 min-[360px]:grid-cols-[1fr_auto] min-[360px]:items-center">
           <div className="text-xs text-muted-foreground">
             Hotové série: <span className="text-foreground">{doneCount}/{sets.length}</span>
           </div>
-          <Button size="sm" className="h-9 shrink-0 gap-1" onClick={() => setAddExerciseOpen(true)}>
+          <Button size="sm" className="h-10 w-full gap-1 min-[360px]:w-auto" onClick={() => setAddExerciseOpen(true)}>
             <Plus className="h-4 w-4" /> Pridať cvik
           </Button>
         </div>
@@ -177,7 +177,7 @@ const WorkoutSessionPage = () => {
           const bodyweight = !cat || cat.equipment === "body weight" || cat.equipment === "assisted";
           return (
             <div key={exId} className="rounded-lg border border-border bg-card p-3 space-y-2">
-              <div className="flex items-start justify-between gap-2">
+              <div className="space-y-2">
                 <div className="flex items-start gap-2 min-w-0">
                   {cat && (
                     <button onClick={() => setDetail(cat)} className="shrink-0" title="Ukázať cvik">
@@ -195,11 +195,11 @@ const WorkoutSessionPage = () => {
                     ) : null}
                   </button>
                 </div>
-                <div className="flex shrink-0 items-center gap-1">
+                <div className="grid w-full grid-cols-[1fr_auto] items-center gap-2">
                   <Button
                     size="sm"
                     variant="outline"
-                    className="h-8 px-2 text-xs"
+                    className="h-10 w-full px-2 text-xs"
                     onClick={() => appendSet(list)}
                     disabled={addSet.isPending}
                     title="Pridať ďalšiu sériu"

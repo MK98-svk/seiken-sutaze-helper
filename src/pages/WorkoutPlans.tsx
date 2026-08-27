@@ -118,7 +118,7 @@ const WorkoutPlans = () => {
               ) : (
                 plans.map((p) => (
                   <div key={p.id} className="rounded-lg border border-border bg-card p-3 space-y-2">
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="space-y-3">
                       <div className="min-w-0">
                         <div className="font-display text-sm tracking-wide uppercase truncate">{p.name}</div>
                         <div className="text-[11px] text-muted-foreground">
@@ -130,15 +130,15 @@ const WorkoutPlans = () => {
                           {p.daysPerWeek ? `/${p.daysPerWeek}` : ""} tréningy
                         </div>
                       </div>
-                      <div className="flex gap-1 shrink-0">
-                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => deletePlan(p.id)} title="Zmazať">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm" variant="outline" className="h-8 gap-1 px-2" onClick={() => setEditing(p)} title="Upraviť plán">
+                      <div className="grid w-full grid-cols-[1fr_1fr_auto] gap-2">
+                        <Button size="sm" variant="outline" className="h-10 gap-1 px-2" onClick={() => setEditing(p)} title="Upraviť plán">
                           <Pencil className="h-4 w-4" /> Upraviť
                         </Button>
-                        <Button size="sm" className="gap-1" onClick={() => startPlan(p.id)}>
+                        <Button size="sm" className="h-10 gap-1 px-2" onClick={() => startPlan(p.id)}>
                           <Play className="h-4 w-4" /> Spustiť
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-10 w-10" onClick={() => deletePlan(p.id)} title="Zmazať">
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>

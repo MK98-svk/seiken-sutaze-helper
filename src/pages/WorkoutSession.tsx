@@ -22,7 +22,7 @@ import { useCatalog } from "@/hooks/useCatalog";
 import { IMG, muscleLabel, equipmentLabel } from "@/lib/catalog";
 import { openExternal, youtubeSearch } from "@/lib/openExternal";
 import ExerciseDetailDialog from "@/components/ExerciseDetailDialog";
-import { CatalogExercise } from "@/lib/catalog";
+import { CatalogExercise, CatalogMode } from "@/lib/catalog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 import { toast } from "sonner";
@@ -79,7 +79,8 @@ const WorkoutSessionPage = () => {
   const exerciseResults = useMemo(() => {
     if (!catalog || exerciseQuery.trim().length < 2) return [];
     const existing = new Set(sets.map((set) => set.exerciseId));
-    return catalog.search(exerciseQuery, (session?.mode as "gym" | "home") || "gym").filter((exercise) => !existing.has(exercise.id)).slice(0, 20);
+    const mode: CatalogMode = session?.mode === "home" ? "bezpomocok" : (session?.mode as CatalogMode) || "gym";
+    return catalog.search(exerciseQuery, mode).filter((exercise) => !existing.has(exercise.id)).slice(0, 20);
   }, [catalog, exerciseQuery, session?.mode, sets]);
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Načítavam…</div>;

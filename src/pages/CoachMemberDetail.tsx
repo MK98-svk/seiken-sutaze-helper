@@ -24,7 +24,12 @@ const CoachMemberDetail = () => {
         backTo="/posilnovanie/cvicenci"
       />
       <main className="max-w-3xl mx-auto px-3 py-4">
-        {memberId && <MemberProgress memberId={memberId} />}
+        {memberId && (
+          <div className="space-y-5">
+            <MemberPlansList memberId={memberId} />
+            <MemberProgress memberId={memberId} />
+          </div>
+        )}
       </main>
     </div>
   );

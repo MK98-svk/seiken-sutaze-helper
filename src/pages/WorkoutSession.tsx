@@ -21,6 +21,8 @@ import { exerciseById, restForGoal, GOALS } from "@/data/exercises";
 import { useCatalog } from "@/hooks/useCatalog";
 import { IMG, muscleLabel, equipmentLabel } from "@/lib/catalog";
 import { openExternal, youtubeSearch } from "@/lib/openExternal";
+import ExerciseDetailDialog from "@/components/ExerciseDetailDialog";
+import { CatalogExercise } from "@/lib/catalog";
 
 import { toast } from "sonner";
 
@@ -33,6 +35,7 @@ const WorkoutSessionPage = () => {
   const { catalog } = useCatalog();
 
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [detail, setDetail] = useState<CatalogExercise | null>(null);
 
   const [rest, setRest] = useState<number | null>(null);
   const [running, setRunning] = useState(false);
@@ -119,14 +122,17 @@ const WorkoutSessionPage = () => {
           const legacy = exerciseById(exId);
           const cat = catalog?.get(exId);
           const name = list[0].exerciseName;
+          const bodyweight = !cat || cat.equipment === "body weight" || cat.equipment === "assisted";
           return (
             <div key={exId} className="rounded-lg border border-border bg-card p-3 space-y-2">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-start gap-2 min-w-0">
                   {cat && (
-                    <img src={IMG(cat.image)} alt={name} loading="lazy" className="h-12 w-12 rounded-md bg-white object-contain shrink-0" />
+                    <button onClick={() => setDetail(cat)} className="shrink-0" title="Ukázať cvik">
+                      <img src={IMG(cat.image)} alt={name} loading="lazy" className="h-12 w-12 rounded-md bg-white object-contain" />
+                    </button>
                   )}
-                  <div className="min-w-0">
+                  <button className="min-w-0 text-left" onClick={() => cat && setDetail(cat)}>
                     <div className="font-display text-sm tracking-wide uppercase leading-tight">{name}</div>
                     {legacy ? (
                       <div className="text-[11px] text-muted-foreground">{legacy.muscles}</div>
@@ -135,7 +141,7 @@ const WorkoutSessionPage = () => {
                         {muscleLabel(cat.target)} · {equipmentLabel(cat.equipment)}
                       </div>
                     ) : null}
-                  </div>
+                  </button>
                 </div>
                 <Button
                   size="icon"
@@ -149,6 +155,14 @@ const WorkoutSessionPage = () => {
 
               </div>
 
+              <div className="text-[11px] text-muted-foreground">
+                {bodyweight
+                  ? "Vlastná váha – kg nechaj prázdne, vypĺňaj len počet opakovaní."
+                  : "Do „kg“ napíš váhu činky/stroja, do „opak.“ počet opakovaní v sérii."}
+              </div>
+
+
+
 
               <div className="space-y-1.5">
                 {list.map((s) => (
@@ -157,7 +171,7 @@ const WorkoutSessionPage = () => {
                     <Input
                       type="number"
                       inputMode="decimal"
-                      placeholder="kg"
+                      placeholder={bodyweight ? "vlastná váha" : "kg"}
                       defaultValue={s.weight ?? ""}
                       onBlur={(e) =>
                         updateSet.mutate({ id: s.id, updates: { weight: e.target.value === "" ? null : Number(e.target.value) } })
@@ -224,6 +238,8 @@ const WorkoutSessionPage = () => {
           </Button>
         </div>
       </div>
+
+      <ExerciseDetailDialog exercise={detail} onOpenChange={(o) => !o && setDetail(null)} />
 
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <AlertDialogContent>

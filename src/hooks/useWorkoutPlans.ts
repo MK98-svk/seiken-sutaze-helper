@@ -11,6 +11,7 @@ export interface WorkoutPlan {
   mode: string;
   goal: string | null;
   items: PlannedItem[];
+  daysPerWeek: number | null;
   createdAt: string;
 }
 
@@ -21,6 +22,7 @@ const mapPlan = (r: any): WorkoutPlan => ({
   mode: r.mode,
   goal: r.goal,
   items: (r.plan?.items ?? []) as PlannedItem[],
+  daysPerWeek: r.config?.daysPerWeek ?? null,
   createdAt: r.created_at,
 });
 
@@ -38,13 +40,20 @@ export function useWorkoutPlans(memberId?: string | null) {
     },
   });
 
-  const savePlan = async (input: { memberId: string; name: string; mode: string; goal: string | null; items: PlannedItem[] }) => {
+  const savePlan = async (input: {
+    memberId: string;
+    name: string;
+    mode: string;
+    goal: string | null;
+    items: PlannedItem[];
+    daysPerWeek?: number | null;
+  }) => {
     const { error } = await db.from("workout_plans").insert({
       member_id: input.memberId,
       name: input.name,
       mode: input.mode,
       goal: input.goal,
-      config: { goal: input.goal, mode: input.mode },
+      config: { goal: input.goal, mode: input.mode, daysPerWeek: input.daysPerWeek ?? null },
       plan: { items: input.items },
     });
     if (error) throw error;

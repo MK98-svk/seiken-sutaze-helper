@@ -33,12 +33,13 @@ export function useAuth() {
   }, []);
 
   async function checkRoles(userId: string) {
-    const [adminRes, coachRes] = await Promise.all([
-      supabase.rpc("has_role", { _user_id: userId, _role: "admin" }),
-      supabase.rpc("has_role", { _user_id: userId, _role: "coach" }),
-    ]);
-    setIsAdmin(!adminRes.error && adminRes.data === true);
-    setIsCoach(!coachRes.error && coachRes.data === true);
+    const { data, error } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+    const roles = error ? [] : (data ?? []).map((entry) => entry.role);
+    setIsAdmin(roles.includes("admin"));
+    setIsCoach(roles.includes("coach"));
     setLoading(false);
   }
 

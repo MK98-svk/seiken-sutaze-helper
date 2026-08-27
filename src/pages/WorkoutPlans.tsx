@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import MemberPicker from "@/components/MemberPicker";
 import { useAuth } from "@/hooks/useAuth";
 import { useTrainableMembers, useCreateWorkout, useWorkoutSessions, readDraft, clearDraft } from "@/hooks/useWorkouts";
-import { useWorkoutPlans } from "@/hooks/useWorkoutPlans";
+import { useWorkoutPlans, WorkoutPlan } from "@/hooks/useWorkoutPlans";
+import EditPlanDialog from "@/components/EditPlanDialog";
 import { toast } from "sonner";
 
 const WorkoutPlans = () => {

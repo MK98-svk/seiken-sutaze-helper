@@ -37,7 +37,9 @@ export interface PlannedItem {
   muscleGroup: string;
   sets: number;
   reps: number;
+  suggestedWeight?: number | null;
 }
+
 
 const mapSession = (r: any): WorkoutSession => ({
   id: r.id,

@@ -108,6 +108,11 @@ const WorkoutPlans = () => {
                         <div className="font-display text-sm tracking-wide uppercase truncate">{p.name}</div>
                         <div className="text-[11px] text-muted-foreground">
                           {p.items.length} cvikov · {new Date(p.createdAt).toLocaleDateString("sk-SK")}
+                          {p.daysPerWeek ? ` · ${p.daysPerWeek}× do týždňa` : ""}
+                        </div>
+                        <div className="text-[11px] text-primary">
+                          Tento týždeň: {doneThisWeek(p.name)}
+                          {p.daysPerWeek ? `/${p.daysPerWeek}` : ""} tréningy
                         </div>
                       </div>
                       <div className="flex gap-1 shrink-0">

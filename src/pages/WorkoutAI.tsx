@@ -137,13 +137,22 @@ const WorkoutAI = () => {
 
       if (!items.length) throw new Error("AI nevrátila žiadne cviky, skús to znova");
 
+      const title = data.title || "AI tréning";
+
       setPlan({
-        title: data.title || "AI tréning",
+        title,
         warmup: data.warmup ?? [],
         stretch: data.stretch ?? [],
         items,
         note: data.note,
       });
+
+      try {
+        await savePlan({ memberId: member.id, name: title, mode, goal, items, daysPerWeek: days });
+        toast.success("Plán uložený medzi Moje plány");
+      } catch {
+        toast.message("Plán sa nepodarilo uložiť, ale môžeš ho hneď spustiť.");
+      }
     } catch (e: any) {
       const msg = String(e?.message ?? e);
       if (msg.includes("429")) toast.error("Priveľa požiadaviek na AI, skús o chvíľu.");

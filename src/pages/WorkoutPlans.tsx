@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { Play, Trash2, Save, ClipboardList } from "lucide-react";
+import { Play, Trash2, Save, ClipboardList, Pencil } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import MemberPicker from "@/components/MemberPicker";
 import { useAuth } from "@/hooks/useAuth";
 import { useTrainableMembers, useCreateWorkout, useWorkoutSessions, readDraft, clearDraft } from "@/hooks/useWorkouts";
-import { useWorkoutPlans } from "@/hooks/useWorkoutPlans";
+import { useWorkoutPlans, WorkoutPlan } from "@/hooks/useWorkoutPlans";
+import EditPlanDialog from "@/components/EditPlanDialog";
 import { toast } from "sonner";
 
 const WorkoutPlans = () => {
@@ -16,7 +17,8 @@ const WorkoutPlans = () => {
   const navigate = useNavigate();
   const { selectable, isLoading: membersLoading } = useTrainableMembers();
   const [memberId, setMemberId] = useState("");
-  const { plans, isLoading, savePlan, deletePlan } = useWorkoutPlans(memberId || null);
+  const { plans, isLoading, savePlan, updatePlan, deletePlan } = useWorkoutPlans(memberId || null);
+  const [editing, setEditing] = useState<WorkoutPlan | null>(null);
   const { create } = useCreateWorkout();
   const [name, setName] = useState("");
   const draft = useMemo(() => readDraft(), []);
@@ -132,6 +134,9 @@ const WorkoutPlans = () => {
                         <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => deletePlan(p.id)} title="Zmazať">
                           <Trash2 className="h-4 w-4" />
                         </Button>
+                        <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => setEditing(p)} title="Upraviť">
+                          <Pencil className="h-4 w-4" />
+                        </Button>
                         <Button size="sm" className="gap-1" onClick={() => startPlan(p.id)}>
                           <Play className="h-4 w-4" /> Spustiť
                         </Button>
@@ -150,6 +155,13 @@ const WorkoutPlans = () => {
           </>
         )}
       </main>
+
+      <EditPlanDialog
+        plan={editing}
+        open={!!editing}
+        onOpenChange={(o) => !o && setEditing(null)}
+        onSave={updatePlan}
+      />
     </div>
   );
 };

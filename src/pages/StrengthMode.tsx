@@ -42,6 +42,7 @@ const StrengthMode = () => {
   const [limit, setLimit] = useState(PAGE);
   const [detail, setDetail] = useState<CatalogExercise | null>(null);
   const [draft, setDraft] = useState(readDraft());
+  const [expanded, setExpanded] = useState(false);
 
   const m = mode as CatalogMode;
   const modeInfo = MODE_INFO[m];
@@ -89,6 +90,12 @@ const StrengthMode = () => {
 
   const removeFromDraft = (id: string) => {
     const next = { mode: m, items: activeItems.filter((i) => i.exerciseId !== id) };
+    writeDraft(next);
+    setDraft(next);
+  };
+
+  const patchItem = (id: string, changes: Partial<PlannedItem>) => {
+    const next = { mode: m, items: activeItems.map((i) => (i.exerciseId === id ? { ...i, ...changes } : i)) };
     writeDraft(next);
     setDraft(next);
   };
@@ -208,16 +215,47 @@ const StrengthMode = () => {
 
       {activeItems.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 border-t border-border bg-card/95 backdrop-blur-sm p-3">
-          <div className="max-w-5xl mx-auto flex items-center gap-2">
-            <div className="text-xs text-muted-foreground flex-1 min-w-0 truncate">
-              V tréningu: <span className="text-foreground">{activeItems.length} cvikov</span>
+          <div className="max-w-5xl mx-auto space-y-2">
+            {expanded && (
+              <div className="max-h-56 overflow-y-auto space-y-2 pb-1">
+                {activeItems.map((it) => (
+                  <div key={it.exerciseId} className="flex items-center gap-2">
+                    <div className="min-w-0 flex-1 text-xs truncate">{it.exerciseName}</div>
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      value={it.sets}
+                      onChange={(e) => patchItem(it.exerciseId, { sets: Math.max(1, Math.min(12, Number(e.target.value) || 1)) })}
+                      className="h-8 w-16"
+                      aria-label="Série"
+                    />
+                    <span className="text-xs text-muted-foreground">×</span>
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      value={it.reps}
+                      onChange={(e) => patchItem(it.exerciseId, { reps: Math.max(1, Math.min(100, Number(e.target.value) || 1)) })}
+                      className="h-8 w-16"
+                      aria-label="Opakovania"
+                    />
+                    <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0" onClick={() => removeFromDraft(it.exerciseId)} title="Odobrať">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <button className="text-xs text-muted-foreground flex-1 min-w-0 truncate text-left underline-offset-2 hover:underline" onClick={() => setExpanded((v) => !v)}>
+                V tréningu: <span className="text-foreground">{activeItems.length} cvikov</span> · {expanded ? "skryť" : "nastaviť série"}
+              </button>
+              <Button variant="ghost" size="icon" className="h-9 w-9" onClick={resetDraft} title="Vyprázdniť">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+              <Button onClick={() => navigate("/posilnovanie/ai?draft=1")} className="gap-1">
+                <Play className="h-4 w-4" /> Spustiť tréning
+              </Button>
             </div>
-            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={resetDraft} title="Vyprázdniť">
-              <Trash2 className="h-4 w-4" />
-            </Button>
-            <Button onClick={() => navigate("/posilnovanie/ai?draft=1")} className="gap-1">
-              <Play className="h-4 w-4" /> Spustiť tréning
-            </Button>
           </div>
         </div>
       )}

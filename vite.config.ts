@@ -29,6 +29,15 @@ export default defineConfig(({ mode }) => ({
         globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,woff2}"],
         runtimeCaching: [
           {
+            // index.html vždy najprv zo siete, aby sa nezasekla stará verzia
+            urlPattern: ({ request }: { request: Request }) => request.mode === "navigate",
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "app-shell",
+              networkTimeoutSeconds: 5,
+            },
+          },
+          {
             urlPattern: ({ url }: { url: URL }) => url.pathname.startsWith("/data/"),
             handler: "StaleWhileRevalidate",
             options: {

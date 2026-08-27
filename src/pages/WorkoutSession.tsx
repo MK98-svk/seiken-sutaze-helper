@@ -171,7 +171,7 @@ const WorkoutSessionPage = () => {
                     <Input
                       type="number"
                       inputMode="decimal"
-                      placeholder="kg"
+                      placeholder={bodyweight ? "vlastná váha" : "kg"}
                       defaultValue={s.weight ?? ""}
                       onBlur={(e) =>
                         updateSet.mutate({ id: s.id, updates: { weight: e.target.value === "" ? null : Number(e.target.value) } })

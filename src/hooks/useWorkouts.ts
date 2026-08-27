@@ -37,7 +37,9 @@ export interface PlannedItem {
   muscleGroup: string;
   sets: number;
   reps: number;
+  suggestedWeight?: number | null;
 }
+
 
 const mapSession = (r: any): WorkoutSession => ({
   id: r.id,
@@ -222,8 +224,10 @@ export function useCreateWorkout() {
           muscle_group: it.muscleGroup,
           set_number: i + 1,
           reps: it.reps || null,
+          weight: it.suggestedWeight && it.suggestedWeight > 0 ? it.suggestedWeight : null,
         }))
       );
+
       if (rows.length) {
         const { error: setErr } = await db.from("workout_sets").insert(rows);
         if (setErr) throw setErr;

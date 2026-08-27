@@ -161,8 +161,13 @@ const WorkoutSessionPage = () => {
       <PageHeader title={session?.title || "Tréning"} subtitle={goalLabel ? `Cieľ: ${goalLabel}` : undefined} backTo="/posilnovanie" />
 
       <main className="max-w-3xl mx-auto px-3 py-4 space-y-3">
-        <div className="text-xs text-muted-foreground">
-          Hotové série: <span className="text-foreground">{doneCount}/{sets.length}</span>
+        <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3">
+          <div className="text-xs text-muted-foreground">
+            Hotové série: <span className="text-foreground">{doneCount}/{sets.length}</span>
+          </div>
+          <Button size="sm" className="h-9 shrink-0 gap-1" onClick={() => setAddExerciseOpen(true)}>
+            <Plus className="h-4 w-4" /> Pridať cvik
+          </Button>
         </div>
 
         {grouped.map(([exId, list]) => {
@@ -199,7 +204,7 @@ const WorkoutSessionPage = () => {
                     disabled={addSet.isPending}
                     title="Pridať ďalšiu sériu"
                   >
-                    <Plus className="h-4 w-4" /> Séria
+                    <Plus className="h-4 w-4" /> Pridať sériu
                   </Button>
                   <Button
                     size="icon"
@@ -261,16 +266,15 @@ const WorkoutSessionPage = () => {
           );
         })}
 
-        {sets.length === 0 && <div className="text-sm text-muted-foreground">Tréning neobsahuje žiadne cviky.</div>}
+        {sets.length === 0 && (
+          <div className="rounded-lg border border-dashed border-border p-5 text-center space-y-3">
+            <div className="text-sm text-muted-foreground">Tréning neobsahuje žiadne cviky.</div>
+            <Button size="sm" className="gap-1" onClick={() => setAddExerciseOpen(true)}>
+              <Plus className="h-4 w-4" /> Pridať prvý cvik
+            </Button>
+          </div>
+        )}
       </main>
-
-      <div className="fixed bottom-[73px] left-0 right-0 z-40 px-3 pointer-events-none">
-        <div className="mx-auto flex max-w-3xl justify-end">
-          <Button className="gap-2 shadow-lg pointer-events-auto" onClick={() => setAddExerciseOpen(true)}>
-            <Plus className="h-4 w-4" /> Pridať cvik
-          </Button>
-        </div>
-      </div>
 
       <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-sm p-3">
         <div className="max-w-3xl mx-auto flex items-center gap-2">

@@ -129,16 +129,21 @@ const WorkoutAI = () => {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
+      const maxWeight = band === "kids" ? 0 : band === "teens" ? Math.round((member.vaha ?? 50) * 0.3) : 300;
       const items: PlannedItem[] = (data.exercises ?? [])
         .map((it: any) => {
           const ex = catalog.get(String(it.id));
           if (!ex) return null;
+          const raw = Number(it.suggestedWeightKg);
+          const bodyweight = ex.equipment === "body weight" || ex.equipment === "assisted";
+          const suggested = !bodyweight && Number.isFinite(raw) && raw > 0 ? Math.min(maxWeight, Math.round(raw)) : 0;
           return {
             exerciseId: ex.id,
             exerciseName: ex.name,
             muscleGroup: catalog.groupOf(ex)?.name ?? muscleLabel(ex.target),
             sets: Math.min(6, Math.max(1, Number(it.sets) || 3)),
             reps: Math.min(60, Math.max(1, Number(it.reps) || 10)),
+            suggestedWeight: suggested > 0 ? suggested : null,
           } as PlannedItem;
         })
         .filter(Boolean);
@@ -147,6 +152,7 @@ const WorkoutAI = () => {
       if (!items.length) throw new Error("AI nevrátila žiadne cviky, skús to znova");
 
       const title = data.title || "AI tréning";
+      const adaptation = data.adaptation || `Prispôsobené: ${AGE_BAND_LABEL[band]}`;
 
       setPlan({
         title,
@@ -154,7 +160,9 @@ const WorkoutAI = () => {
         stretch: data.stretch ?? [],
         items,
         note: data.note,
+        adaptation,
       });
+
 
       try {
         await savePlan({ memberId: member.id, name: title, mode, goal, items, daysPerWeek: days });

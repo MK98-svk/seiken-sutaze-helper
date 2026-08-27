@@ -215,7 +215,7 @@ export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Pro
         </DialogContent>
       </Dialog>
 
-      <ExerciseDetailDialog exercise={detail} open={!!detail} onOpenChange={(o) => !o && setDetail(null)} />
+      <ExerciseDetailDialog exercise={detail} onOpenChange={(o) => !o && setDetail(null)} />
     </>
   );
 }

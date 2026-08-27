@@ -21,9 +21,22 @@ const WorkoutPlans = () => {
   const [name, setName] = useState("");
   const draft = useMemo(() => readDraft(), []);
 
+  const { sessions } = useWorkoutSessions(memberId || null);
+
   useEffect(() => {
     if (!memberId && selectable.length > 0) setMemberId(selectable[0].id);
   }, [selectable, memberId]);
+
+  const weekStart = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    return d;
+  }, []);
+
+  const doneThisWeek = (planName: string) =>
+    sessions.filter((s) => s.title === planName && new Date(s.performedAt) >= weekStart).length;
+
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Načítavam…</div>;
   if (!user) return <Navigate to="/auth" replace />;

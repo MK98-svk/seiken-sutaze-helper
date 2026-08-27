@@ -110,6 +110,8 @@ const Home = () => {
             </motion.button>
           ))}
         </div>
+
+        <p className="pt-6 text-center text-[10px] text-muted-foreground">Verzia {APP_VERSION}</p>
       </main>
     </div>
   );

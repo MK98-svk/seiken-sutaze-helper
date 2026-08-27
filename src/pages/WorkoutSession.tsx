@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { Check, Pause, Play, RotateCcw, Youtube, Flag, Trash2 } from "lucide-react";
+import { Check, Pause, Play, RotateCcw, Youtube, Flag, Trash2, Plus, Search } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,7 @@ import { IMG, muscleLabel, equipmentLabel } from "@/lib/catalog";
 import { openExternal, youtubeSearch } from "@/lib/openExternal";
 import ExerciseDetailDialog from "@/components/ExerciseDetailDialog";
 import { CatalogExercise } from "@/lib/catalog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 import { toast } from "sonner";
 
@@ -30,12 +31,14 @@ const WorkoutSessionPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const { session, sets, updateSet, finish } = useWorkoutSession(id);
+  const { session, sets, updateSet, addSet, finish } = useWorkoutSession(id);
   const { remove } = useCreateWorkout();
   const { catalog } = useCatalog();
 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [detail, setDetail] = useState<CatalogExercise | null>(null);
+  const [addExerciseOpen, setAddExerciseOpen] = useState(false);
+  const [exerciseQuery, setExerciseQuery] = useState("");
 
   const [rest, setRest] = useState<number | null>(null);
   const [running, setRunning] = useState(false);
@@ -73,6 +76,12 @@ const WorkoutSessionPage = () => {
     return Array.from(map.entries());
   }, [sets]);
 
+  const exerciseResults = useMemo(() => {
+    if (!catalog || exerciseQuery.trim().length < 2) return [];
+    const existing = new Set(sets.map((set) => set.exerciseId));
+    return catalog.search(exerciseQuery, (session?.mode as "gym" | "home") || "gym").filter((exercise) => !existing.has(exercise.id)).slice(0, 20);
+  }, [catalog, exerciseQuery, session?.mode, sets]);
+
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Načítavam…</div>;
   if (!user) return <Navigate to="/auth" replace />;
 
@@ -85,6 +94,42 @@ const WorkoutSessionPage = () => {
       setRest(defaultRest);
       setRunning(true);
     }
+  };
+
+  const appendSet = (list: typeof sets) => {
+    const last = list[list.length - 1];
+    if (!last) return;
+    addSet.mutate({
+      sessionId: last.sessionId,
+      exerciseId: last.exerciseId,
+      exerciseName: last.exerciseName,
+      muscleGroup: last.muscleGroup,
+      setNumber: Math.max(...list.map((set) => set.setNumber)) + 1,
+      reps: last.reps,
+      weight: last.weight,
+    });
+  };
+
+  const appendExercise = (exercise: CatalogExercise) => {
+    if (!id) return;
+    addSet.mutate(
+      {
+        sessionId: id,
+        exerciseId: exercise.id,
+        exerciseName: exercise.name,
+        muscleGroup: catalog?.groupOf(exercise)?.name ?? muscleLabel(exercise.target),
+        setNumber: 1,
+        reps: 10,
+        weight: null,
+      },
+      {
+        onSuccess: () => {
+          setAddExerciseOpen(false);
+          setExerciseQuery("");
+          toast.success("Cvik pridaný do tréningu");
+        },
+      }
+    );
   };
 
   const endWorkout = () => {
@@ -117,6 +162,10 @@ const WorkoutSessionPage = () => {
         <div className="text-xs text-muted-foreground">
           Hotové série: <span className="text-foreground">{doneCount}/{sets.length}</span>
         </div>
+
+        <Button variant="outline" className="w-full gap-2" onClick={() => setAddExerciseOpen(true)}>
+          <Plus className="h-4 w-4" /> Pridať cvik do tréningu
+        </Button>
 
         {grouped.map(([exId, list]) => {
           const legacy = exerciseById(exId);
@@ -198,6 +247,9 @@ const WorkoutSessionPage = () => {
                   </div>
                 ))}
               </div>
+              <Button variant="outline" size="sm" className="w-full gap-1" onClick={() => appendSet(list)} disabled={addSet.isPending}>
+                <Plus className="h-4 w-4" /> Pridať sériu
+              </Button>
             </div>
           );
         })}
@@ -240,6 +292,44 @@ const WorkoutSessionPage = () => {
       </div>
 
       <ExerciseDetailDialog exercise={detail} onOpenChange={(o) => !o && setDetail(null)} />
+
+      <Dialog open={addExerciseOpen} onOpenChange={setAddExerciseOpen}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-left">Pridať cvik do tréningu</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={exerciseQuery}
+                onChange={(event) => setExerciseQuery(event.target.value)}
+                placeholder="Napíš aspoň 2 písmená…"
+                className="pl-9"
+                autoFocus
+              />
+            </div>
+            {exerciseQuery.trim().length < 2 && <p className="text-sm text-muted-foreground">Vyhľadaj cvik podľa názvu.</p>}
+            {exerciseQuery.trim().length >= 2 && exerciseResults.length === 0 && (
+              <p className="text-sm text-muted-foreground">Nenašiel sa žiadny ďalší cvik.</p>
+            )}
+            {exerciseResults.map((exercise) => (
+              <div key={exercise.id} className="flex items-center gap-2 rounded-lg border border-border bg-card p-2">
+                <img src={IMG(exercise.image)} alt={exercise.name} loading="lazy" className="h-11 w-11 shrink-0 rounded-md bg-background object-contain" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm leading-tight line-clamp-2">{exercise.name}</div>
+                  <div className="truncate text-[11px] text-muted-foreground">
+                    {muscleLabel(exercise.target)} · {equipmentLabel(exercise.equipment)}
+                  </div>
+                </div>
+                <Button size="icon" variant="outline" className="h-9 w-9 shrink-0" onClick={() => appendExercise(exercise)} disabled={addSet.isPending} title="Pridať cvik">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <AlertDialogContent>

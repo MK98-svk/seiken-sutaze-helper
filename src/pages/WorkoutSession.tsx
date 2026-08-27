@@ -144,8 +144,9 @@ const WorkoutSessionPage = () => {
   };
 
   const deleteWorkout = async () => {
+    if (!id) return;
     try {
-      await remove(id!);
+      await remove(id);
       toast.success("Tréning zrušený");
       navigate("/posilnovanie");
     } catch (e: any) {
@@ -163,10 +164,6 @@ const WorkoutSessionPage = () => {
         <div className="text-xs text-muted-foreground">
           Hotové série: <span className="text-foreground">{doneCount}/{sets.length}</span>
         </div>
-
-        <Button variant="outline" className="w-full gap-2" onClick={() => setAddExerciseOpen(true)}>
-          <Plus className="h-4 w-4" /> Pridať cvik do tréningu
-        </Button>
 
         {grouped.map(([exId, list]) => {
           const legacy = exerciseById(exId);
@@ -193,15 +190,27 @@ const WorkoutSessionPage = () => {
                     ) : null}
                   </button>
                 </div>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-8 w-8 shrink-0"
-                  title="Video"
-                  onClick={() => openExternal(legacy?.youtube ?? youtubeSearch(name + " exercise technique"))}
-                >
-                  <Youtube className="h-4 w-4" />
-                </Button>
+                <div className="flex shrink-0 items-center gap-1">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 px-2 text-xs"
+                    onClick={() => appendSet(list)}
+                    disabled={addSet.isPending}
+                    title="Pridať ďalšiu sériu"
+                  >
+                    <Plus className="h-4 w-4" /> Séria
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8"
+                    title="Video"
+                    onClick={() => openExternal(legacy?.youtube ?? youtubeSearch(name + " exercise technique"))}
+                  >
+                    <Youtube className="h-4 w-4" />
+                  </Button>
+                </div>
 
               </div>
 
@@ -248,9 +257,6 @@ const WorkoutSessionPage = () => {
                   </div>
                 ))}
               </div>
-              <Button variant="outline" size="sm" className="w-full gap-1" onClick={() => appendSet(list)} disabled={addSet.isPending}>
-                <Plus className="h-4 w-4" /> Pridať sériu
-              </Button>
             </div>
           );
         })}
@@ -258,7 +264,15 @@ const WorkoutSessionPage = () => {
         {sets.length === 0 && <div className="text-sm text-muted-foreground">Tréning neobsahuje žiadne cviky.</div>}
       </main>
 
-      <div className="fixed bottom-0 left-0 right-0 border-t border-border bg-card/95 backdrop-blur-sm p-3">
+      <div className="fixed bottom-[73px] left-0 right-0 z-40 px-3 pointer-events-none">
+        <div className="mx-auto flex max-w-3xl justify-end">
+          <Button className="gap-2 shadow-lg pointer-events-auto" onClick={() => setAddExerciseOpen(true)}>
+            <Plus className="h-4 w-4" /> Pridať cvik
+          </Button>
+        </div>
+      </div>
+
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-sm p-3">
         <div className="max-w-3xl mx-auto flex items-center gap-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <div className="font-display text-2xl tabular-nums text-primary w-16">{fmt(rest ?? defaultRest)}</div>

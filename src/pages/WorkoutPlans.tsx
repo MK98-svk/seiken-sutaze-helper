@@ -17,7 +17,8 @@ const WorkoutPlans = () => {
   const navigate = useNavigate();
   const { selectable, isLoading: membersLoading } = useTrainableMembers();
   const [memberId, setMemberId] = useState("");
-  const { plans, isLoading, savePlan, deletePlan } = useWorkoutPlans(memberId || null);
+  const { plans, isLoading, savePlan, updatePlan, deletePlan } = useWorkoutPlans(memberId || null);
+  const [editing, setEditing] = useState<WorkoutPlan | null>(null);
   const { create } = useCreateWorkout();
   const [name, setName] = useState("");
   const draft = useMemo(() => readDraft(), []);

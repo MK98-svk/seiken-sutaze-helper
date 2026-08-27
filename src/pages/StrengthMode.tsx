@@ -42,6 +42,7 @@ const StrengthMode = () => {
   const [limit, setLimit] = useState(PAGE);
   const [detail, setDetail] = useState<CatalogExercise | null>(null);
   const [draft, setDraft] = useState(readDraft());
+  const [expanded, setExpanded] = useState(false);
 
   const m = mode as CatalogMode;
   const modeInfo = MODE_INFO[m];

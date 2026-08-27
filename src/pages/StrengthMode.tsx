@@ -94,6 +94,12 @@ const StrengthMode = () => {
     setDraft(next);
   };
 
+  const patchItem = (id: string, changes: Partial<PlannedItem>) => {
+    const next = { mode: m, items: activeItems.map((i) => (i.exerciseId === id ? { ...i, ...changes } : i)) };
+    writeDraft(next);
+    setDraft(next);
+  };
+
   const resetDraft = () => {
     clearDraft();
     setDraft({ mode: "", items: [] });

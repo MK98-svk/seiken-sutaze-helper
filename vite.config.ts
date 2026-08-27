@@ -6,6 +6,9 @@ import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  define: {
+    __APP_VERSION__: JSON.stringify(new Date().toISOString().slice(0, 16).replace("T", " ")),
+  },
   server: {
     host: "::",
     port: 8080,
@@ -28,6 +31,15 @@ export default defineConfig(({ mode }) => ({
         navigateFallbackDenylist: [/^\/~oauth/],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,woff2}"],
         runtimeCaching: [
+          {
+            // index.html vždy najprv zo siete, aby sa nezasekla stará verzia
+            urlPattern: ({ request }: { request: Request }) => request.mode === "navigate",
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "app-shell",
+              networkTimeoutSeconds: 5,
+            },
+          },
           {
             urlPattern: ({ url }: { url: URL }) => url.pathname.startsWith("/data/"),
             handler: "StaleWhileRevalidate",

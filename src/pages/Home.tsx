@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
 import { Navigate, useNavigate } from "react-router-dom";
-import { LogOut, Trophy, Dumbbell } from "lucide-react";
+import { LogOut, Trophy, Dumbbell, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useMembers } from "@/hooks/useClubData";
 import AddSelfDialog from "@/components/AddSelfDialog";
+import { hardRefreshApp, APP_VERSION } from "@/lib/appUpdate";
 import seikenLogo from "@/assets/seiken-logo.jpg";
 
 const tiles = [
@@ -49,9 +50,14 @@ const Home = () => {
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">Bratislava • klubová aplikácia</p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={signOut} title="Odhlásiť sa" className="h-8 w-8">
-            <LogOut className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-1 shrink-0">
+            <Button variant="ghost" size="icon" onClick={hardRefreshApp} title="Aktualizovať appku" className="h-8 w-8">
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={signOut} title="Odhlásiť sa" className="h-8 w-8">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -104,6 +110,8 @@ const Home = () => {
             </motion.button>
           ))}
         </div>
+
+        <p className="pt-6 text-center text-[10px] text-muted-foreground">Verzia {APP_VERSION}</p>
       </main>
     </div>
   );

@@ -11,6 +11,7 @@ import { GOALS } from "@/data/exercises";
 import { useCatalog } from "@/hooks/useCatalog";
 import { CATALOG_GROUPS, CatalogMode, availableIn, equipmentLabel, muscleLabel } from "@/lib/catalog";
 import { useTrainableMembers, useCreateWorkout, readDraft, clearDraft, PlannedItem } from "@/hooks/useWorkouts";
+import { useWorkoutPlans } from "@/hooks/useWorkoutPlans";
 
 const MODES: { id: CatalogMode; label: string; icon: string }[] = [
   { id: "gym", label: "Fitko", icon: "🏋️" },

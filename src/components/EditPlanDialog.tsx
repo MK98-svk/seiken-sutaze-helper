@@ -111,7 +111,7 @@ export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Pro
             <div className="space-y-2">
               <div className="text-xs uppercase tracking-wider text-muted-foreground">Cviky ({items.length})</div>
               {items.map((it) => {
-                const ex = catalog?.byId(it.exerciseId) ?? null;
+                const ex = catalog?.get(it.exerciseId) ?? null;
                 return (
                   <div key={it.exerciseId} className="rounded-lg border border-border bg-card p-2.5 space-y-2">
                     <div className="flex items-center gap-2">

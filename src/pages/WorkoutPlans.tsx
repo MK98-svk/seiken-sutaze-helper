@@ -155,6 +155,13 @@ const WorkoutPlans = () => {
           </>
         )}
       </main>
+
+      <EditPlanDialog
+        plan={editing}
+        open={!!editing}
+        onOpenChange={(o) => !o && setEditing(null)}
+        onSave={updatePlan}
+      />
     </div>
   );
 };

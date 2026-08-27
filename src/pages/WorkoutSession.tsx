@@ -230,7 +230,7 @@ const WorkoutSessionPage = () => {
 
               <div className="space-y-1.5">
                 {list.map((s) => (
-                  <div key={s.id} className="flex items-center gap-2">
+                  <div key={s.id} className="flex min-w-0 items-center gap-2">
                     <Badge variant="outline" className="w-10 justify-center shrink-0">{s.setNumber}.</Badge>
                     <Input
                       type="number"
@@ -240,7 +240,7 @@ const WorkoutSessionPage = () => {
                       onBlur={(e) =>
                         updateSet.mutate({ id: s.id, updates: { weight: e.target.value === "" ? null : Number(e.target.value) } })
                       }
-                      className="h-9"
+                      className="h-9 min-w-0 flex-1"
                     />
                     <Input
                       type="number"
@@ -248,7 +248,7 @@ const WorkoutSessionPage = () => {
                       placeholder="opak."
                       defaultValue={s.reps ?? ""}
                       onBlur={(e) => updateSet.mutate({ id: s.id, updates: { reps: e.target.value === "" ? null : Number(e.target.value) } })}
-                      className="h-9"
+                      className="h-9 min-w-0 flex-1"
                     />
                     <Button
                       size="icon"
@@ -277,7 +277,7 @@ const WorkoutSessionPage = () => {
       </main>
 
       <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-sm p-3">
-        <div className="max-w-3xl mx-auto flex items-center gap-2">
+        <div className="max-w-3xl mx-auto flex min-w-0 items-center gap-1.5 sm:gap-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <div className="font-display text-2xl tabular-nums text-primary w-16">{fmt(rest ?? defaultRest)}</div>
             <div className="flex gap-1">
@@ -296,7 +296,7 @@ const WorkoutSessionPage = () => {
               >
                 <RotateCcw className="h-4 w-4" />
               </Button>
-              <Button size="sm" variant="ghost" className="h-9 px-2 text-xs" onClick={() => setRest((r) => (r ?? defaultRest) + 15)}>
+              <Button size="sm" variant="ghost" className="hidden h-9 px-2 text-xs min-[400px]:inline-flex" onClick={() => setRest((r) => (r ?? defaultRest) + 15)}>
                 +15s
               </Button>
             </div>

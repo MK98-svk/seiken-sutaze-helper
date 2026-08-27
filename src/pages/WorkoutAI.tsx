@@ -11,6 +11,7 @@ import { GOALS } from "@/data/exercises";
 import { useCatalog } from "@/hooks/useCatalog";
 import { CATALOG_GROUPS, CatalogMode, availableIn, equipmentLabel, muscleLabel } from "@/lib/catalog";
 import { useTrainableMembers, useCreateWorkout, readDraft, clearDraft, PlannedItem } from "@/hooks/useWorkouts";
+import { useWorkoutPlans } from "@/hooks/useWorkoutPlans";
 
 const MODES: { id: CatalogMode; label: string; icon: string }[] = [
   { id: "gym", label: "Fitko", icon: "🏋️" },
@@ -40,6 +41,7 @@ const WorkoutAI = () => {
   const { selectable, isLoading: membersLoading } = useTrainableMembers();
   const { create } = useCreateWorkout();
   const { catalog, isLoading: catalogLoading, error: catalogError } = useCatalog();
+  const { savePlan } = useWorkoutPlans();
 
   const [memberId, setMemberId] = useState<string>("");
   const [mode, setMode] = useState<CatalogMode>("gym");
@@ -137,13 +139,22 @@ const WorkoutAI = () => {
 
       if (!items.length) throw new Error("AI nevrátila žiadne cviky, skús to znova");
 
+      const title = data.title || "AI tréning";
+
       setPlan({
-        title: data.title || "AI tréning",
+        title,
         warmup: data.warmup ?? [],
         stretch: data.stretch ?? [],
         items,
         note: data.note,
       });
+
+      try {
+        await savePlan({ memberId: member.id, name: title, mode, goal, items, daysPerWeek: days });
+        toast.success("Plán uložený medzi Moje plány");
+      } catch {
+        toast.message("Plán sa nepodarilo uložiť, ale môžeš ho hneď spustiť.");
+      }
     } catch (e: any) {
       const msg = String(e?.message ?? e);
       if (msg.includes("429")) toast.error("Priveľa požiadaviek na AI, skús o chvíľu.");

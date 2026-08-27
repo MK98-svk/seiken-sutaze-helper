@@ -3,6 +3,7 @@ import PageHeader from "@/components/PageHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { useTrainableMembers } from "@/hooks/useWorkouts";
 import MemberProgress from "@/components/MemberProgress";
+import MemberPlansList from "@/components/MemberPlansList";
 
 const CoachMemberDetail = () => {
   const { memberId } = useParams<{ memberId: string }>();
@@ -23,7 +24,12 @@ const CoachMemberDetail = () => {
         backTo="/posilnovanie/cvicenci"
       />
       <main className="max-w-3xl mx-auto px-3 py-4">
-        {memberId && <MemberProgress memberId={memberId} />}
+        {memberId && (
+          <div className="space-y-5">
+            <MemberPlansList memberId={memberId} />
+            <MemberProgress memberId={memberId} />
+          </div>
+        )}
       </main>
     </div>
   );

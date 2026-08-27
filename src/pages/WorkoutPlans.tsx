@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import MemberPicker from "@/components/MemberPicker";
 import { useAuth } from "@/hooks/useAuth";
-import { useTrainableMembers, useCreateWorkout, readDraft, clearDraft } from "@/hooks/useWorkouts";
+import { useTrainableMembers, useCreateWorkout, useWorkoutSessions, readDraft, clearDraft } from "@/hooks/useWorkouts";
 import { useWorkoutPlans } from "@/hooks/useWorkoutPlans";
 import { toast } from "sonner";
 
@@ -21,9 +21,22 @@ const WorkoutPlans = () => {
   const [name, setName] = useState("");
   const draft = useMemo(() => readDraft(), []);
 
+  const { sessions } = useWorkoutSessions(memberId || null);
+
   useEffect(() => {
     if (!memberId && selectable.length > 0) setMemberId(selectable[0].id);
   }, [selectable, memberId]);
+
+  const weekStart = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    return d;
+  }, []);
+
+  const doneThisWeek = (planName: string) =>
+    sessions.filter((s) => s.title === planName && new Date(s.performedAt) >= weekStart).length;
+
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Načítavam…</div>;
   if (!user) return <Navigate to="/auth" replace />;
@@ -108,6 +121,11 @@ const WorkoutPlans = () => {
                         <div className="font-display text-sm tracking-wide uppercase truncate">{p.name}</div>
                         <div className="text-[11px] text-muted-foreground">
                           {p.items.length} cvikov · {new Date(p.createdAt).toLocaleDateString("sk-SK")}
+                          {p.daysPerWeek ? ` · ${p.daysPerWeek}× do týždňa` : ""}
+                        </div>
+                        <div className="text-[11px] text-primary">
+                          Tento týždeň: {doneThisWeek(p.name)}
+                          {p.daysPerWeek ? `/${p.daysPerWeek}` : ""} tréningy
                         </div>
                       </div>
                       <div className="flex gap-1 shrink-0">

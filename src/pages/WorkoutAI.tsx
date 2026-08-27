@@ -326,7 +326,11 @@ const WorkoutAI = () => {
             {plan && (
               <section className="rounded-xl border border-border bg-card p-4 space-y-3">
                 <div className="font-display text-base tracking-wider uppercase">{plan.title}</div>
+                {plan.adaptation && (
+                  <p className="text-xs text-primary">{plan.adaptation}</p>
+                )}
                 {plan.note && <p className="text-xs text-muted-foreground">{plan.note}</p>}
+
 
                 {plan.warmup.length > 0 && (
                   <div>
@@ -343,7 +347,11 @@ const WorkoutAI = () => {
                     <div key={it.exerciseId} className="flex items-center justify-between gap-2 rounded border border-border px-2 py-1.5">
                       <span className="text-sm min-w-0 truncate">{it.exerciseName}</span>
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-xs text-muted-foreground">{it.sets} × {it.reps}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {it.sets} × {it.reps}
+                          {it.suggestedWeight ? ` · ~${it.suggestedWeight} kg` : ""}
+                        </span>
+
                         <Button
                           size="icon"
                           variant="ghost"

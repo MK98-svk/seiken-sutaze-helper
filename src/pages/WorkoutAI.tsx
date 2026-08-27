@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { GOALS } from "@/data/exercises";
 import { useCatalog } from "@/hooks/useCatalog";
-import { CATALOG_GROUPS, CatalogMode, availableIn, equipmentLabel, muscleLabel } from "@/lib/catalog";
+import { CATALOG_GROUPS, CatalogMode, availableIn, equipmentLabel, muscleLabel, ageBandOf, suitableForProfile, AGE_BAND_LABEL } from "@/lib/catalog";
 import { useTrainableMembers, useCreateWorkout, readDraft, clearDraft, PlannedItem } from "@/hooks/useWorkouts";
 import { useWorkoutPlans } from "@/hooks/useWorkoutPlans";
 
@@ -50,7 +50,7 @@ const WorkoutAI = () => {
   const [days, setDays] = useState(3);
   const [groups, setGroups] = useState<string[]>([]);
   const [generating, setGenerating] = useState(false);
-  const [plan, setPlan] = useState<{ title: string; warmup: string[]; stretch: string[]; items: PlannedItem[]; note?: string } | null>(null);
+  const [plan, setPlan] = useState<{ title: string; warmup: string[]; stretch: string[]; items: PlannedItem[]; note?: string; adaptation?: string } | null>(null);
 
   useEffect(() => {
     if (!memberId && selectable.length > 0) setMemberId(selectable[0].id);
@@ -77,6 +77,9 @@ const WorkoutAI = () => {
     if (!catalog) return toast.error("Katalóg cvikov sa ešte načítava, skús o chvíľu znova");
     setGenerating(true);
     try {
+      const age = ageOf(member.datumNarodenia);
+      const band = ageBandOf(age);
+      const profileOpts = { age, weightKg: member.vaha, heightCm: member.vyska };
       const selectedGroups = groups.length ? CATALOG_GROUPS.filter((g) => groups.includes(g.id)) : CATALOG_GROUPS;
       const perGroup = Math.max(8, Math.floor(120 / Math.max(1, selectedGroups.length)));
       const pool = new Map<string, { id: string; name: string; group: string; muscle: string; equipment: string }>();
@@ -85,6 +88,7 @@ const WorkoutAI = () => {
         for (const e of catalog.inGroup(g, mode)) {
           if (taken >= perGroup) break;
           if (!availableIn(e, mode)) continue;
+          if (!suitableForProfile(e, profileOpts)) continue;
           taken++;
           pool.set(e.id, {
             id: e.id,
@@ -96,7 +100,8 @@ const WorkoutAI = () => {
         }
       }
       const catalogPayload = [...pool.values()];
-      if (!catalogPayload.length) throw new Error("Pre zvolené prostredie a partie nie sú dostupné žiadne cviky");
+      if (!catalogPayload.length)
+        throw new Error("Pre zvolený vek, prostredie a partie nie sú dostupné bezpečné cviky — skús iné prostredie alebo iné partie");
 
 
       const { data, error } = await supabase.functions.invoke("generate-workout", {
@@ -104,7 +109,7 @@ const WorkoutAI = () => {
           catalog: catalogPayload,
           profile: {
             meno: `${member.meno} ${member.priezvisko}`,
-            vek: ageOf(member.datumNarodenia),
+            vek: age,
             pohlavie: member.pohlavie,
             vyska: member.vyska,
             vaha: member.vaha,
@@ -115,9 +120,11 @@ const WorkoutAI = () => {
           goal,
           duration,
           days,
+          ageBand: band,
           groups: selectedGroups.map((g) => g.name),
         },
       });
+
 
       if (error) throw error;
       if (data?.error) throw new Error(data.error);

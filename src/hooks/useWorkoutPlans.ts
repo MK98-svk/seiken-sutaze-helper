@@ -60,6 +60,25 @@ export function useWorkoutPlans(memberId?: string | null) {
     qc.invalidateQueries({ queryKey: ["workout_plans"] });
   };
 
+  const updatePlan = async (input: {
+    id: string;
+    name: string;
+    items: PlannedItem[];
+    daysPerWeek: number | null;
+  }) => {
+    const current = plans.find((p) => p.id === input.id);
+    const { error } = await db
+      .from("workout_plans")
+      .update({
+        name: input.name,
+        config: { goal: current?.goal ?? null, mode: current?.mode ?? "gym", daysPerWeek: input.daysPerWeek },
+        plan: { items: input.items },
+      })
+      .eq("id", input.id);
+    if (error) throw error;
+    qc.invalidateQueries({ queryKey: ["workout_plans"] });
+  };
+
   const deletePlan = async (id: string) => {
     const { error } = await db.from("workout_plans").delete().eq("id", id);
     if (error) throw error;

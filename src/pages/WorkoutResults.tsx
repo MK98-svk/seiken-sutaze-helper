@@ -13,7 +13,9 @@ import { MODES, GROUPS } from "@/data/exercises";
 import { toast } from "sonner";
 
 const WorkoutResults = () => {
+  const navigate = useNavigate();
   const { user, loading } = useAuth();
+
   const { selectable, isStaff } = useTrainableMembers();
   const [memberId, setMemberId] = useState<string>("all");
   const { sessions, sets } = useWorkoutSessions(memberId === "all" ? null : memberId);

@@ -224,8 +224,9 @@ const StrengthMode = () => {
                     <Input
                       type="number"
                       inputMode="numeric"
-                      value={it.sets}
-                      onChange={(e) => patchItem(it.exerciseId, { sets: Math.max(1, Math.min(12, Number(e.target.value) || 1)) })}
+                      value={Number.isFinite(it.sets) ? it.sets : ""}
+                      onChange={(e) => patchItem(it.exerciseId, { sets: e.target.value === "" ? (NaN as number) : Number(e.target.value) })}
+                      onBlur={(e) => patchItem(it.exerciseId, { sets: Math.max(1, Math.min(12, Number(e.target.value) || 1)) })}
                       className="h-8 w-16"
                       aria-label="Série"
                     />
@@ -233,8 +234,9 @@ const StrengthMode = () => {
                     <Input
                       type="number"
                       inputMode="numeric"
-                      value={it.reps}
-                      onChange={(e) => patchItem(it.exerciseId, { reps: Math.max(1, Math.min(100, Number(e.target.value) || 1)) })}
+                      value={Number.isFinite(it.reps) ? it.reps : ""}
+                      onChange={(e) => patchItem(it.exerciseId, { reps: e.target.value === "" ? (NaN as number) : Number(e.target.value) })}
+                      onBlur={(e) => patchItem(it.exerciseId, { reps: Math.max(1, Math.min(100, Number(e.target.value) || 1)) })}
                       className="h-8 w-16"
                       aria-label="Opakovania"
                     />

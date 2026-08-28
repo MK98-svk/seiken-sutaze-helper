@@ -68,7 +68,11 @@ export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Pro
       await onSave({
         id: plan.id,
         name: name.trim() || plan.name,
-        items,
+        items: items.map((i) => ({
+          ...i,
+          sets: Number.isFinite(i.sets) ? Math.max(1, Math.min(12, i.sets)) : 1,
+          reps: Number.isFinite(i.reps) ? Math.max(1, Math.min(100, i.reps)) : 1,
+        })),
         daysPerWeek: daysPerWeek ? Math.max(1, Math.min(7, Number(daysPerWeek))) : null,
       });
       toast.success("Plán upravený");
@@ -143,8 +147,8 @@ export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Pro
                             size="icon"
                             variant="outline"
                             className="h-9 w-9 shrink-0"
-                            onClick={() => patch(it.exerciseId, { sets: Math.max(1, it.sets - 1) })}
-                            disabled={it.sets <= 1}
+                            onClick={() => patch(it.exerciseId, { sets: Math.max(1, (Number.isFinite(it.sets) ? it.sets : 1) - 1) })}
+                            disabled={Number.isFinite(it.sets) && it.sets <= 1}
                             title="Odobrať sériu"
                           >
                             <Minus className="h-4 w-4" />
@@ -154,8 +158,9 @@ export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Pro
                             inputMode="numeric"
                             min={1}
                             max={12}
-                            value={it.sets}
-                            onChange={(e) => patch(it.exerciseId, { sets: Math.max(1, Math.min(12, Number(e.target.value) || 1)) })}
+                            value={Number.isFinite(it.sets) ? it.sets : ""}
+                            onChange={(e) => patch(it.exerciseId, { sets: e.target.value === "" ? (NaN as number) : Number(e.target.value) })}
+                            onBlur={(e) => patch(it.exerciseId, { sets: Math.max(1, Math.min(12, Number(e.target.value) || 1)) })}
                             className="h-9 min-w-0 text-center px-1"
                             aria-label={`Počet sérií pre ${it.exerciseName}`}
                           />
@@ -164,8 +169,8 @@ export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Pro
                             size="icon"
                             variant="outline"
                             className="h-9 w-9 shrink-0"
-                            onClick={() => patch(it.exerciseId, { sets: Math.min(12, it.sets + 1) })}
-                            disabled={it.sets >= 12}
+                            onClick={() => patch(it.exerciseId, { sets: Math.min(12, (Number.isFinite(it.sets) ? it.sets : 0) + 1) })}
+                            disabled={Number.isFinite(it.sets) && it.sets >= 12}
                             title="Pridať sériu"
                           >
                             <Plus className="h-4 w-4" />
@@ -179,8 +184,9 @@ export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Pro
                           inputMode="numeric"
                           min={1}
                           max={100}
-                          value={it.reps}
-                          onChange={(e) => patch(it.exerciseId, { reps: Math.max(1, Math.min(100, Number(e.target.value) || 1)) })}
+                          value={Number.isFinite(it.reps) ? it.reps : ""}
+                          onChange={(e) => patch(it.exerciseId, { reps: e.target.value === "" ? (NaN as number) : Number(e.target.value) })}
+                          onBlur={(e) => patch(it.exerciseId, { reps: Math.max(1, Math.min(100, Number(e.target.value) || 1)) })}
                           className="h-9"
                         />
                       </div>

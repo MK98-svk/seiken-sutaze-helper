@@ -5,7 +5,7 @@ import { Navigate } from "react-router-dom";
 import { Sparkles, History, ClipboardList, TrendingUp, Users, Dumbbell, X } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { useAuth } from "@/hooks/useAuth";
-import { readDraft, clearDraft } from "@/hooks/useWorkouts";
+import { readDraft, clearDraft, useTrainableMembers, useWorkoutSessions } from "@/hooks/useWorkouts";
 import { toast } from "sonner";
 
 const MODES = [
@@ -18,9 +18,13 @@ const Strength = () => {
   const { user, loading, isAdmin, isCoach } = useAuth();
   const navigate = useNavigate();
   const [draft, setDraft] = useState(readDraft());
+  const { mine, isStaff } = useTrainableMembers();
+  const { sessions } = useWorkoutSessions(!isStaff && mine.length === 1 ? mine[0].id : null);
+  const openSessions = sessions.filter((s) => !s.completed).slice(0, 3);
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Načítavam…</div>;
   if (!user) return <Navigate to="/auth" replace />;
+
 
   const tiles = [
     { to: "/posilnovanie/ai", icon: Sparkles, title: "Tréning s AI", desc: "Plán na mieru podľa tvojho profilu", accent: true },
@@ -76,6 +80,29 @@ const Strength = () => {
             </button>
           </div>
         )}
+
+        {openSessions.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs uppercase tracking-widest text-muted-foreground pt-1">Neukončené tréningy</p>
+            {openSessions.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => navigate(`/posilnovanie/trening/${s.id}`)}
+                className="w-full rounded-lg border border-primary/50 bg-card p-3 flex items-center gap-2 text-left hover:bg-muted/40"
+              >
+                <ClipboardList className="h-5 w-5 text-primary shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="font-display text-sm tracking-wider uppercase truncate">{s.title || "Tréning"}</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {new Date(s.performedAt).toLocaleDateString("sk-SK")} • pokračovať a upraviť
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
+
 
         <p className="text-xs uppercase tracking-widest text-muted-foreground pt-2">Kde cvičíš?</p>
         <div className="grid gap-3 sm:grid-cols-3">

@@ -5,7 +5,7 @@ import { Navigate } from "react-router-dom";
 import { Sparkles, History, ClipboardList, TrendingUp, Users, Dumbbell, X } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { useAuth } from "@/hooks/useAuth";
-import { readDraft, clearDraft } from "@/hooks/useWorkouts";
+import { readDraft, clearDraft, useTrainableMembers, useWorkoutSessions } from "@/hooks/useWorkouts";
 import { toast } from "sonner";
 
 const MODES = [
@@ -18,9 +18,13 @@ const Strength = () => {
   const { user, loading, isAdmin, isCoach } = useAuth();
   const navigate = useNavigate();
   const [draft, setDraft] = useState(readDraft());
+  const { mine, isStaff } = useTrainableMembers();
+  const { sessions } = useWorkoutSessions(!isStaff && mine.length === 1 ? mine[0].id : null);
+  const openSessions = sessions.filter((s) => !s.completed).slice(0, 3);
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Načítavam…</div>;
   if (!user) return <Navigate to="/auth" replace />;
+
 
   const tiles = [
     { to: "/posilnovanie/ai", icon: Sparkles, title: "Tréning s AI", desc: "Plán na mieru podľa tvojho profilu", accent: true },

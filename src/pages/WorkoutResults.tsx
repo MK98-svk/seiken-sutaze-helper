@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { CalendarDays, Dumbbell, Trash2 } from "lucide-react";
+import { CalendarDays, Dumbbell, Trash2, Pencil } from "lucide-react";
+
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -101,9 +102,14 @@ const WorkoutResults = () => {
                     </div>
                     <div className="font-display text-sm tracking-wide uppercase leading-tight mt-0.5">{s.title || "Tréning"}</div>
                   </div>
-                  <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0" onClick={() => onDelete(s.id)} title="Vymazať">
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <Button size="sm" variant="outline" className="h-8 gap-1 px-2" onClick={() => navigate(`/posilnovanie/trening/${s.id}`)} title="Otvoriť a upraviť tréning">
+                      <Pencil className="h-3.5 w-3.5" /> {s.completed ? "Upraviť" : "Pokračovať"}
+                    </Button>
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => onDelete(s.id)} title="Vymazať">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap gap-1">
@@ -112,6 +118,7 @@ const WorkoutResults = () => {
                   {vol > 0 && <Badge variant="outline" className="text-[10px]">{Math.round(vol)} kg objem</Badge>}
                   {!s.completed && <Badge variant="secondary" className="text-[10px]">Neukončený</Badge>}
                 </div>
+
 
                 <div className="space-y-0.5">
                   {Array.from(byEx.entries()).map(([exId, list]) => (

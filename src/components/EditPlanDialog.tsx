@@ -143,8 +143,8 @@ export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Pro
                             size="icon"
                             variant="outline"
                             className="h-9 w-9 shrink-0"
-                            onClick={() => patch(it.exerciseId, { sets: Math.max(1, it.sets - 1) })}
-                            disabled={it.sets <= 1}
+                            onClick={() => patch(it.exerciseId, { sets: Math.max(1, (Number.isFinite(it.sets) ? it.sets : 1) - 1) })}
+                            disabled={Number.isFinite(it.sets) && it.sets <= 1}
                             title="Odobrať sériu"
                           >
                             <Minus className="h-4 w-4" />

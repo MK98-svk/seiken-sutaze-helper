@@ -180,8 +180,9 @@ export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Pro
                           inputMode="numeric"
                           min={1}
                           max={100}
-                          value={it.reps}
-                          onChange={(e) => patch(it.exerciseId, { reps: Math.max(1, Math.min(100, Number(e.target.value) || 1)) })}
+                          value={Number.isFinite(it.reps) ? it.reps : ""}
+                          onChange={(e) => patch(it.exerciseId, { reps: e.target.value === "" ? (NaN as number) : Number(e.target.value) })}
+                          onBlur={(e) => patch(it.exerciseId, { reps: Math.max(1, Math.min(100, Number(e.target.value) || 1)) })}
                           className="h-9"
                         />
                       </div>

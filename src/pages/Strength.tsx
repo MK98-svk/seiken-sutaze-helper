@@ -81,6 +81,29 @@ const Strength = () => {
           </div>
         )}
 
+        {openSessions.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs uppercase tracking-widest text-muted-foreground pt-1">Neukončené tréningy</p>
+            {openSessions.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => navigate(`/posilnovanie/trening/${s.id}`)}
+                className="w-full rounded-lg border border-primary/50 bg-card p-3 flex items-center gap-2 text-left hover:bg-muted/40"
+              >
+                <ClipboardList className="h-5 w-5 text-primary shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="font-display text-sm tracking-wider uppercase truncate">{s.title || "Tréning"}</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {new Date(s.performedAt).toLocaleDateString("sk-SK")} • pokračovať a upraviť
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
+
+
         <p className="text-xs uppercase tracking-widest text-muted-foreground pt-2">Kde cvičíš?</p>
         <div className="grid gap-3 sm:grid-cols-3">
           {MODES.map((m, i) => (

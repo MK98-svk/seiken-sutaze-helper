@@ -68,7 +68,11 @@ export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Pro
       await onSave({
         id: plan.id,
         name: name.trim() || plan.name,
-        items,
+        items: items.map((i) => ({
+          ...i,
+          sets: Number.isFinite(i.sets) ? Math.max(1, Math.min(12, i.sets)) : 1,
+          reps: Number.isFinite(i.reps) ? Math.max(1, Math.min(100, i.reps)) : 1,
+        })),
         daysPerWeek: daysPerWeek ? Math.max(1, Math.min(7, Number(daysPerWeek))) : null,
       });
       toast.success("Plán upravený");

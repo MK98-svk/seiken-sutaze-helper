@@ -154,8 +154,9 @@ export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Pro
                             inputMode="numeric"
                             min={1}
                             max={12}
-                            value={it.sets}
-                            onChange={(e) => patch(it.exerciseId, { sets: Math.max(1, Math.min(12, Number(e.target.value) || 1)) })}
+                            value={Number.isFinite(it.sets) ? it.sets : ""}
+                            onChange={(e) => patch(it.exerciseId, { sets: e.target.value === "" ? (NaN as number) : Number(e.target.value) })}
+                            onBlur={(e) => patch(it.exerciseId, { sets: Math.max(1, Math.min(12, Number(e.target.value) || 1)) })}
                             className="h-9 min-w-0 text-center px-1"
                             aria-label={`Počet sérií pre ${it.exerciseName}`}
                           />

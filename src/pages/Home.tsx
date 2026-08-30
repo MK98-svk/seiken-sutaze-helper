@@ -23,6 +23,13 @@ const tiles = [
     icon: Dumbbell,
     ready: true,
   },
+  {
+    to: "/doplnky",
+    label: "Doplnky výživy",
+    desc: "Produkty zo Zdravého sveta – vitamíny, probiotiká, šport",
+    icon: Leaf,
+    ready: true,
+  },
 ];
 
 const Home = () => {

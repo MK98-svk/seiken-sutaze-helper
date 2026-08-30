@@ -139,12 +139,6 @@ const Supplements = () => {
             </Button>
           </div>
         )}
-        {false && (
-          <div />
-        )}
-        {isLoading && (
-          <div className="hidden" />
-        )}
       </main>
 
       <SupplementDetailDialog product={detail} onClose={() => setDetail(null)} />

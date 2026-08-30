@@ -78,12 +78,16 @@ function categorize(name: string, subtitle: string, description: string): string
   return OTHER.id;
 }
 
+// Produkty, ktoré sa už nepredávajú a nemajú sa zobrazovať
+const EXCLUDED = [/omega\s*(&|a)\s*bejby/i];
+
 function parseFeed(xml: string): Product[] {
   const items = xml.match(/<SHOPITEM>[\s\S]*?<\/SHOPITEM>/gi) ?? [];
   const products: Product[] = [];
   for (const raw of items) {
     const name = tag(raw, "PRODUCTNAME") || tag(raw, "PRODUCT");
     if (!name) continue;
+    if (EXCLUDED.some((re) => re.test(name))) continue;
     const subtitle = tag(raw, "custom_label_0");
     const description = stripHtml(tag(raw, "DESCRIPTION"));
     const priceRaw = tag(raw, "PRICE_VAT").replace(",", ".");

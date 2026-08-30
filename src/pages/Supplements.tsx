@@ -18,6 +18,11 @@ const Supplements = () => {
   const [cat, setCat] = useState<string>("all");
   const [sort, setSort] = useState<SortKey>("default");
   const [detail, setDetail] = useState<Supplement | null>(null);
+  const [limit, setLimit] = useState(24);
+
+  useEffect(() => {
+    setLimit(24);
+  }, [query, cat, sort]);
 
   const counts = useMemo(() => {
     const map: Record<string, number> = {};

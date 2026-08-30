@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Navigate, useNavigate } from "react-router-dom";
-import { LogOut, Trophy, Dumbbell, RefreshCw } from "lucide-react";
+import { LogOut, Trophy, Dumbbell, RefreshCw, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useMembers } from "@/hooks/useClubData";

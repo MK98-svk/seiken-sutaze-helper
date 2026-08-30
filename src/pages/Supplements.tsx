@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { RefreshCw, Search } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
@@ -18,6 +18,11 @@ const Supplements = () => {
   const [cat, setCat] = useState<string>("all");
   const [sort, setSort] = useState<SortKey>("default");
   const [detail, setDetail] = useState<Supplement | null>(null);
+  const [limit, setLimit] = useState(24);
+
+  useEffect(() => {
+    setLimit(24);
+  }, [query, cat, sort]);
 
   const counts = useMemo(() => {
     const map: Record<string, number> = {};
@@ -126,9 +131,17 @@ const Supplements = () => {
           <div className="text-center text-muted-foreground py-12 text-sm">Nič sa nenašlo.</div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
-            {filtered.map((p) => (
-              <SupplementCard key={p.id} product={p} onOpen={setDetail} />
+            {filtered.slice(0, limit).map((p, i) => (
+              <SupplementCard key={p.id} product={p} onOpen={setDetail} eager={i < 4} />
             ))}
+          </div>
+        )}
+
+        {!isLoading && !error && filtered.length > limit && (
+          <div className="pt-2">
+            <Button variant="outline" className="w-full h-11" onClick={() => setLimit((l) => l + 24)}>
+              Zobraziť ďalšie ({filtered.length - limit})
+            </Button>
           </div>
         )}
       </main>

@@ -21,7 +21,7 @@ type Product = {
 let cache: { at: number; data: Product[] } | null = null;
 
 const CATEGORY_RULES: { id: string; label: string; keywords: RegExp }[] = [
-  { id: "balicky", label: "Zvýhodnené balíčky", keywords: /(^|\s)(\d\s*\+\s*\d)|balíček|shotbox/i },
+  
   { id: "deti", label: "Pre deti", keywords: /pre deti|for kids|kids|bejby|baby|imuníček|detsk/i },
   { id: "probiotika", label: "Probiotiká a trávenie", keywords: /probiot|postbiot|microbiome|enzy|dao|diaminooxid|trávenie|zeolit|biooral|črev/i },
   { id: "omega", label: "Omega 3 a oleje", keywords: /omega|rybí olej|krill|olivov|evo²|olej/i },

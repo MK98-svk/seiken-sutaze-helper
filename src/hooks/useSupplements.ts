@@ -55,6 +55,7 @@ export function useSupplements() {
       return data as FeedResponse;
     },
     initialData: readCache,
+    initialDataUpdatedAt: 0,
     staleTime: 60 * 60 * 1000,
     gcTime: 6 * 60 * 60 * 1000,
     retry: 1,

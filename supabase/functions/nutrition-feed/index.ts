@@ -67,9 +67,13 @@ function stripHtml(html: string): string {
 }
 
 function categorize(name: string, subtitle: string, description: string): string {
-  const haystack = `${name} ${subtitle} ${description.slice(0, 400)}`;
+  const primary = `${name} ${subtitle}`;
   for (const rule of CATEGORY_RULES) {
-    if (rule.keywords.test(haystack)) return rule.id;
+    if (rule.keywords.test(primary)) return rule.id;
+  }
+  const secondary = description.slice(0, 300);
+  for (const rule of CATEGORY_RULES) {
+    if (rule.keywords.test(secondary)) return rule.id;
   }
   return OTHER.id;
 }

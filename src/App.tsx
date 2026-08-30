@@ -40,6 +40,7 @@ const App = () => (
           <Route path="/posilnovanie/trening/:id" element={<WorkoutSession />} />
           <Route path="/posilnovanie/:mode" element={<StrengthMode />} />
 
+          <Route path="/doplnky" element={<Supplements />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

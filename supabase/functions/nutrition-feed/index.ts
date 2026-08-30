@@ -79,7 +79,13 @@ function categorize(name: string, subtitle: string, description: string): string
 }
 
 // Produkty, ktoré sa už nepredávajú a nemajú sa zobrazovať
-const EXCLUDED = [/omega\s*(&|a)\s*bejby/i];
+const EXCLUDED = [
+  /omega\s*(&|a)\s*bejby/i,
+  /\d\s*\+\s*\d/, // 1+1, 2+1, 3+1 balíčky
+  /balíček/i,
+  /shotbox/i,
+  /zdarma/i,
+];
 
 function parseFeed(xml: string): Product[] {
   const items = xml.match(/<SHOPITEM>[\s\S]*?<\/SHOPITEM>/gi) ?? [];

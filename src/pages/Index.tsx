@@ -8,7 +8,7 @@ import MemberTable from "@/components/MemberTable";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Navigate, useNavigate } from "react-router-dom";
-import { LogOut, ArrowLeft, Dumbbell } from "lucide-react";
+import { LogOut, ArrowLeft, Dumbbell, Leaf } from "lucide-react";
 import seikenLogo from "@/assets/seiken-logo.jpg";
 
 const Index = () => {
@@ -44,6 +44,9 @@ const Index = () => {
             </Button>
             <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate("/posilnovanie")} title="Posilňovanie">
               <Dumbbell className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate("/doplnky")} title="Doplnky výživy">
+              <Leaf className="h-4 w-4" />
             </Button>
             <img src={seikenLogo} alt="KK SEIKEN logo" className="h-8 w-8 sm:h-12 sm:w-12 rounded-lg object-cover ring-1 ring-primary/30 shrink-0" />
             <div className="min-w-0">

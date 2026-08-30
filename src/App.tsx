@@ -14,6 +14,7 @@ import WorkoutPlans from "./pages/WorkoutPlans";
 import WorkoutProgress from "./pages/WorkoutProgress";
 import CoachMembers from "./pages/CoachMembers";
 import CoachMemberDetail from "./pages/CoachMemberDetail";
+import Supplements from "./pages/Supplements";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
@@ -39,6 +40,7 @@ const App = () => (
           <Route path="/posilnovanie/trening/:id" element={<WorkoutSession />} />
           <Route path="/posilnovanie/:mode" element={<StrengthMode />} />
 
+          <Route path="/doplnky" element={<Supplements />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

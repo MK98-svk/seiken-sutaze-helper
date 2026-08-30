@@ -14,6 +14,7 @@ import WorkoutPlans from "./pages/WorkoutPlans";
 import WorkoutProgress from "./pages/WorkoutProgress";
 import CoachMembers from "./pages/CoachMembers";
 import CoachMemberDetail from "./pages/CoachMemberDetail";
+import Supplements from "./pages/Supplements";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";

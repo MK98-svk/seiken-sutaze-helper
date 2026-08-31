@@ -8,7 +8,7 @@ import MemberTable from "@/components/MemberTable";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Navigate, useNavigate } from "react-router-dom";
-import { LogOut, ArrowLeft, Dumbbell, Leaf } from "lucide-react";
+import { LogOut, ArrowLeft, Dumbbell } from "lucide-react";
 import seikenLogo from "@/assets/seiken-logo.jpg";
 
 const Index = () => {

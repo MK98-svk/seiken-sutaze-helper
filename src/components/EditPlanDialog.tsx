@@ -48,14 +48,21 @@ export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Pro
   const patch = (id: string, changes: Partial<PlannedItem>) =>
     setItems((prev) => prev.map((i) => (i.exerciseId === id ? { ...i, ...changes } : i)));
 
-  const move = (index: number, dir: -1 | 1) =>
-    setItems((prev) => {
-      const to = index + dir;
-      if (to < 0 || to >= prev.length) return prev;
-      const next = [...prev];
-      [next[index], next[to]] = [next[to], next[index]];
-      return next;
-    });
+  const move = (index: number, dir: -1 | 1) => {
+    const to = index + dir;
+    if (to < 0 || to >= items.length || !plan) return;
+    const next = [...items];
+    [next[index], next[to]] = [next[to], next[index]];
+    setItems(next);
+    // poradie sa ukladá hneď
+    onSave({
+      id: plan.id,
+      name: name.trim() || plan.name,
+      items: next,
+      daysPerWeek: daysPerWeek ? Math.max(1, Math.min(7, Number(daysPerWeek))) : null,
+    }).catch((e: any) => toast.error("Poradie sa nepodarilo uložiť: " + e.message));
+  };
+
 
   const addExercise = (ex: CatalogExercise) => {
     if (items.some((i) => i.exerciseId === ex.id)) return toast.error("Cvik už v pláne je");

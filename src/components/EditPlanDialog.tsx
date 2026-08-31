@@ -9,6 +9,8 @@ import { CatalogExercise, CatalogMode, IMG, muscleLabel, equipmentLabel } from "
 import { PlannedItem } from "@/hooks/useWorkouts";
 import { WorkoutPlan } from "@/hooks/useWorkoutPlans";
 import ExerciseDetailDialog from "@/components/ExerciseDetailDialog";
+import ExerciseNote from "@/components/ExerciseNote";
+import { useExerciseNotes } from "@/hooks/useExerciseNotes";
 
 interface Props {
   plan: WorkoutPlan | null;

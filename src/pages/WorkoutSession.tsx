@@ -22,6 +22,9 @@ import { useCatalog } from "@/hooks/useCatalog";
 import { IMG, muscleLabel, equipmentLabel } from "@/lib/catalog";
 import { openExternal, youtubeSearch } from "@/lib/openExternal";
 import ExerciseDetailDialog from "@/components/ExerciseDetailDialog";
+import ExerciseNote from "@/components/ExerciseNote";
+import PlateCalcPopover from "@/components/PlateCalcPopover";
+import { useExerciseNotes } from "@/hooks/useExerciseNotes";
 import { CatalogExercise, CatalogMode } from "@/lib/catalog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 

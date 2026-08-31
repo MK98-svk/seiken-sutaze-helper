@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { showSupplements } from "@/config/features";
 import Index from "./pages/Index";
 import Home from "./pages/Home";
 import Strength from "./pages/Strength";
@@ -44,7 +45,7 @@ const App = () => (
           <Route path="/posilnovanie/trening/:id" element={<WorkoutSession />} />
           <Route path="/posilnovanie/:mode" element={<StrengthMode />} />
 
-          <Route path="/doplnky" element={<Supplements />} />
+          {showSupplements && <Route path="/doplnky" element={<Supplements />} />}
           <Route path="/auth" element={<Auth />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

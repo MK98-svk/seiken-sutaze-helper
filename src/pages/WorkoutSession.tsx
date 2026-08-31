@@ -25,7 +25,7 @@ import ExerciseDetailDialog from "@/components/ExerciseDetailDialog";
 import ExerciseNote from "@/components/ExerciseNote";
 import PlateCalcPopover from "@/components/PlateCalcPopover";
 import { useExerciseNotes } from "@/hooks/useExerciseNotes";
-import { restFinishedAlert, unlockAudio } from "@/lib/notifications";
+import { restFinishedAlert, startAudioKeepAlive, stopAudioKeepAlive, unlockAudio } from "@/lib/notifications";
 import { CatalogExercise, CatalogMode } from "@/lib/catalog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 

@@ -111,6 +111,7 @@ const WorkoutSessionPage = () => {
     updateSet.mutate({ id: setId, updates: { done } });
     if (done) {
       unlockAudio();
+      deadlineRef.current = Date.now() + defaultRest * 1000;
       setRest(defaultRest);
       setRunning(true);
     }
@@ -309,7 +310,17 @@ const WorkoutSessionPage = () => {
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <div className="font-display text-2xl tabular-nums text-primary w-16">{fmt(rest ?? defaultRest)}</div>
             <div className="flex gap-1">
-              <Button size="icon" variant="outline" className="h-9 w-9" onClick={() => setRunning((r) => !r)} title="Štart/pauza">
+              <Button
+                size="icon"
+                variant="outline"
+                className="h-9 w-9"
+                onClick={() => {
+                  unlockAudio();
+                  deadlineRef.current = null;
+                  setRunning((r) => !r);
+                }}
+                title="Štart/pauza"
+              >
                 {running ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
               </Button>
               <Button
@@ -317,6 +328,7 @@ const WorkoutSessionPage = () => {
                 variant="outline"
                 className="h-9 w-9"
                 onClick={() => {
+                  deadlineRef.current = null;
                   setRest(defaultRest);
                   setRunning(false);
                 }}
@@ -324,7 +336,15 @@ const WorkoutSessionPage = () => {
               >
                 <RotateCcw className="h-4 w-4" />
               </Button>
-              <Button size="sm" variant="ghost" className="hidden h-9 px-2 text-xs min-[400px]:inline-flex" onClick={() => setRest((r) => (r ?? defaultRest) + 15)}>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="hidden h-9 px-2 text-xs min-[400px]:inline-flex"
+                onClick={() => {
+                  if (deadlineRef.current !== null) deadlineRef.current += 15000;
+                  setRest((r) => (r ?? defaultRest) + 15);
+                }}
+              >
                 +15s
               </Button>
             </div>

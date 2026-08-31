@@ -208,6 +208,11 @@ export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Pro
                         />
                       </div>
                     </div>
+                    <ExerciseNote
+                      value={notes[it.exerciseId] ?? ""}
+                      onSave={(n) => saveNote(it.exerciseId, n)}
+                      disabled={!plan?.memberId}
+                    />
                   </div>
                 );
               })}

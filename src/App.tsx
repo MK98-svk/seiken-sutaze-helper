@@ -18,6 +18,8 @@ import Supplements from "./pages/Supplements";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
+import NotificationSettings from "./pages/NotificationSettings";
+import ReminderWatcher from "./components/ReminderWatcher";
 
 const queryClient = new QueryClient();
 

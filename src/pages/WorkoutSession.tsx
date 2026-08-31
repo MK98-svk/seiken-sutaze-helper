@@ -84,6 +84,16 @@ const WorkoutSessionPage = () => {
 
   useEffect(() => () => stopAudioKeepAlive(), []);
 
+  const orderKey = `seiken_ws_order_${id ?? ""}`;
+  const [customOrder, setCustomOrder] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem(`seiken_ws_order_${id ?? ""}`);
+      return raw ? (JSON.parse(raw) as string[]) : [];
+    } catch {
+      return [];
+    }
+  });
+
   const grouped = useMemo(() => {
     const map = new Map<string, typeof sets>();
     sets.forEach((s) => {
@@ -91,8 +101,32 @@ const WorkoutSessionPage = () => {
       arr.push(s);
       map.set(s.exerciseId, arr);
     });
-    return Array.from(map.entries());
-  }, [sets]);
+    const entries = Array.from(map.entries());
+    if (!customOrder.length) return entries;
+    const rank = (exId: string) => {
+      const i = customOrder.indexOf(exId);
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+    };
+    return entries
+      .map((e, i) => ({ e, i }))
+      .sort((a, b) => rank(a.e[0]) - rank(b.e[0]) || a.i - b.i)
+      .map((x) => x.e);
+  }, [sets, customOrder]);
+
+  const moveExercise = (exId: string, dir: -1 | 1) => {
+    const ids = grouped.map(([gid]) => gid);
+    const from = ids.indexOf(exId);
+    const to = from + dir;
+    if (from === -1 || to < 0 || to >= ids.length) return;
+    const next = [...ids];
+    [next[from], next[to]] = [next[to], next[from]];
+    setCustomOrder(next);
+    try {
+      localStorage.setItem(orderKey, JSON.stringify(next));
+    } catch {
+      // ignorujeme
+    }
+  };
 
   const exerciseResults = useMemo(() => {
     if (!catalog || exerciseQuery.trim().length < 2) return [];

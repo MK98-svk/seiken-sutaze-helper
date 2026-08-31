@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Minus, Plus, Search, Trash2, Save } from "lucide-react";
+import { Minus, Plus, Search, Trash2, Save, ArrowUp, ArrowDown } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +47,15 @@ export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Pro
 
   const patch = (id: string, changes: Partial<PlannedItem>) =>
     setItems((prev) => prev.map((i) => (i.exerciseId === id ? { ...i, ...changes } : i)));
+
+  const move = (index: number, dir: -1 | 1) =>
+    setItems((prev) => {
+      const to = index + dir;
+      if (to < 0 || to >= prev.length) return prev;
+      const next = [...prev];
+      [next[index], next[to]] = [next[to], next[index]];
+      return next;
+    });
 
   const addExercise = (ex: CatalogExercise) => {
     if (items.some((i) => i.exerciseId === ex.id)) return toast.error("Cvik už v pláne je");

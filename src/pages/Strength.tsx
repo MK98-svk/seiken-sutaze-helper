@@ -31,6 +31,7 @@ const Strength = () => {
     { to: "/posilnovanie/plany", icon: Dumbbell, title: "Moje plány", desc: "Uložené zostavy cvikov" },
     { to: "/posilnovanie/progres", icon: TrendingUp, title: "Progres", desc: "Grafy váh, objemu a rekordov" },
     { to: "/posilnovanie/vysledky", icon: History, title: "Výsledky", desc: "História tréningov a váh" },
+    { to: "/posilnovanie/notifikacie", icon: Bell, title: "Notifikácie", desc: "Zvuk timera a pripomienky" },
     ...(isAdmin || isCoach
       ? [{ to: "/posilnovanie/cvicenci", icon: Users, title: "Cvičenci", desc: "Progres celého klubu" }]
       : []),

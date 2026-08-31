@@ -57,11 +57,7 @@ const WorkoutSessionPage = () => {
         if (r === null) return null;
         if (r <= 1) {
           setRunning(false);
-          try {
-            navigator.vibrate?.([200, 100, 200]);
-          } catch {
-            /* ignore */
-          }
+          restFinishedAlert();
           toast.success("Oddych skončil — ďalšia séria!");
           return 0;
         }

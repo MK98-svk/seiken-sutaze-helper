@@ -91,7 +91,7 @@ export default function NotificationSettingsPage() {
               <Vibrate className="h-4 w-4 text-primary shrink-0" />
               <div className="min-w-0">
                 <div className="text-sm">Vibrovanie</div>
-                <div className="text-[11px] text-muted-foreground">Funguje najmä na Androide</div>
+                <div className="text-[11px] text-muted-foreground">Funguje na Androide (Samsung, Xiaomi…)</div>
               </div>
             </div>
             <Switch checked={s.vibrate} onCheckedChange={(v) => update({ vibrate: v })} />
@@ -109,6 +109,11 @@ export default function NotificationSettingsPage() {
           >
             <Play className="h-4 w-4" /> Vyskúšať signál
           </Button>
+
+          <p className="text-[11px] text-muted-foreground">
+            iPhone z prehliadača vibrovať nevie – tam je hlavný signál zvuk. Aby zaznel, maj vypnutý tichý režim (prepínač na boku) a
+            zvuk aspoň raz spusti tlačidlom „Vyskúšať signál“. Cez slúchadlá zvuk zaznie aj popri hudbe a pri zhasnutom displeji.
+          </p>
         </section>
 
         {/* Pripomienky */}

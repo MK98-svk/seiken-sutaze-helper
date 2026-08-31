@@ -47,62 +47,173 @@ export function saveSettings(s: NotifySettings) {
   window.dispatchEvent(new Event("seiken-notify-settings"));
 }
 
-// ─── Zvuk cez WebAudio (nepotrebuje externé súbory) ───
-let ctx: AudioContext | null = null;
+// ─── Zvuk: PCM/WAV generovaný v pamäti a prehrávaný cez <audio> ───
+// Dôvod: WebAudio na mobiloch (najmä iOS) po zamknutí displeja stíchne,
+// klasický audio prvok prehrá zvuk aj keď je appka na pozadí.
 
-function audioCtx(): AudioContext | null {
-  try {
-    const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!Ctor) return null;
-    ctx = ctx ?? new Ctor();
-    if (ctx.state === "suspended") void ctx.resume();
-    return ctx;
-  } catch {
-    return null;
+interface ToneSpec {
+  at: number; // sekundy od začiatku
+  dur: number;
+  freq: number;
+  gain: number;
+  wave: "sine" | "triangle" | "square";
+}
+
+const SOUND_SPECS: Record<Exclude<AlertSound, "ziadny">, ToneSpec[]> = {
+  pipnutie: [{ at: 0, dur: 0.28, freq: 880, gain: 1, wave: "sine" }],
+  trojpip: [
+    { at: 0, dur: 0.14, freq: 880, gain: 1, wave: "sine" },
+    { at: 0.22, dur: 0.14, freq: 880, gain: 1, wave: "sine" },
+    { at: 0.44, dur: 0.32, freq: 1175, gain: 1, wave: "sine" },
+  ],
+  gong: [
+    { at: 0, dur: 1.8, freq: 196, gain: 1, wave: "triangle" },
+    { at: 0.01, dur: 1.3, freq: 392, gain: 0.5, wave: "sine" },
+  ],
+  pisknutie: [
+    { at: 0, dur: 0.35, freq: 1600, gain: 0.7, wave: "square" },
+    { at: 0.45, dur: 0.35, freq: 1600, gain: 0.7, wave: "square" },
+  ],
+};
+
+const SAMPLE_RATE = 22050;
+
+function waveValue(wave: ToneSpec["wave"], phase: number): number {
+  switch (wave) {
+    case "square":
+      return Math.sin(phase) >= 0 ? 0.6 : -0.6;
+    case "triangle":
+      return (2 / Math.PI) * Math.asin(Math.sin(phase));
+    default:
+      return Math.sin(phase);
   }
 }
 
-/** Odomkne audio po používateľskom geste (iOS to vyžaduje). */
-export function unlockAudio() {
-  audioCtx();
+function encodeWav(samples: Float32Array): Blob {
+  const buffer = new ArrayBuffer(44 + samples.length * 2);
+  const view = new DataView(buffer);
+  const str = (offset: number, s: string) => {
+    for (let i = 0; i < s.length; i++) view.setUint8(offset + i, s.charCodeAt(i));
+  };
+  str(0, "RIFF");
+  view.setUint32(4, 36 + samples.length * 2, true);
+  str(8, "WAVE");
+  str(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, SAMPLE_RATE, true);
+  view.setUint32(28, SAMPLE_RATE * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  str(36, "data");
+  view.setUint32(40, samples.length * 2, true);
+  for (let i = 0; i < samples.length; i++) {
+    const v = Math.max(-1, Math.min(1, samples[i]));
+    view.setInt16(44 + i * 2, v < 0 ? v * 0x8000 : v * 0x7fff, true);
+  }
+  return new Blob([buffer], { type: "audio/wav" });
 }
 
-function tone(ac: AudioContext, at: number, freq: number, dur: number, volume: number, type: OscillatorType = "sine") {
-  const osc = ac.createOscillator();
-  const gain = ac.createGain();
-  osc.type = type;
-  osc.frequency.setValueAtTime(freq, at);
-  gain.gain.setValueAtTime(0.0001, at);
-  gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, volume), at + 0.02);
-  gain.gain.exponentialRampToValueAtTime(0.0001, at + dur);
-  osc.connect(gain).connect(ac.destination);
-  osc.start(at);
-  osc.stop(at + dur + 0.05);
+function renderSound(sound: Exclude<AlertSound, "ziadny">): string {
+  const specs = SOUND_SPECS[sound];
+  const total = Math.max(...specs.map((s) => s.at + s.dur)) + 0.1;
+  const samples = new Float32Array(Math.ceil(total * SAMPLE_RATE));
+  specs.forEach((s) => {
+    const start = Math.floor(s.at * SAMPLE_RATE);
+    const len = Math.floor(s.dur * SAMPLE_RATE);
+    for (let i = 0; i < len; i++) {
+      const t = i / SAMPLE_RATE;
+      const attack = Math.min(1, t / 0.01);
+      const decay = Math.pow(1 - i / len, 1.6);
+      const phase = 2 * Math.PI * s.freq * t;
+      samples[start + i] += waveValue(s.wave, phase) * s.gain * attack * decay * 0.9;
+    }
+  });
+  return URL.createObjectURL(encodeWav(samples));
+}
+
+const urlCache = new Map<string, string>();
+
+function soundUrl(sound: Exclude<AlertSound, "ziadny">): string {
+  let url = urlCache.get(sound);
+  if (!url) {
+    url = renderSound(sound);
+    urlCache.set(sound, url);
+  }
+  return url;
+}
+
+function silentUrl(): string {
+  let url = urlCache.get("__silence");
+  if (!url) {
+    url = URL.createObjectURL(encodeWav(new Float32Array(SAMPLE_RATE)));
+    urlCache.set("__silence", url);
+  }
+  return url;
+}
+
+const players = new Map<string, HTMLAudioElement>();
+
+function player(key: string, src: string): HTMLAudioElement | null {
+  if (typeof Audio === "undefined") return null;
+  let el = players.get(key);
+  if (!el) {
+    el = new Audio(src);
+    el.preload = "auto";
+    players.set(key, el);
+  }
+  return el;
+}
+
+/** Odomkne prehrávanie zvuku po používateľskom geste (iOS to vyžaduje). */
+export function unlockAudio() {
+  try {
+    const el = player("unlock", silentUrl());
+    if (!el) return;
+    el.volume = 0.001;
+    el.currentTime = 0;
+    void el.play().catch(() => undefined);
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Tichá slučka počas oddychu – drží zvukový kanál nažive, nech signál zaznie aj pri zamknutom telefóne. */
+export function startAudioKeepAlive() {
+  try {
+    const el = player("keepalive", silentUrl());
+    if (!el) return;
+    el.loop = true;
+    el.volume = 0.001;
+    if (el.paused) void el.play().catch(() => undefined);
+  } catch {
+    /* ignore */
+  }
+}
+
+export function stopAudioKeepAlive() {
+  try {
+    const el = players.get("keepalive");
+    if (el) {
+      el.pause();
+      el.currentTime = 0;
+    }
+  } catch {
+    /* ignore */
+  }
 }
 
 export function playSound(sound: AlertSound, volume = 0.7) {
   if (sound === "ziadny") return;
-  const ac = audioCtx();
-  if (!ac) return;
-  const t = ac.currentTime + 0.02;
-  const v = Math.min(1, Math.max(0, volume));
-  switch (sound) {
-    case "pipnutie":
-      tone(ac, t, 880, 0.25, v);
-      break;
-    case "trojpip":
-      tone(ac, t, 880, 0.12, v);
-      tone(ac, t + 0.2, 880, 0.12, v);
-      tone(ac, t + 0.4, 1175, 0.3, v);
-      break;
-    case "gong":
-      tone(ac, t, 196, 1.6, v, "triangle");
-      tone(ac, t + 0.01, 392, 1.2, v * 0.5, "sine");
-      break;
-    case "pisknutie":
-      tone(ac, t, 1600, 0.35, v, "square");
-      tone(ac, t + 0.45, 1600, 0.35, v, "square");
-      break;
+  try {
+    const el = player(sound, soundUrl(sound));
+    if (!el) return;
+    el.volume = Math.min(1, Math.max(0, volume));
+    el.currentTime = 0;
+    void el.play().catch(() => undefined);
+  } catch {
+    /* ignore */
   }
 }
 
@@ -119,6 +230,7 @@ export function restFinishedAlert(settings: NotifySettings = loadSettings()) {
   playSound(settings.sound, settings.volume);
   if (settings.vibrate) vibrate();
   showNotification("Oddych skončil", "Poď na ďalšiu sériu 💪");
+  stopAudioKeepAlive();
 }
 
 // ─── Systémové notifikácie ───

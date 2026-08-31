@@ -25,7 +25,7 @@ import ExerciseDetailDialog from "@/components/ExerciseDetailDialog";
 import ExerciseNote from "@/components/ExerciseNote";
 import PlateCalcPopover from "@/components/PlateCalcPopover";
 import { useExerciseNotes } from "@/hooks/useExerciseNotes";
-import { restFinishedAlert, unlockAudio } from "@/lib/notifications";
+import { restFinishedAlert, startAudioKeepAlive, stopAudioKeepAlive, unlockAudio } from "@/lib/notifications";
 import { CatalogExercise, CatalogMode } from "@/lib/catalog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -49,24 +49,40 @@ const WorkoutSessionPage = () => {
   const [rest, setRest] = useState<number | null>(null);
   const [running, setRunning] = useState(false);
   const startedAt = useRef<number>(Date.now());
+  const deadlineRef = useRef<number | null>(null);
   const defaultRest = restForGoal(session?.goal);
 
+  // Časovač počíta z cieľového času, nie z tikania – prežije uspatie appky na pozadí.
   useEffect(() => {
-    if (!running || rest === null) return;
-    const t = setInterval(() => {
-      setRest((r) => {
-        if (r === null) return null;
-        if (r <= 1) {
-          setRunning(false);
-          restFinishedAlert();
-          toast.success("Oddych skončil — ďalšia séria!");
-          return 0;
-        }
-        return r - 1;
-      });
-    }, 1000);
-    return () => clearInterval(t);
-  }, [running, rest]);
+    if (!running) {
+      stopAudioKeepAlive();
+      return;
+    }
+    if (deadlineRef.current === null) deadlineRef.current = Date.now() + (rest ?? defaultRest) * 1000;
+    startAudioKeepAlive();
+
+    const tick = () => {
+      const left = Math.max(0, Math.ceil(((deadlineRef.current ?? Date.now()) - Date.now()) / 1000));
+      setRest(left);
+      if (left <= 0) {
+        deadlineRef.current = null;
+        setRunning(false);
+        restFinishedAlert();
+        toast.success("Oddych skončil — ďalšia séria!");
+      }
+    };
+    tick();
+    const t = setInterval(tick, 500);
+    const onVisible = () => document.visibilityState === "visible" && tick();
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearInterval(t);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [running]);
+
+  useEffect(() => () => stopAudioKeepAlive(), []);
 
   const grouped = useMemo(() => {
     const map = new Map<string, typeof sets>();
@@ -95,6 +111,7 @@ const WorkoutSessionPage = () => {
     updateSet.mutate({ id: setId, updates: { done } });
     if (done) {
       unlockAudio();
+      deadlineRef.current = Date.now() + defaultRest * 1000;
       setRest(defaultRest);
       setRunning(true);
     }
@@ -293,7 +310,17 @@ const WorkoutSessionPage = () => {
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <div className="font-display text-2xl tabular-nums text-primary w-16">{fmt(rest ?? defaultRest)}</div>
             <div className="flex gap-1">
-              <Button size="icon" variant="outline" className="h-9 w-9" onClick={() => setRunning((r) => !r)} title="Štart/pauza">
+              <Button
+                size="icon"
+                variant="outline"
+                className="h-9 w-9"
+                onClick={() => {
+                  unlockAudio();
+                  deadlineRef.current = null;
+                  setRunning((r) => !r);
+                }}
+                title="Štart/pauza"
+              >
                 {running ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
               </Button>
               <Button
@@ -301,6 +328,7 @@ const WorkoutSessionPage = () => {
                 variant="outline"
                 className="h-9 w-9"
                 onClick={() => {
+                  deadlineRef.current = null;
                   setRest(defaultRest);
                   setRunning(false);
                 }}
@@ -308,7 +336,15 @@ const WorkoutSessionPage = () => {
               >
                 <RotateCcw className="h-4 w-4" />
               </Button>
-              <Button size="sm" variant="ghost" className="hidden h-9 px-2 text-xs min-[400px]:inline-flex" onClick={() => setRest((r) => (r ?? defaultRest) + 15)}>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="hidden h-9 px-2 text-xs min-[400px]:inline-flex"
+                onClick={() => {
+                  if (deadlineRef.current !== null) deadlineRef.current += 15000;
+                  setRest((r) => (r ?? defaultRest) + 15);
+                }}
+              >
                 +15s
               </Button>
             </div>

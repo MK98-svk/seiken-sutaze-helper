@@ -260,15 +260,37 @@ const WorkoutSessionPage = () => {
                   >
                     <Plus className="h-4 w-4" /> Pridať sériu
                   </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8"
-                    title="Video"
-                    onClick={() => openExternal(legacy?.youtube ?? youtubeSearch(name + " exercise technique"))}
-                  >
-                    <Youtube className="h-4 w-4" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8"
+                      title="Posunúť cvik hore"
+                      disabled={gi === 0}
+                      onClick={() => moveExercise(exId, -1)}
+                    >
+                      <ArrowUp className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8"
+                      title="Posunúť cvik dole"
+                      disabled={gi === grouped.length - 1}
+                      onClick={() => moveExercise(exId, 1)}
+                    >
+                      <ArrowDown className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8"
+                      title="Video"
+                      onClick={() => openExternal(legacy?.youtube ?? youtubeSearch(name + " exercise technique"))}
+                    >
+                      <Youtube className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
 
               </div>

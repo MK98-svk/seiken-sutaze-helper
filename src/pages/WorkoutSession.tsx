@@ -25,6 +25,7 @@ import ExerciseDetailDialog from "@/components/ExerciseDetailDialog";
 import ExerciseNote from "@/components/ExerciseNote";
 import PlateCalcPopover from "@/components/PlateCalcPopover";
 import { useExerciseNotes } from "@/hooks/useExerciseNotes";
+import { restFinishedAlert, unlockAudio } from "@/lib/notifications";
 import { CatalogExercise, CatalogMode } from "@/lib/catalog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -57,11 +58,7 @@ const WorkoutSessionPage = () => {
         if (r === null) return null;
         if (r <= 1) {
           setRunning(false);
-          try {
-            navigator.vibrate?.([200, 100, 200]);
-          } catch {
-            /* ignore */
-          }
+          restFinishedAlert();
           toast.success("Oddych skončil — ďalšia séria!");
           return 0;
         }
@@ -97,6 +94,7 @@ const WorkoutSessionPage = () => {
   const toggleDone = (setId: string, done: boolean) => {
     updateSet.mutate({ id: setId, updates: { done } });
     if (done) {
+      unlockAudio();
       setRest(defaultRest);
       setRunning(true);
     }

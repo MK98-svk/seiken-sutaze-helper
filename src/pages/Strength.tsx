@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Navigate } from "react-router-dom";
-import { Sparkles, History, ClipboardList, TrendingUp, Users, Dumbbell, X } from "lucide-react";
+import { Sparkles, History, ClipboardList, TrendingUp, Users, Dumbbell, X, Bell } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { readDraft, clearDraft, useTrainableMembers, useWorkoutSessions } from "@/hooks/useWorkouts";
@@ -31,6 +31,7 @@ const Strength = () => {
     { to: "/posilnovanie/plany", icon: Dumbbell, title: "Moje plány", desc: "Uložené zostavy cvikov" },
     { to: "/posilnovanie/progres", icon: TrendingUp, title: "Progres", desc: "Grafy váh, objemu a rekordov" },
     { to: "/posilnovanie/vysledky", icon: History, title: "Výsledky", desc: "História tréningov a váh" },
+    { to: "/posilnovanie/notifikacie", icon: Bell, title: "Notifikácie", desc: "Zvuk timera a pripomienky" },
     ...(isAdmin || isCoach
       ? [{ to: "/posilnovanie/cvicenci", icon: Users, title: "Cvičenci", desc: "Progres celého klubu" }]
       : []),

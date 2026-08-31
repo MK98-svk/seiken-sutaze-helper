@@ -18,6 +18,8 @@ import Supplements from "./pages/Supplements";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
+import NotificationSettings from "./pages/NotificationSettings";
+import ReminderWatcher from "./components/ReminderWatcher";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +29,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ReminderWatcher />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/sutaze" element={<Index />} />
@@ -37,6 +40,7 @@ const App = () => (
           <Route path="/posilnovanie/cvicenci" element={<CoachMembers />} />
           <Route path="/posilnovanie/cvicenci/:memberId" element={<CoachMemberDetail />} />
           <Route path="/posilnovanie/vysledky" element={<WorkoutResults />} />
+          <Route path="/posilnovanie/notifikacie" element={<NotificationSettings />} />
           <Route path="/posilnovanie/trening/:id" element={<WorkoutSession />} />
           <Route path="/posilnovanie/:mode" element={<StrengthMode />} />
 

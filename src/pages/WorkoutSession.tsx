@@ -40,6 +40,7 @@ const WorkoutSessionPage = () => {
   const { notes, saveNote } = useExerciseNotes(session?.memberId);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [weightOverride, setWeightOverride] = useState<Record<string, number>>({});
   const [detail, setDetail] = useState<CatalogExercise | null>(null);
   const [addExerciseOpen, setAddExerciseOpen] = useState(false);
   const [exerciseQuery, setExerciseQuery] = useState("");

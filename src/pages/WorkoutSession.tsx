@@ -229,23 +229,32 @@ const WorkoutSessionPage = () => {
                   : "Do „kg“ napíš váhu činky/stroja, do „opak.“ počet opakovaní v sérii."}
               </div>
 
-
-
+              <ExerciseNote value={notes[exId] ?? ""} onSave={(n) => saveNote(exId, n)} disabled={!session?.memberId} />
 
               <div className="space-y-1.5">
                 {list.map((s) => (
                   <div key={s.id} className="flex min-w-0 items-center gap-2">
                     <Badge variant="outline" className="w-10 justify-center shrink-0">{s.setNumber}.</Badge>
                     <Input
+                      key={`${s.id}-${weightOverride[s.id] ?? ""}`}
                       type="number"
                       inputMode="decimal"
                       placeholder={bodyweight ? "vlastná váha" : "kg"}
-                      defaultValue={s.weight ?? ""}
+                      defaultValue={weightOverride[s.id] ?? s.weight ?? ""}
                       onBlur={(e) =>
                         updateSet.mutate({ id: s.id, updates: { weight: e.target.value === "" ? null : Number(e.target.value) } })
                       }
                       className="h-9 min-w-0 flex-1"
                     />
+                    {!bodyweight && (
+                      <PlateCalcPopover
+                        onApply={(total) => {
+                          setWeightOverride((prev) => ({ ...prev, [s.id]: total }));
+                          updateSet.mutate({ id: s.id, updates: { weight: total } });
+                        }}
+                      />
+                    )}
+
                     <Input
                       type="number"
                       inputMode="numeric"

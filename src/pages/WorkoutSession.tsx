@@ -37,6 +37,7 @@ const WorkoutSessionPage = () => {
   const { session, sets, updateSet, addSet, finish } = useWorkoutSession(id);
   const { remove } = useCreateWorkout();
   const { catalog } = useCatalog();
+  const { notes, saveNote } = useExerciseNotes(session?.memberId);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [detail, setDetail] = useState<CatalogExercise | null>(null);

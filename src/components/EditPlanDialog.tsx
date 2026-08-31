@@ -21,6 +21,7 @@ interface Props {
 
 export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Props) {
   const { catalog } = useCatalog();
+  const { notes, saveNote } = useExerciseNotes(plan?.memberId);
   const [name, setName] = useState("");
   const [items, setItems] = useState<PlannedItem[]>([]);
   const [daysPerWeek, setDaysPerWeek] = useState<string>("");

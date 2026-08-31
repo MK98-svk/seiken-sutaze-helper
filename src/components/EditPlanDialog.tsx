@@ -9,6 +9,8 @@ import { CatalogExercise, CatalogMode, IMG, muscleLabel, equipmentLabel } from "
 import { PlannedItem } from "@/hooks/useWorkouts";
 import { WorkoutPlan } from "@/hooks/useWorkoutPlans";
 import ExerciseDetailDialog from "@/components/ExerciseDetailDialog";
+import ExerciseNote from "@/components/ExerciseNote";
+import { useExerciseNotes } from "@/hooks/useExerciseNotes";
 
 interface Props {
   plan: WorkoutPlan | null;
@@ -19,6 +21,7 @@ interface Props {
 
 export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Props) {
   const { catalog } = useCatalog();
+  const { notes, saveNote } = useExerciseNotes(plan?.memberId);
   const [name, setName] = useState("");
   const [items, setItems] = useState<PlannedItem[]>([]);
   const [daysPerWeek, setDaysPerWeek] = useState<string>("");
@@ -205,6 +208,11 @@ export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Pro
                         />
                       </div>
                     </div>
+                    <ExerciseNote
+                      value={notes[it.exerciseId] ?? ""}
+                      onSave={(n) => saveNote(it.exerciseId, n)}
+                      disabled={!plan?.memberId}
+                    />
                   </div>
                 );
               })}

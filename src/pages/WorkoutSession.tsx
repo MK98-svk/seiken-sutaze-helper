@@ -22,6 +22,9 @@ import { useCatalog } from "@/hooks/useCatalog";
 import { IMG, muscleLabel, equipmentLabel } from "@/lib/catalog";
 import { openExternal, youtubeSearch } from "@/lib/openExternal";
 import ExerciseDetailDialog from "@/components/ExerciseDetailDialog";
+import ExerciseNote from "@/components/ExerciseNote";
+import PlateCalcPopover from "@/components/PlateCalcPopover";
+import { useExerciseNotes } from "@/hooks/useExerciseNotes";
 import { CatalogExercise, CatalogMode } from "@/lib/catalog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -34,8 +37,10 @@ const WorkoutSessionPage = () => {
   const { session, sets, updateSet, addSet, finish } = useWorkoutSession(id);
   const { remove } = useCreateWorkout();
   const { catalog } = useCatalog();
+  const { notes, saveNote } = useExerciseNotes(session?.memberId);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [weightOverride, setWeightOverride] = useState<Record<string, number>>({});
   const [detail, setDetail] = useState<CatalogExercise | null>(null);
   const [addExerciseOpen, setAddExerciseOpen] = useState(false);
   const [exerciseQuery, setExerciseQuery] = useState("");
@@ -225,23 +230,32 @@ const WorkoutSessionPage = () => {
                   : "Do „kg“ napíš váhu činky/stroja, do „opak.“ počet opakovaní v sérii."}
               </div>
 
-
-
+              <ExerciseNote value={notes[exId] ?? ""} onSave={(n) => saveNote(exId, n)} disabled={!session?.memberId} />
 
               <div className="space-y-1.5">
                 {list.map((s) => (
                   <div key={s.id} className="flex min-w-0 items-center gap-2">
                     <Badge variant="outline" className="w-10 justify-center shrink-0">{s.setNumber}.</Badge>
                     <Input
+                      key={`${s.id}-${weightOverride[s.id] ?? ""}`}
                       type="number"
                       inputMode="decimal"
                       placeholder={bodyweight ? "vlastná váha" : "kg"}
-                      defaultValue={s.weight ?? ""}
+                      defaultValue={weightOverride[s.id] ?? s.weight ?? ""}
                       onBlur={(e) =>
                         updateSet.mutate({ id: s.id, updates: { weight: e.target.value === "" ? null : Number(e.target.value) } })
                       }
                       className="h-9 min-w-0 flex-1"
                     />
+                    {!bodyweight && (
+                      <PlateCalcPopover
+                        onApply={(total) => {
+                          setWeightOverride((prev) => ({ ...prev, [s.id]: total }));
+                          updateSet.mutate({ id: s.id, updates: { weight: total } });
+                        }}
+                      />
+                    )}
+
                     <Input
                       type="number"
                       inputMode="numeric"

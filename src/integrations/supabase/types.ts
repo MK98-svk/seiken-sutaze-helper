@@ -119,6 +119,41 @@ export type Database = {
         }
         Relationships: []
       }
+      exercise_notes: {
+        Row: {
+          created_at: string
+          exercise_id: string
+          id: string
+          member_id: string
+          note: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          exercise_id: string
+          id?: string
+          member_id: string
+          note?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          exercise_id?: string
+          id?: string
+          member_id?: string
+          note?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_notes_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       member_competition_categories: {
         Row: {
           category: string

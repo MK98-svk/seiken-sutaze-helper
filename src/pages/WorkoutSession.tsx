@@ -94,6 +94,7 @@ const WorkoutSessionPage = () => {
   const toggleDone = (setId: string, done: boolean) => {
     updateSet.mutate({ id: setId, updates: { done } });
     if (done) {
+      unlockAudio();
       setRest(defaultRest);
       setRunning(true);
     }

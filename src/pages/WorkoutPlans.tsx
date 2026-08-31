@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTrainableMembers, useCreateWorkout, useWorkoutSessions, readDraft, clearDraft } from "@/hooks/useWorkouts";
 import { useWorkoutPlans, WorkoutPlan } from "@/hooks/useWorkoutPlans";
 import EditPlanDialog from "@/components/EditPlanDialog";
+import MyNotesSection from "@/components/MyNotesSection";
 import { toast } from "sonner";
 
 const WorkoutPlans = () => {
@@ -152,6 +153,8 @@ const WorkoutPlans = () => {
                 ))
               )}
             </section>
+
+            <MyNotesSection memberId={memberId || null} />
           </>
         )}
       </main>

@@ -224,7 +224,7 @@ const WorkoutSessionPage = () => {
           </Button>
         </div>
 
-        {grouped.map(([exId, list]) => {
+        {grouped.map(([exId, list], gi) => {
           const legacy = exerciseById(exId);
           const cat = catalog?.get(exId);
           const name = list[0].exerciseName;

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Minus, Plus, Search, Trash2, Save } from "lucide-react";
+import { Minus, Plus, Search, Trash2, Save, ArrowUp, ArrowDown } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +47,15 @@ export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Pro
 
   const patch = (id: string, changes: Partial<PlannedItem>) =>
     setItems((prev) => prev.map((i) => (i.exerciseId === id ? { ...i, ...changes } : i)));
+
+  const move = (index: number, dir: -1 | 1) =>
+    setItems((prev) => {
+      const to = index + dir;
+      if (to < 0 || to >= prev.length) return prev;
+      const next = [...prev];
+      [next[index], next[to]] = [next[to], next[index]];
+      return next;
+    });
 
   const addExercise = (ex: CatalogExercise) => {
     if (items.some((i) => i.exerciseId === ex.id)) return toast.error("Cvik už v pláne je");
@@ -117,7 +126,7 @@ export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Pro
 
             <div className="space-y-2">
               <div className="text-xs uppercase tracking-wider text-muted-foreground">Cviky ({items.length})</div>
-              {items.map((it) => {
+              {items.map((it, idx) => {
                 const ex = catalog?.get(it.exerciseId) ?? null;
                 return (
                   <div key={it.exerciseId} className="rounded-lg border border-border bg-card p-2.5 space-y-2">
@@ -131,15 +140,39 @@ export default function EditPlanDialog({ plan, open, onOpenChange, onSave }: Pro
                         <div className="font-display text-sm tracking-wide uppercase leading-tight line-clamp-2">{it.exerciseName}</div>
                         <div className="text-[11px] text-muted-foreground truncate">{it.muscleGroup}</div>
                       </button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8 shrink-0"
-                        onClick={() => setItems((p) => p.filter((x) => x.exerciseId !== it.exerciseId))}
-                        title="Odobrať cvik"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <div className="flex shrink-0 items-center gap-1">
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="h-8 w-8"
+                          onClick={() => move(idx, -1)}
+                          disabled={idx === 0}
+                          title="Posunúť vyššie"
+                          aria-label={`Posunúť ${it.exerciseName} vyššie`}
+                        >
+                          <ArrowUp className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="h-8 w-8"
+                          onClick={() => move(idx, 1)}
+                          disabled={idx === items.length - 1}
+                          title="Posunúť nižšie"
+                          aria-label={`Posunúť ${it.exerciseName} nižšie`}
+                        >
+                          <ArrowDown className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8"
+                          onClick={() => setItems((p) => p.filter((x) => x.exerciseId !== it.exerciseId))}
+                          title="Odobrať cvik"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                       <div>

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Navigate } from "react-router-dom";
-import { Sparkles, History, ClipboardList, TrendingUp, Users, Dumbbell, X } from "lucide-react";
+import { Sparkles, History, ClipboardList, TrendingUp, Users, Dumbbell, X, Bell } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { readDraft, clearDraft, useTrainableMembers, useWorkoutSessions } from "@/hooks/useWorkouts";

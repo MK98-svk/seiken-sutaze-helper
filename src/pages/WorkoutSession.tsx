@@ -344,6 +344,16 @@ const WorkoutSessionPage = () => {
                     >
                       <Check className="h-4 w-4" />
                     </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
+                      onClick={() => deleteSet.mutate(s.id)}
+                      disabled={deleteSet.isPending}
+                      title="Odstrániť sériu"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
                   </div>
                 ))}
               </div>

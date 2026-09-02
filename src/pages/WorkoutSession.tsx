@@ -347,12 +347,13 @@ const WorkoutSessionPage = () => {
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
+                      className="h-9 w-9 shrink-0 text-destructive hover:bg-destructive/10"
                       onClick={() => deleteSet.mutate(s.id)}
                       disabled={deleteSet.isPending}
                       title="Odstrániť sériu"
+                      aria-label="Odstrániť sériu"
                     >
-                      <X className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}

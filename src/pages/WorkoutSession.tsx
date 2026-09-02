@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { Check, Pause, Play, RotateCcw, Youtube, Flag, Trash2, Plus, Search, ArrowUp, ArrowDown } from "lucide-react";
+import { Check, Pause, Play, RotateCcw, Youtube, Flag, Trash2, Plus, Search, ArrowUp, ArrowDown, X } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,7 +35,7 @@ const WorkoutSessionPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const { session, sets, updateSet, addSet, finish } = useWorkoutSession(id);
+  const { session, sets, updateSet, addSet, deleteSet, finish } = useWorkoutSession(id);
   const { remove } = useCreateWorkout();
   const { catalog } = useCatalog();
   const { notes, saveNote } = useExerciseNotes(session?.memberId);
@@ -343,6 +343,16 @@ const WorkoutSessionPage = () => {
                       title="Hotovo"
                     >
                       <Check className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
+                      onClick={() => deleteSet.mutate(s.id)}
+                      disabled={deleteSet.isPending}
+                      title="Odstrániť sériu"
+                    >
+                      <X className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}

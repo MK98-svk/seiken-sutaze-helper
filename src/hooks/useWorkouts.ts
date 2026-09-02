@@ -191,6 +191,39 @@ export function useWorkoutSession(sessionId?: string) {
     onError: (e: any) => toast.error("Chyba: " + e.message),
   });
 
+  const deleteSet = useMutation({
+    mutationFn: async (id: string) => {
+      const { data: row, error: findErr } = await db.from("workout_sets").select("session_id, exercise_id").eq("id", id).maybeSingle();
+      if (findErr) throw findErr;
+      const { error: delErr } = await db.from("workout_sets").delete().eq("id", id);
+      if (delErr) throw delErr;
+      if (row) {
+        const { data: remaining, error: listErr } = await db
+          .from("workout_sets")
+          .select("id")
+          .eq("session_id", row.session_id)
+          .eq("exercise_id", row.exercise_id)
+          .order("created_at", { ascending: true });
+        if (listErr) throw listErr;
+        if (remaining && remaining.length > 0) {
+          for (let i = 0; i < remaining.length; i++) {
+            const { error: upErr } = await db
+              .from("workout_sets")
+              .update({ set_number: i + 1 })
+              .eq("id", remaining[i].id);
+            if (upErr) throw upErr;
+          }
+        }
+      }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["workout_session_sets", sessionId] });
+      qc.invalidateQueries({ queryKey: ["workout_sets"] });
+      toast.success("Séria odstránená");
+    },
+    onError: (e: any) => toast.error("Chyba: " + e.message),
+  });
+
   const finish = useMutation({
     mutationFn: async (durationMin: number) => {
       const { error } = await db.from("workout_sessions").update({ completed: true, duration_min: durationMin }).eq("id", sessionId);
@@ -203,7 +236,7 @@ export function useWorkoutSession(sessionId?: string) {
     onError: (e: any) => toast.error("Chyba: " + e.message),
   });
 
-  return { session, sets, isLoading, updateSet, addSet, finish };
+  return { session, sets, isLoading, updateSet, addSet, deleteSet, finish };
 }
 
 export function useCreateWorkout() {

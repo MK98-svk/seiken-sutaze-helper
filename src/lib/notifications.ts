@@ -182,9 +182,10 @@ export function unlockAudio() {
   }
 }
 
-/** Tichá slučka počas oddychu – drží zvukový kanál nažive, nech signál zaznie aj pri zamknutom telefóne. */
+/** Tichá slučka počas oddychu – iba ak si ju používateľ zapne (stlmuje hudbu v slúchadlách). */
 export function startAudioKeepAlive() {
   try {
+    if (!loadSettings().keepAudioAlive) return;
     const el = player("keepalive", silentUrl());
     if (!el) return;
     el.loop = true;
@@ -194,6 +195,7 @@ export function startAudioKeepAlive() {
     /* ignore */
   }
 }
+
 
 export function stopAudioKeepAlive() {
   try {

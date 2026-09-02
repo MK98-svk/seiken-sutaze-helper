@@ -97,6 +97,16 @@ export default function NotificationSettingsPage() {
             <Switch checked={s.vibrate} onCheckedChange={(v) => update({ vibrate: v })} />
           </div>
 
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-sm">Držať zvuk nažive počas prestávky</div>
+              <div className="text-[11px] text-muted-foreground">
+                Spoľahlivejší signál pri zhasnutom displeji, ale telefón stlmí hudbu v slúchadlách. Nechaj vypnuté, ak počúvaš hudbu.
+              </div>
+            </div>
+            <Switch checked={s.keepAudioAlive} onCheckedChange={(v) => update({ keepAudioAlive: v })} />
+          </div>
+
           <Button
             variant="outline"
             size="sm"

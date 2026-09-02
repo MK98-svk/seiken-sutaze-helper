@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { Check, Pause, Play, RotateCcw, Youtube, Flag, Trash2, Plus, Search, ArrowUp, ArrowDown } from "lucide-react";
+import { Check, Pause, Play, RotateCcw, Youtube, Flag, Trash2, Plus, Search, ArrowUp, ArrowDown, X } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

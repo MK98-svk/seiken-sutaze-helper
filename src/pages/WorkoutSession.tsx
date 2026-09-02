@@ -35,7 +35,7 @@ const WorkoutSessionPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const { session, sets, updateSet, addSet, finish } = useWorkoutSession(id);
+  const { session, sets, updateSet, addSet, deleteSet, finish } = useWorkoutSession(id);
   const { remove } = useCreateWorkout();
   const { catalog } = useCatalog();
   const { notes, saveNote } = useExerciseNotes(session?.memberId);

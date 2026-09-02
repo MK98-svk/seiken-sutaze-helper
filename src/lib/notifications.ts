@@ -6,6 +6,7 @@ export interface NotifySettings {
   sound: AlertSound;
   volume: number; // 0–1
   vibrate: boolean;
+  keepAudioAlive: boolean; // tichá slučka počas prestávky (stlmí hudbu v slúchadlách)
   reminderEnabled: boolean;
   reminderDays: number[]; // 0 = pondelok … 6 = nedeľa
   reminderTime: string; // "18:00"
@@ -17,10 +18,12 @@ export const DEFAULT_SETTINGS: NotifySettings = {
   sound: "pipnutie",
   volume: 0.7,
   vibrate: true,
+  keepAudioAlive: false,
   reminderEnabled: false,
   reminderDays: [0, 2, 4],
   reminderTime: "18:00",
 };
+
 
 export const SOUND_LABELS: Record<AlertSound, string> = {
   ziadny: "Žiadny zvuk",
@@ -179,9 +182,10 @@ export function unlockAudio() {
   }
 }
 
-/** Tichá slučka počas oddychu – drží zvukový kanál nažive, nech signál zaznie aj pri zamknutom telefóne. */
+/** Tichá slučka počas oddychu – iba ak si ju používateľ zapne (stlmuje hudbu v slúchadlách). */
 export function startAudioKeepAlive() {
   try {
+    if (!loadSettings().keepAudioAlive) return;
     const el = player("keepalive", silentUrl());
     if (!el) return;
     el.loop = true;
@@ -191,6 +195,7 @@ export function startAudioKeepAlive() {
     /* ignore */
   }
 }
+
 
 export function stopAudioKeepAlive() {
   try {

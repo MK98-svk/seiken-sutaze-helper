@@ -6,6 +6,7 @@ export interface NotifySettings {
   sound: AlertSound;
   volume: number; // 0–1
   vibrate: boolean;
+  keepAudioAlive: boolean; // tichá slučka počas prestávky (stlmí hudbu v slúchadlách)
   reminderEnabled: boolean;
   reminderDays: number[]; // 0 = pondelok … 6 = nedeľa
   reminderTime: string; // "18:00"
@@ -17,10 +18,12 @@ export const DEFAULT_SETTINGS: NotifySettings = {
   sound: "pipnutie",
   volume: 0.7,
   vibrate: true,
+  keepAudioAlive: false,
   reminderEnabled: false,
   reminderDays: [0, 2, 4],
   reminderTime: "18:00",
 };
+
 
 export const SOUND_LABELS: Record<AlertSound, string> = {
   ziadny: "Žiadny zvuk",

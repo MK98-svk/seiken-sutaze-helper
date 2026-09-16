@@ -71,7 +71,7 @@ const Index = () => {
                 <AddMemberDialog onAdd={addMember} />
               </>
             )}
-            {(isAdmin || isCoach) && <CompetitionNotifyDialog competitions={competitions} />}
+            {isAdmin && <CompetitionNotifyDialog competitions={competitions} />}
             {user && <AddSelfDialog onAdd={addMember} userId={user.id} linkedMembersCount={linkedMembersCount} />}
             {user && (linkedMembersCount > 0 || isAdmin || isCoach) && (
               <SelfRegisterDialog

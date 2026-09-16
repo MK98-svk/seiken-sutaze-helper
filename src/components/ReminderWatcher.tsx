@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { checkReminder } from "@/lib/notifications";
+import { pushEnabledLocally } from "@/lib/push";
 
 /** Kontroluje pripomienky tréningu, kým je aplikácia otvorená. */
 export default function ReminderWatcher() {

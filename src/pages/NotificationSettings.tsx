@@ -22,7 +22,7 @@ import {
   unlockAudio,
   vibrate,
 } from "@/lib/notifications";
-import { disablePush, enablePush, pushEnabledLocally, syncReminderPrefs } from "@/lib/push";
+import { disablePush, enablePush, pushEnabledLocally, scheduleTestPush, syncReminderPrefs } from "@/lib/push";
 
 const SOUND_IDS = Object.keys(SOUND_LABELS) as AlertSound[];
 
@@ -32,6 +32,7 @@ export default function NotificationSettingsPage() {
   const [perm, setPerm] = useState(notificationPermission());
   const [pushOn, setPushOn] = useState(pushEnabledLocally());
   const [pushBusy, setPushBusy] = useState(false);
+  const [testBusy, setTestBusy] = useState(false);
 
   useEffect(() => {
     saveSettings(s);
@@ -151,6 +152,22 @@ export default function NotificationSettingsPage() {
             iPhone z prehliadača vibrovať nevie – tam je hlavný signál zvuk. Aby zaznel, maj vypnutý tichý režim (prepínač na boku) a
             zvuk aspoň raz spusti tlačidlom „Vyskúšať signál“. Cez slúchadlá zvuk zaznie aj popri hudbe a pri zhasnutom displeji.
           </p>
+          {pushOn && (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={testBusy}
+              onClick={async () => {
+                setTestBusy(true);
+                const ok = await scheduleTestPush();
+                setTestBusy(false);
+                if (ok) toast.success("Test odoslaný – notifikácia príde približne do minúty");
+                else toast.error("Telefón sa nepodarilo zaregistrovať. Push vypni, znova zapni a potvrď povolenie.");
+              }}
+            >
+              <Bell className="h-4 w-4" /> {testBusy ? "Odosielam…" : "Poslať testovaciu notifikáciu"}
+            </Button>
+          )}
         </section>
 
         {/* Push notifikácie */}

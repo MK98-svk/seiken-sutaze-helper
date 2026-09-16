@@ -82,8 +82,8 @@ export async function enablePush(): Promise<PushStatus> {
       .from("push_tokens")
       .upsert({ user_id: user.id, token, platform: "web" }, { onConflict: "token" });
     if (tokenError) throw tokenError;
-    await syncReminderPrefs();
     localStorage.setItem(ENABLED_KEY, "1");
+    await syncReminderPrefs();
     return "registered";
   } catch (e) {
     console.error("enablePush:", e);
@@ -232,5 +232,27 @@ export async function cancelRestReminders() {
       .eq("sent", false);
   } catch {
     /* ignore */
+  }
+}
+
+/** Odošle skúšobnú push správu cez rovnaký serverový tok ako reálne pripomienky. */
+export async function scheduleTestPush(): Promise<boolean> {
+  try {
+    const refreshed = await refreshPushRegistration();
+    if (refreshed !== "registered") return false;
+    const { data: auth } = await supabase.auth.getUser();
+    const user = auth?.user;
+    if (!user) return false;
+    const { error } = await db.from("scheduled_reminders").insert({
+      user_id: user.id,
+      due_at: new Date().toISOString(),
+      title: "Test KK Seiken",
+      body: "Push notifikácie na tomto telefóne fungujú.",
+      kind: "test",
+    });
+    return !error;
+  } catch (e) {
+    console.error("scheduleTestPush:", e);
+    return false;
   }
 }

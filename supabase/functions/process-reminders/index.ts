@@ -103,8 +103,6 @@ Deno.serve(async (req) => {
     .lt("due_at", new Date(Date.now() - 7 * 86400000).toISOString());
 
   // 2) Týždenné pripomienky tréningu podľa nastavení používateľa.
-  const dayIdx = (now.getDay() + 6) % 7; // 0 = pondelok
-  const today = now.toISOString().slice(0, 10);
   const { data: prefs, error: e2 } = await admin
     .from("notification_prefs")
     .select("*")
@@ -112,13 +110,16 @@ Deno.serve(async (req) => {
   if (e2) console.error("notification_prefs:", e2);
 
   for (const p of prefs ?? []) {
+    const tz = Number(p.tz_offset_minutes ?? 0);
+    const localNow = new Date(now.getTime() + tz * 60000);
+    const dayIdx = (localNow.getUTCDay() + 6) % 7; // 0 = pondelok v lokálnom čase používateľa
+    const today = localNow.toISOString().slice(0, 10);
     if (!Array.isArray(p.reminder_days) || !p.reminder_days.includes(dayIdx)) continue;
     if (p.last_sent_date === today) continue;
 
     const [h, m] = String(p.reminder_time ?? "18:00").split(":").map(Number);
     // Uložený čas je lokálny čas používateľa; prepočítame na UTC.
-    const base = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), h || 0, m || 0);
-    const tz = Number(p.tz_offset_minutes ?? 0);
+    const base = Date.UTC(localNow.getUTCFullYear(), localNow.getUTCMonth(), localNow.getUTCDate(), h || 0, m || 0);
     const targetUtc = base - tz * 60000;
     const diff = now.getTime() - targetUtc;
     if (diff < 0 || diff > 10 * 60 * 1000) continue;

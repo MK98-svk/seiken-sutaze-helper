@@ -544,6 +544,7 @@ export type Database = {
           done: boolean
           exercise_id: string
           exercise_name: string
+          exercise_order: number
           id: string
           muscle_group: string | null
           reps: number | null
@@ -556,6 +557,7 @@ export type Database = {
           done?: boolean
           exercise_id: string
           exercise_name: string
+          exercise_order?: number
           id?: string
           muscle_group?: string | null
           reps?: number | null
@@ -568,6 +570,7 @@ export type Database = {
           done?: boolean
           exercise_id?: string
           exercise_name?: string
+          exercise_order?: number
           id?: string
           muscle_group?: string | null
           reps?: number | null

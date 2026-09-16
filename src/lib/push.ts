@@ -7,11 +7,21 @@ import { loadSettings } from "@/lib/notifications";
 // Nové tabuľky ešte nie sú v generovaných DB typoch – pristupujeme k nim cez voľnejší klient.
 const db = supabase as any;
 
-const appId = import.meta.env.VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_APP_ID as string | undefined;
-const vapidKey = import.meta.env.VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_VAPID_KEY as string | undefined;
+// Verejné (publishable) údaje Firebase web push – slúžia len na registráciu zariadenia v prehliadači.
+const FALLBACK = {
+  apiKey: "AIzaSyAqho-7dkOWvTuEOZlnixc38iJeLE0j0Dg",
+  projectId: "karate-seiken",
+  appId: "1:479802412729:web:5533dc3a165dbcdb30d568",
+  vapidKey: "BB-jtrZHIBSZHfSwMHqCSzG581MRW_LHTw2kSt95fQcJLlK_e77dK0Zg3_M_XhPQpXpW_ZQ9UR-3pAODBQ2I-Fc",
+};
+
+const appId = (import.meta.env.VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_APP_ID as string | undefined) || FALLBACK.appId;
+const vapidKey =
+  (import.meta.env.VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_VAPID_KEY as string | undefined) || FALLBACK.vapidKey;
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_WEB_API_KEY as string | undefined,
-  projectId: import.meta.env.VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_PROJECT_ID as string | undefined,
+  apiKey: (import.meta.env.VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_WEB_API_KEY as string | undefined) || FALLBACK.apiKey,
+  projectId:
+    (import.meta.env.VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_PROJECT_ID as string | undefined) || FALLBACK.projectId,
   appId,
   messagingSenderId: appId?.split(":")[1] ?? "",
 };

@@ -1,6 +1,7 @@
 // Push notifikácie cez Firebase Cloud Messaging – registrácia zariadenia a naplánované pripomienky.
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, isSupported } from "firebase/messaging";
+import { supabase } from "@/integrations/supabase/client";
 import { loadSettings } from "@/lib/notifications";
 
 // Nové tabuľky ešte nie sú v generovaných DB typoch – pristupujeme k nim cez voľnejší klient.
@@ -58,7 +59,7 @@ export async function enablePush(): Promise<PushStatus> {
     const user = auth?.user;
     if (!user) return "not-logged-in";
 
-    await supabase.from("push_tokens").upsert({ user_id: user.id, token, platform: "web" }, { onConflict: "token" });
+    await db.from("push_tokens").upsert({ user_id: user.id, token, platform: "web" }, { onConflict: "token" });
     await syncReminderPrefs();
     localStorage.setItem(ENABLED_KEY, "1");
     return "registered";
@@ -74,8 +75,8 @@ export async function disablePush() {
     localStorage.removeItem(ENABLED_KEY);
     const { data: auth } = await supabase.auth.getUser();
     if (auth?.user) {
-      await supabase.from("push_tokens").delete().eq("user_id", auth.user.id);
-      await supabase.from("notification_prefs").delete().eq("user_id", auth.user.id);
+      await db.from("push_tokens").delete().eq("user_id", auth.user.id);
+      await db.from("notification_prefs").delete().eq("user_id", auth.user.id);
     }
   } catch {
     /* ignore */
@@ -89,7 +90,7 @@ export async function syncReminderPrefs() {
     const user = auth?.user;
     if (!user) return;
     const s = loadSettings();
-    await supabase.from("notification_prefs").upsert({
+    await db.from("notification_prefs").upsert({
       user_id: user.id,
       reminder_enabled: s.reminderEnabled && pushEnabledLocally(),
       reminder_days: s.reminderDays,
@@ -108,7 +109,7 @@ export async function scheduleRestReminder(seconds: number) {
     const { data: auth } = await supabase.auth.getUser();
     const user = auth?.user;
     if (!user) return;
-    await supabase.from("scheduled_reminders").insert({
+    await db.from("scheduled_reminders").insert({
       user_id: user.id,
       due_at: new Date(Date.now() + seconds * 1000).toISOString(),
       title: "Oddych skončil",
@@ -127,7 +128,7 @@ export async function cancelRestReminders() {
     const { data: auth } = await supabase.auth.getUser();
     const user = auth?.user;
     if (!user) return;
-    await supabase
+    await db
       .from("scheduled_reminders")
       .delete()
       .eq("user_id", user.id)

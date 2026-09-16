@@ -2,7 +2,7 @@ const GATEWAY_URL = "https://connector-gateway.lovable.dev/firebase_messaging";
 
 export type SendResult = "ok" | "stale" | "error";
 
-export async function sendPush(token: string, title: string, body: string): Promise<SendResult> {
+export async function sendPush(token: string, title: string, body: string, path = "/"): Promise<SendResult> {
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
   const connectionKey = Deno.env.get("FIREBASE_MESSAGING_API_KEY");
   if (!LOVABLE_API_KEY || !connectionKey) {
@@ -20,10 +20,20 @@ export async function sendPush(token: string, title: string, body: string): Prom
       body: JSON.stringify({
         message: {
           token,
-          notification: { title, body },
+          data: { title, body, path },
           webpush: {
             headers: { urgency: "high" },
-            notification: { icon: "/pwa-icon-192.png", tag: "seiken-push" },
+            notification: {
+              title,
+              body,
+              icon: "/pwa-icon-192.png",
+              badge: "/pwa-icon-192.png",
+              tag: "seiken-push",
+              renotify: true,
+              vibrate: [250, 120, 250],
+              data: { url: path },
+            },
+            fcm_options: { link: path },
           },
         },
       }),

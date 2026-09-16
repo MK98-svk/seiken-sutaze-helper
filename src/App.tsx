@@ -21,6 +21,7 @@ import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
 import NotificationSettings from "./pages/NotificationSettings";
 import ReminderWatcher from "./components/ReminderWatcher";
+import PushRegistrationManager from "./components/PushRegistrationManager";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ReminderWatcher />
+        <PushRegistrationManager />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/sutaze" element={<Index />} />

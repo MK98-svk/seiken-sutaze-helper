@@ -4,6 +4,21 @@ importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-com
 firebase.initializeApp(Object.fromEntries(new URL(self.location).searchParams));
 const messaging = firebase.messaging();
 
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const targetUrl = event.notification.data?.url || '/';
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      const existing = clients.find((client) => new URL(client.url).origin === self.location.origin);
+      if (existing) {
+        existing.navigate(targetUrl);
+        return existing.focus();
+      }
+      return self.clients.openWindow(targetUrl);
+    })
+  );
+});
+
 messaging.onBackgroundMessage((payload) => {
   // Ak je appka práve otvorená a viditeľná, notifikáciu zobrazí sama appka – nezdviháme duplicitnú.
   self.waitUntil(
@@ -14,7 +29,11 @@ messaging.onBackgroundMessage((payload) => {
       await self.registration.showNotification(n.title || 'KK Seiken', {
         body: n.body || '',
         icon: '/pwa-icon-192.png',
+         badge: '/pwa-icon-192.png',
         tag: 'seiken-push',
+         renotify: true,
+         vibrate: [250, 120, 250],
+         data: { url: payload.data?.path || '/' },
       });
     })()
   );

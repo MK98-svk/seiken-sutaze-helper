@@ -1,6 +1,6 @@
 // Push notifikácie cez Firebase Cloud Messaging – registrácia zariadenia a naplánované pripomienky.
-import { initializeApp } from "firebase/app";
-import { getMessaging, getToken, isSupported } from "firebase/messaging";
+import { getApp, getApps, initializeApp } from "firebase/app";
+import { deleteToken, getMessaging, getToken, isSupported } from "firebase/messaging";
 import { supabase } from "@/integrations/supabase/client";
 import { loadSettings } from "@/lib/notifications";
 
@@ -37,6 +37,16 @@ export type PushStatus =
 
 const ENABLED_KEY = "seiken_push_enabled";
 
+function firebaseMessaging() {
+  const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+  return getMessaging(app);
+}
+
+async function getPushRegistration() {
+  const query = new URLSearchParams(firebaseConfig as Record<string, string>).toString();
+  return navigator.serviceWorker.register(`/push/firebase-messaging-sw.js?${query}`, { scope: "/push/" });
+}
+
 export function pushEnabledLocally(): boolean {
   try {
     return localStorage.getItem(ENABLED_KEY) === "1";
@@ -58,10 +68,9 @@ export async function enablePush(): Promise<PushStatus> {
 
   try {
     // Vlastný scope /push/ – neprebije to pôvodný PWA service worker v koreňovom scope.
-    const query = new URLSearchParams(firebaseConfig as Record<string, string>).toString();
-    const registration = await navigator.serviceWorker.register(`/push/firebase-messaging-sw.js?${query}`);
+    const registration = await getPushRegistration();
 
-    const messaging = getMessaging(initializeApp(firebaseConfig));
+    const messaging = firebaseMessaging();
     const token = await getToken(messaging, { vapidKey, serviceWorkerRegistration: registration });
     if (!token) return "denied";
 
@@ -69,7 +78,10 @@ export async function enablePush(): Promise<PushStatus> {
     const user = auth?.user;
     if (!user) return "not-logged-in";
 
-    await db.from("push_tokens").upsert({ user_id: user.id, token, platform: "web" }, { onConflict: "token" });
+    const { error: tokenError } = await db
+      .from("push_tokens")
+      .upsert({ user_id: user.id, token, platform: "web" }, { onConflict: "token" });
+    if (tokenError) throw tokenError;
     await syncReminderPrefs();
     localStorage.setItem(ENABLED_KEY, "1");
     return "registered";
@@ -79,17 +91,37 @@ export async function enablePush(): Promise<PushStatus> {
   }
 }
 
+/** Obnoví registráciu po aktualizácii PWA alebo po zneplatnení tokenu. */
+export async function refreshPushRegistration(): Promise<PushStatus | "disabled"> {
+  if (!pushEnabledLocally()) return "disabled";
+  if (typeof window === "undefined" || window.top !== window.self) return "open-in-new-tab";
+  if (!("Notification" in window) || Notification.permission !== "granted") {
+    localStorage.removeItem(ENABLED_KEY);
+    return "denied";
+  }
+  return enablePush();
+}
+
 /** Vypne push notifikácie pre toto zariadenie. */
 export async function disablePush() {
   try {
-    localStorage.removeItem(ENABLED_KEY);
     const { data: auth } = await supabase.auth.getUser();
+    let token: string | null = null;
+    if ("serviceWorker" in navigator && (await isSupported().catch(() => false))) {
+      const registration = await navigator.serviceWorker.getRegistration("/push/");
+      if (registration) {
+        token = await getToken(firebaseMessaging(), { vapidKey, serviceWorkerRegistration: registration }).catch(() => null);
+        await deleteToken(firebaseMessaging()).catch(() => false);
+      }
+    }
     if (auth?.user) {
-      await db.from("push_tokens").delete().eq("user_id", auth.user.id);
-      await db.from("notification_prefs").delete().eq("user_id", auth.user.id);
+      if (token) await db.from("push_tokens").delete().eq("user_id", auth.user.id).eq("token", token);
+      await db.from("notification_prefs").upsert({ user_id: auth.user.id, reminder_enabled: false });
     }
   } catch {
     /* ignore */
+  } finally {
+    localStorage.removeItem(ENABLED_KEY);
   }
 }
 
@@ -100,13 +132,14 @@ export async function syncReminderPrefs() {
     const user = auth?.user;
     if (!user) return;
     const s = loadSettings();
-    await db.from("notification_prefs").upsert({
+    const { error } = await db.from("notification_prefs").upsert({
       user_id: user.id,
       reminder_enabled: s.reminderEnabled && pushEnabledLocally(),
       reminder_days: s.reminderDays,
       reminder_time: s.reminderTime,
       tz_offset_minutes: -new Date().getTimezoneOffset(),
     });
+    if (error) throw error;
   } catch {
     /* ignore */
   }
@@ -119,13 +152,14 @@ export async function scheduleRestReminder(seconds: number) {
     const { data: auth } = await supabase.auth.getUser();
     const user = auth?.user;
     if (!user) return;
-    await db.from("scheduled_reminders").insert({
+    const { error } = await db.from("scheduled_reminders").insert({
       user_id: user.id,
       due_at: new Date(Date.now() + seconds * 1000).toISOString(),
       title: "Oddych skončil",
       body: "Poď na ďalšiu sériu 💪",
       kind: "rest",
     });
+    if (error) throw error;
   } catch {
     /* ignore */
   }

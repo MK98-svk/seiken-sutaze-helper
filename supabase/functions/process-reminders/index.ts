@@ -29,10 +29,20 @@ async function sendPush(token: string, title: string, body: string): Promise<Sen
       body: JSON.stringify({
         message: {
           token,
-          notification: { title, body },
+          data: { title, body, path: "/posilnovanie" },
           webpush: {
             headers: { urgency: "high" },
-            notification: { icon: "/pwa-icon-192.png", tag: "seiken-push" },
+            notification: {
+              title,
+              body,
+              icon: "/pwa-icon-192.png",
+              badge: "/pwa-icon-192.png",
+              tag: "seiken-push",
+              renotify: true,
+              vibrate: [250, 120, 250],
+              data: { url: "/posilnovanie" },
+            },
+            fcm_options: { link: "/posilnovanie" },
           },
         },
       }),
@@ -85,7 +95,13 @@ Deno.serve(async (req) => {
       if (result === "ok") sent++;
       if (result === "stale") await admin.from("push_tokens").delete().eq("token", t.token);
     }
-    await admin.from("scheduled_reminders").update({ sent: true }).eq("id", r.id);
+    // Za vybavenú ju označíme iba vtedy, keď sa aspoň jednému zariadeniu naozaj odoslala.
+    // Bez tokenu alebo pri dočasnej chybe ostane čakajúca a ďalší beh ju skúsi znova.
+    const { data: remainingTokens } = await admin.from("push_tokens").select("id").eq("user_id", r.user_id).limit(1);
+    const delivered = (tokens ?? []).length > 0 && sent > 0;
+    if (delivered || !remainingTokens?.length) {
+      await admin.from("scheduled_reminders").update({ sent: true }).eq("id", r.id);
+    }
   }
 
   // Staré odoslané pripomienky vyčistíme.

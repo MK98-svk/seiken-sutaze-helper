@@ -1,8 +1,10 @@
 // Push notifikácie cez Firebase Cloud Messaging – registrácia zariadenia a naplánované pripomienky.
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, isSupported } from "firebase/messaging";
-import { supabase } from "@/integrations/supabase/client";
 import { loadSettings } from "@/lib/notifications";
+
+// Nové tabuľky ešte nie sú v generovaných DB typoch – pristupujeme k nim cez voľnejší klient.
+const db = supabase as any;
 
 const appId = import.meta.env.VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_APP_ID as string | undefined;
 const vapidKey = import.meta.env.VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_VAPID_KEY as string | undefined;

@@ -7,6 +7,8 @@ import { pushEnabledLocally } from "@/lib/push";
 export default function ReminderWatcher() {
   useEffect(() => {
     const run = () => {
+      // Ak sú zapnuté push notifikácie, pripomienku posiela server – neduplikujeme ju pri otvorení appky.
+      if (pushEnabledLocally()) return;
       if (checkReminder()) toast("Čas na tréning 🥋", { description: "Podľa tvojho plánu je teraz čas cvičiť." });
     };
     run();

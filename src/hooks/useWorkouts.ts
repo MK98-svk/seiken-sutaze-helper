@@ -29,6 +29,7 @@ export interface WorkoutSet {
   weight: number | null;
   reps: number | null;
   done: boolean;
+  exerciseOrder: number;
 }
 
 export interface PlannedItem {
@@ -63,6 +64,7 @@ const mapSet = (r: any): WorkoutSet => ({
   weight: r.weight === null ? null : Number(r.weight),
   reps: r.reps,
   done: r.done,
+  exerciseOrder: r.exercise_order ?? 0,
 });
 
 /** Members the logged-in user may train (own linked members; staff sees everyone). */
@@ -123,6 +125,7 @@ export function useWorkoutSessions(memberId?: string | null) {
         .from("workout_sets")
         .select("*")
         .in("session_id", sessions.map((s) => s.id))
+        .order("exercise_order")
         .order("set_number");
       if (error) throw error;
       return (data ?? []).map(mapSet);
@@ -149,7 +152,12 @@ export function useWorkoutSession(sessionId?: string) {
     queryKey: ["workout_session_sets", sessionId],
     enabled: !!sessionId,
     queryFn: async (): Promise<WorkoutSet[]> => {
-      const { data, error } = await db.from("workout_sets").select("*").eq("session_id", sessionId).order("set_number");
+      const { data, error } = await db
+        .from("workout_sets")
+        .select("*")
+        .eq("session_id", sessionId)
+        .order("exercise_order")
+        .order("set_number");
       if (error) throw error;
       return (data ?? []).map(mapSet);
     },
@@ -181,6 +189,7 @@ export function useWorkoutSession(sessionId?: string) {
         set_number: base.setNumber,
         reps: base.reps,
         weight: base.weight,
+        exercise_order: base.exerciseOrder,
       });
       if (error) throw error;
     },
@@ -189,6 +198,24 @@ export function useWorkoutSession(sessionId?: string) {
       qc.invalidateQueries({ queryKey: ["workout_sets"] });
     },
     onError: (e: any) => toast.error("Chyba: " + e.message),
+  });
+
+  const updateExerciseOrder = useMutation({
+    mutationFn: async (exerciseIds: string[]) => {
+      for (let index = 0; index < exerciseIds.length; index++) {
+        const { error } = await db
+          .from("workout_sets")
+          .update({ exercise_order: index })
+          .eq("session_id", sessionId)
+          .eq("exercise_id", exerciseIds[index]);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["workout_session_sets", sessionId] });
+      qc.invalidateQueries({ queryKey: ["workout_sets"] });
+    },
+    onError: (e: any) => toast.error("Poradie sa nepodarilo uložiť: " + e.message),
   });
 
   const deleteSet = useMutation({
@@ -236,7 +263,7 @@ export function useWorkoutSession(sessionId?: string) {
     onError: (e: any) => toast.error("Chyba: " + e.message),
   });
 
-  return { session, sets, isLoading, updateSet, addSet, deleteSet, finish };
+  return { session, sets, isLoading, updateSet, addSet, deleteSet, updateExerciseOrder, finish };
 }
 
 export function useCreateWorkout() {
@@ -257,7 +284,7 @@ export function useCreateWorkout() {
       if (error) throw error;
       const sessionId = data.id as string;
 
-      const rows = input.items.flatMap((it) =>
+      const rows = input.items.flatMap((it, exerciseOrder) =>
         Array.from({ length: Math.max(1, it.sets) }, (_, i) => ({
           session_id: sessionId,
           exercise_id: it.exerciseId,
@@ -266,6 +293,7 @@ export function useCreateWorkout() {
           set_number: i + 1,
           reps: it.reps || null,
           weight: it.suggestedWeight && it.suggestedWeight > 0 ? it.suggestedWeight : null,
+          exercise_order: exerciseOrder,
         }))
       );
 

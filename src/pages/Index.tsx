@@ -4,6 +4,7 @@ import AddMemberDialog from "@/components/AddMemberDialog";
 import AddSelfDialog from "@/components/AddSelfDialog";
 import SelfRegisterDialog from "@/components/SelfRegisterDialog";
 import AddCompetitionDialog from "@/components/AddCompetitionDialog";
+import CompetitionNotifyDialog from "@/components/CompetitionNotifyDialog";
 import MemberTable from "@/components/MemberTable";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";

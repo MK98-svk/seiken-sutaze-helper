@@ -22,6 +22,7 @@ import {
   unlockAudio,
   vibrate,
 } from "@/lib/notifications";
+import { disablePush, enablePush, pushEnabledLocally, syncReminderPrefs } from "@/lib/push";
 
 const SOUND_IDS = Object.keys(SOUND_LABELS) as AlertSound[];
 
@@ -29,9 +30,12 @@ export default function NotificationSettingsPage() {
   const { user, loading } = useAuth();
   const [s, setS] = useState<NotifySettings>(loadSettings);
   const [perm, setPerm] = useState(notificationPermission());
+  const [pushOn, setPushOn] = useState(pushEnabledLocally());
+  const [pushBusy, setPushBusy] = useState(false);
 
   useEffect(() => {
     saveSettings(s);
+    if (pushEnabledLocally()) void syncReminderPrefs();
   }, [s]);
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Načítavam…</div>;
@@ -49,6 +53,29 @@ export default function NotificationSettingsPage() {
     else if (res === "iframe") toast.error("Otvor appku v samostatnom okne (nie v náhľade) a skús znova");
     else if (res === "denied") toast.error("Notifikácie sú zakázané v nastaveniach prehliadača");
     else if (res === "unsupported") toast.error("Toto zariadenie notifikácie nepodporuje");
+  };
+
+  const togglePush = async () => {
+    setPushBusy(true);
+    try {
+      if (pushOn) {
+        await disablePush();
+        setPushOn(false);
+        toast.success("Push notifikácie vypnuté");
+        return;
+      }
+      const res = await enablePush();
+      if (res === "registered") {
+        setPushOn(true);
+        toast.success("Push notifikácie zapnuté – prídu aj pri zhasnutom displeji");
+      } else if (res === "open-in-new-tab") toast.error("Otvor appku v samostatnom okne (nie v náhľade) a skús znova");
+      else if (res === "denied") toast.error("Notifikácie sú zakázané v nastaveniach prehliadača");
+      else if (res === "not-configured") toast.error("Push nie je zatiaľ nakonfigurovaný");
+      else if (res === "not-logged-in") toast.error("Najprv sa prihlás do appky");
+      else toast.error("Push sa nepodarilo zapnúť, skús to znova");
+    } finally {
+      setPushBusy(false);
+    }
   };
 
   return (
@@ -126,6 +153,22 @@ export default function NotificationSettingsPage() {
           </p>
         </section>
 
+        {/* Push notifikácie */}
+        <section className="rounded-lg border border-border bg-card p-4 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="font-display text-sm tracking-widest uppercase">Push notifikácie</div>
+              <div className="text-[11px] text-muted-foreground">Upozornenia do telefónu aj pri zavretej appke</div>
+            </div>
+            <Switch checked={pushOn} disabled={pushBusy} onCheckedChange={() => void togglePush()} />
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            {pushOn
+              ? "Zapnuté – koniec prestávky aj pripomienka tréningu ti prídu ako notifikácia, aj keď je appka zatvorená alebo máš zhasnutý displej. Na iPhone musí mať appka ikonu na ploche (v Safari: Zdieľať → Na plochu)."
+              : "Zapni ich, aby ti koniec prestávky a pripomienka tréningu prišli ako notifikácia do telefónu, aj keď je appka zatvorená alebo máš zhasnutý displej. Na iPhone musí mať appka ikonu na ploche (v Safari: Zdieľať → Na plochu)."}
+          </p>
+        </section>
+
         {/* Pripomienky */}
         <section className="rounded-lg border border-border bg-card p-4 space-y-4">
           <div className="flex items-center justify-between gap-3">
@@ -165,16 +208,20 @@ export default function NotificationSettingsPage() {
               <div className="rounded-md border border-border/60 bg-muted/30 p-3 space-y-2">
                 <div className="flex items-center gap-2 text-xs">
                   <Bell className="h-4 w-4 text-primary shrink-0" />
-                  {perm === "granted" ? "Notifikácie sú povolené" : "Povoľ notifikácie, nech ti príde upozornenie"}
+                  {pushOn
+                    ? "Pripomienka príde ako push notifikácia do telefónu v zvolený deň a čas."
+                    : "Zapni push notifikácie vyššie, nech ti pripomienka reálne príde do telefónu."}
                 </div>
                 {perm !== "granted" && (
-                  <Button size="sm" variant="outline" onClick={askPermission}>
-                    Povoliť notifikácie
-                  </Button>
+                  <div className="space-y-1.5">
+                    <Button size="sm" variant="outline" onClick={askPermission}>
+                      Povoliť notifikácie v appke
+                    </Button>
+                    <p className="text-[11px] text-muted-foreground">
+                      Zobrazí upozornenie len v appke. Aby ti pripomienka prišla aj pri zavretej appke, zapni push notifikácie vyššie.
+                    </p>
+                  </div>
                 )}
-                <p className="text-[11px] text-muted-foreground">
-                  Pripomienka sa zobrazí, keď máš appku otvorenú alebo bežiacu na pozadí. Pre spoľahlivé upozornenie si appku pridaj na plochu.
-                </p>
               </div>
             </>
           )}

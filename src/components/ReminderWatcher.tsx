@@ -1,11 +1,14 @@
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { checkReminder } from "@/lib/notifications";
+import { pushEnabledLocally } from "@/lib/push";
 
 /** Kontroluje pripomienky tréningu, kým je aplikácia otvorená. */
 export default function ReminderWatcher() {
   useEffect(() => {
     const run = () => {
+      // Ak sú zapnuté push notifikácie, pripomienku posiela server – neduplikujeme ju pri otvorení appky.
+      if (pushEnabledLocally()) return;
       if (checkReminder()) toast("Čas na tréning 🥋", { description: "Podľa tvojho plánu je teraz čas cvičiť." });
     };
     run();

@@ -152,22 +152,6 @@ export default function NotificationSettingsPage() {
             iPhone z prehliadača vibrovať nevie – tam je hlavný signál zvuk. Aby zaznel, maj vypnutý tichý režim (prepínač na boku) a
             zvuk aspoň raz spusti tlačidlom „Vyskúšať signál“. Cez slúchadlá zvuk zaznie aj popri hudbe a pri zhasnutom displeji.
           </p>
-          {pushOn && (
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={testBusy}
-              onClick={async () => {
-                setTestBusy(true);
-                const ok = await scheduleTestPush();
-                setTestBusy(false);
-                if (ok) toast.success("Test odoslaný – notifikácia príde približne do minúty");
-                else toast.error("Telefón sa nepodarilo zaregistrovať. Push vypni, znova zapni a potvrď povolenie.");
-              }}
-            >
-              <Bell className="h-4 w-4" /> {testBusy ? "Odosielam…" : "Poslať testovaciu notifikáciu"}
-            </Button>
-          )}
         </section>
 
         {/* Push notifikácie */}
@@ -184,6 +168,22 @@ export default function NotificationSettingsPage() {
               ? "Zapnuté – koniec prestávky aj pripomienka tréningu ti prídu ako notifikácia, aj keď je appka zatvorená alebo máš zhasnutý displej. Na iPhone musí mať appka ikonu na ploche (v Safari: Zdieľať → Na plochu)."
               : "Zapni ich, aby ti koniec prestávky a pripomienka tréningu prišli ako notifikácia do telefónu, aj keď je appka zatvorená alebo máš zhasnutý displej. Na iPhone musí mať appka ikonu na ploche (v Safari: Zdieľať → Na plochu)."}
           </p>
+          {pushOn && (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={testBusy}
+              onClick={async () => {
+                setTestBusy(true);
+                const ok = await scheduleTestPush();
+                setTestBusy(false);
+                if (ok) toast.success("Test odoslaný – notifikácia príde približne do minúty");
+                else toast.error("Telefón sa nepodarilo zaregistrovať. Push vypni, znova zapni a potvrď povolenie.");
+              }}
+            >
+              <Bell className="h-4 w-4" /> {testBusy ? "Odosielam…" : "Poslať testovaciu notifikáciu"}
+            </Button>
+          )}
         </section>
 
         {/* Pripomienky */}

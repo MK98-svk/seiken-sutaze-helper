@@ -32,17 +32,6 @@ async function sendPush(token: string, title: string, body: string): Promise<Sen
           data: { title, body, path: "/posilnovanie" },
           webpush: {
             headers: { urgency: "high" },
-            notification: {
-              title,
-              body,
-              icon: "/pwa-icon-192.png",
-              badge: "/pwa-icon-192.png",
-              tag: "seiken-push",
-              renotify: true,
-              vibrate: [250, 120, 250],
-              data: { url: "/posilnovanie" },
-            },
-            fcm_options: { link: "/posilnovanie" },
           },
         },
       }),

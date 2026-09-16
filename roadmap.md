@@ -1,5 +1,5 @@
 # Roadmap
 
 - [x] Zachovať uložené poradie cvikov pri spustení plánu a po presune.
-- [ ] Opraviť upozornenia na koniec prestávky pri zhasnutom displeji alebo mimo aplikácie — čaká na pripojenie služby upozornení.
-- [ ] Opraviť plánované pripomienky tréningu, aby reálne prišli do telefónu — čaká na pripojenie služby upozornení.
+- [x] Opraviť upozornenia na koniec prestávky pri zhasnutom displeji alebo mimo aplikácie (Firebase push).
+- [x] Opraviť plánované pripomienky tréningu, aby reálne prišli do telefónu (Firebase push).

@@ -1,3 +1,3 @@
 # Roadmap
 
-- [ ] Komplexne preveriť a opraviť push notifikácie na telefóne
+- [x] Komplexne preveriť a opraviť push notifikácie na telefóne

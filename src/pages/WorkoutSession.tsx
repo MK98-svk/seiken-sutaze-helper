@@ -26,6 +26,7 @@ import ExerciseNote from "@/components/ExerciseNote";
 import PlateCalcPopover from "@/components/PlateCalcPopover";
 import { useExerciseNotes } from "@/hooks/useExerciseNotes";
 import { restFinishedAlert, startAudioKeepAlive, stopAudioKeepAlive, unlockAudio } from "@/lib/notifications";
+import { cancelRestReminders, scheduleRestReminder } from "@/lib/push";
 import { CatalogExercise, CatalogMode } from "@/lib/catalog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -67,6 +68,7 @@ const WorkoutSessionPage = () => {
       if (left <= 0) {
         deadlineRef.current = null;
         setRunning(false);
+        cancelRestReminders();
         restFinishedAlert();
         toast.success("Oddych skončil — ďalšia séria!");
       }
@@ -124,6 +126,7 @@ const WorkoutSessionPage = () => {
       deadlineRef.current = Date.now() + defaultRest * 1000;
       setRest(defaultRest);
       setRunning(true);
+      scheduleRestReminder(defaultRest);
     }
   };
 
@@ -362,7 +365,13 @@ const WorkoutSessionPage = () => {
                 onClick={() => {
                   unlockAudio();
                   deadlineRef.current = null;
-                  setRunning((r) => !r);
+                  if (running) {
+                    cancelRestReminders();
+                    setRunning(false);
+                  } else {
+                    scheduleRestReminder(rest ?? defaultRest);
+                    setRunning(true);
+                  }
                 }}
                 title="Štart/pauza"
               >
@@ -376,6 +385,7 @@ const WorkoutSessionPage = () => {
                   deadlineRef.current = null;
                   setRest(defaultRest);
                   setRunning(false);
+                  cancelRestReminders();
                 }}
                 title="Reset"
               >
@@ -386,8 +396,11 @@ const WorkoutSessionPage = () => {
                 variant="ghost"
                 className="hidden h-9 px-2 text-xs min-[400px]:inline-flex"
                 onClick={() => {
+                  const next = (rest ?? defaultRest) + 15;
                   if (deadlineRef.current !== null) deadlineRef.current += 15000;
-                  setRest((r) => (r ?? defaultRest) + 15);
+                  setRest(next);
+                  cancelRestReminders();
+                  scheduleRestReminder(next);
                 }}
               >
                 +15s

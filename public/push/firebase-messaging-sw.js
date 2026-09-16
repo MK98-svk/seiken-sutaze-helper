@@ -25,7 +25,7 @@ messaging.onBackgroundMessage((payload) => {
     (async () => {
       const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
       if (clients.some((c) => c.visibilityState === 'visible')) return;
-      const n = payload.notification || {};
+      const n = payload.data || payload.notification || {};
       await self.registration.showNotification(n.title || 'KK Seiken', {
         body: n.body || '',
         icon: '/pwa-icon-192.png',

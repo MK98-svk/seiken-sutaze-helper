@@ -1,8 +1,8 @@
 // Push notifikácie cez Firebase Cloud Messaging – registrácia zariadenia a naplánované pripomienky.
 import { getApp, getApps, initializeApp } from "firebase/app";
-import { deleteToken, getMessaging, getToken, isSupported } from "firebase/messaging";
+import { deleteToken, getMessaging, getToken, isSupported, onMessage } from "firebase/messaging";
 import { supabase } from "@/integrations/supabase/client";
-import { loadSettings } from "@/lib/notifications";
+import { loadSettings, playSound, vibrate } from "@/lib/notifications";
 
 // Nové tabuľky ešte nie sú v generovaných DB typoch – pristupujeme k nim cez voľnejší klient.
 const db = supabase as any;
@@ -99,7 +99,59 @@ export async function refreshPushRegistration(): Promise<PushStatus | "disabled"
     localStorage.removeItem(ENABLED_KEY);
     return "denied";
   }
-  return enablePush();
+  try {
+    const { data: auth } = await supabase.auth.getUser();
+    const user = auth?.user;
+    if (!user) return "not-logged-in";
+
+    const registration = await getPushRegistration();
+    const messaging = firebaseMessaging();
+    let token = await getToken(messaging, { vapidKey, serviceWorkerRegistration: registration });
+    if (!token) return "error";
+
+    const { data: stored, error: readError } = await db
+      .from("push_tokens")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("token", token)
+      .maybeSingle();
+    if (readError) throw readError;
+
+    // FCM token mohol byť po aktualizácii aplikácie zneplatnený a server ho vymazal.
+    if (!stored) {
+      await deleteToken(messaging).catch(() => false);
+      token = await getToken(messaging, { vapidKey, serviceWorkerRegistration: registration });
+      if (!token) return "error";
+      const { error: saveError } = await db
+        .from("push_tokens")
+        .upsert({ user_id: user.id, token, platform: "web" }, { onConflict: "token" });
+      if (saveError) throw saveError;
+    }
+
+    await syncReminderPrefs();
+    return "registered";
+  } catch (e) {
+    console.error("refreshPushRegistration:", e);
+    return "error";
+  }
+}
+
+/** Zobrazí prijatú správu aj vtedy, keď je aplikácia práve otvorená. */
+export function listenForForegroundPush(onReceived: (title: string, body: string) => void) {
+  if (typeof window === "undefined" || !("Notification" in window)) return () => undefined;
+  try {
+    return onMessage(firebaseMessaging(), (payload) => {
+      const title = payload.data?.title || payload.notification?.title || "KK Seiken";
+      const body = payload.data?.body || payload.notification?.body || "Máš nové upozornenie.";
+      const settings = loadSettings();
+      playSound(settings.sound, settings.volume);
+      if (settings.vibrate) vibrate();
+      onReceived(title, body);
+    });
+  } catch (e) {
+    console.error("listenForForegroundPush:", e);
+    return () => undefined;
+  }
 }
 
 /** Vypne push notifikácie pre toto zariadenie. */

@@ -340,6 +340,36 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_prefs: {
+        Row: {
+          last_sent_date: string | null
+          reminder_days: number[]
+          reminder_enabled: boolean
+          reminder_time: string
+          tz_offset_minutes: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          last_sent_date?: string | null
+          reminder_days?: number[]
+          reminder_enabled?: boolean
+          reminder_time?: string
+          tz_offset_minutes?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          last_sent_date?: string | null
+          reminder_days?: number[]
+          reminder_enabled?: boolean
+          reminder_time?: string
+          tz_offset_minutes?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -382,6 +412,63 @@ export type Database = {
           updated_at?: string
           vaha?: number | null
           vyska?: number | null
+        }
+        Relationships: []
+      }
+      push_tokens: {
+        Row: {
+          created_at: string
+          id: string
+          platform: string
+          token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          platform?: string
+          token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          platform?: string
+          token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      scheduled_reminders: {
+        Row: {
+          body: string
+          created_at: string
+          due_at: string
+          id: string
+          kind: string
+          sent: boolean
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          due_at: string
+          id?: string
+          kind?: string
+          sent?: boolean
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          due_at?: string
+          id?: string
+          kind?: string
+          sent?: boolean
+          title?: string
+          user_id?: string
         }
         Relationships: []
       }

@@ -29,10 +29,9 @@ async function sendPush(token: string, title: string, body: string): Promise<Sen
       body: JSON.stringify({
         message: {
           token,
-          notification: { title, body },
+          data: { title, body, path: "/posilnovanie" },
           webpush: {
             headers: { urgency: "high" },
-            notification: { icon: "/pwa-icon-192.png", tag: "seiken-push" },
           },
         },
       }),
@@ -80,12 +79,21 @@ Deno.serve(async (req) => {
 
   for (const r of due ?? []) {
     const { data: tokens } = await admin.from("push_tokens").select("token").eq("user_id", r.user_id);
+    let reminderDelivered = false;
     for (const t of tokens ?? []) {
       const result = await sendPush(t.token, r.title, r.body);
-      if (result === "ok") sent++;
+      if (result === "ok") {
+        sent++;
+        reminderDelivered = true;
+      }
       if (result === "stale") await admin.from("push_tokens").delete().eq("token", t.token);
     }
-    await admin.from("scheduled_reminders").update({ sent: true }).eq("id", r.id);
+    // Za vybavenú ju označíme iba vtedy, keď sa aspoň jednému zariadeniu naozaj odoslala.
+    // Bez tokenu alebo pri dočasnej chybe ostane čakajúca a ďalší beh ju skúsi znova.
+    const { data: remainingTokens } = await admin.from("push_tokens").select("id").eq("user_id", r.user_id).limit(1);
+    if (reminderDelivered || !remainingTokens?.length) {
+      await admin.from("scheduled_reminders").update({ sent: true }).eq("id", r.id);
+    }
   }
 
   // Staré odoslané pripomienky vyčistíme.
@@ -95,8 +103,6 @@ Deno.serve(async (req) => {
     .lt("due_at", new Date(Date.now() - 7 * 86400000).toISOString());
 
   // 2) Týždenné pripomienky tréningu podľa nastavení používateľa.
-  const dayIdx = (now.getDay() + 6) % 7; // 0 = pondelok
-  const today = now.toISOString().slice(0, 10);
   const { data: prefs, error: e2 } = await admin
     .from("notification_prefs")
     .select("*")
@@ -104,13 +110,16 @@ Deno.serve(async (req) => {
   if (e2) console.error("notification_prefs:", e2);
 
   for (const p of prefs ?? []) {
+    const tz = Number(p.tz_offset_minutes ?? 0);
+    const localNow = new Date(now.getTime() + tz * 60000);
+    const dayIdx = (localNow.getUTCDay() + 6) % 7; // 0 = pondelok v lokálnom čase používateľa
+    const today = localNow.toISOString().slice(0, 10);
     if (!Array.isArray(p.reminder_days) || !p.reminder_days.includes(dayIdx)) continue;
     if (p.last_sent_date === today) continue;
 
     const [h, m] = String(p.reminder_time ?? "18:00").split(":").map(Number);
     // Uložený čas je lokálny čas používateľa; prepočítame na UTC.
-    const base = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), h || 0, m || 0);
-    const tz = Number(p.tz_offset_minutes ?? 0);
+    const base = Date.UTC(localNow.getUTCFullYear(), localNow.getUTCMonth(), localNow.getUTCDate(), h || 0, m || 0);
     const targetUtc = base - tz * 60000;
     const diff = now.getTime() - targetUtc;
     if (diff < 0 || diff > 10 * 60 * 1000) continue;

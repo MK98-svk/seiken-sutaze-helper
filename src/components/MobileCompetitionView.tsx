@@ -298,6 +298,15 @@ export default function MobileCompetitionView({
         open={!!historyMember}
         onOpenChange={(o) => !o && setHistoryMember(null)}
       />
+
+      {onUpdateMember && (
+        <EditMemberDialog
+          member={editingMember}
+          open={!!editingMember}
+          onOpenChange={(open) => !open && setEditingMember(null)}
+          onSave={onUpdateMember}
+        />
+      )}
     </div>
   );
 }

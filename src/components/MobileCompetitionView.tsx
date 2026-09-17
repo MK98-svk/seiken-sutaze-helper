@@ -33,6 +33,7 @@ interface MobileCompetitionViewProps {
   onToggleEntry: (memberId: string, competitionId: string) => void;
   onDeleteCompetition: (id: string) => void;
   invalidateResults: () => void;
+  onUpdateMember?: (id: string, updates: Partial<Member>) => void;
 }
 
 export default function MobileCompetitionView({

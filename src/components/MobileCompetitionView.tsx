@@ -1,6 +1,7 @@
 import { Member, Competition } from "@/types/member";
 import { Button } from "@/components/ui/button";
-import { Trash2, X, ChevronDown, ChevronUp, UserMinus } from "lucide-react";
+import { Trash2, X, ChevronDown, ChevronUp, UserMinus, Pencil } from "lucide-react";
+import EditMemberDialog from "./EditMemberDialog";
 import { motion, AnimatePresence } from "framer-motion";
 import ImportResultsDialog from "./ImportResultsDialog";
 import ImportStartlistDialog from "./ImportStartlistDialog";
@@ -33,6 +34,7 @@ interface MobileCompetitionViewProps {
   onToggleEntry: (memberId: string, competitionId: string) => void;
   onDeleteCompetition: (id: string) => void;
   invalidateResults: () => void;
+  onUpdateMember?: (id: string, updates: Partial<Member>) => void;
 }
 
 export default function MobileCompetitionView({
@@ -44,6 +46,7 @@ export default function MobileCompetitionView({
   isRegistered,
   onToggleEntry,
   onDeleteCompetition,
+  onUpdateMember,
 }: MobileCompetitionViewProps) {
   const isRegisteredMember = currentUserId ? members.some(m => m.userId === currentUserId) : false;
   const canManageResults = isAdmin || isCoach;
@@ -54,6 +57,7 @@ export default function MobileCompetitionView({
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
   const [historyMember, setHistoryMember] = useState<Member | null>(null);
   const [memberToRemove, setMemberToRemove] = useState<Member | null>(null);
+  const [editingMember, setEditingMember] = useState<Member | null>(null);
 
   const totalMedals = members.reduce((acc, m) => {
     const medals = getMemberMedals(m.id);
@@ -167,6 +171,20 @@ export default function MobileCompetitionView({
                     </div>
                   )}
                 </div>
+                {onUpdateMember && (isAdmin || isCoach || (currentUserId != null && member.userId === currentUserId)) && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground hover:text-primary shrink-0"
+                    title="Upraviť údaje"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingMember(member);
+                    }}
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                )}
                 {(isAdmin || isCoach) && (
                   <Button
                     variant="ghost"
@@ -280,6 +298,15 @@ export default function MobileCompetitionView({
         open={!!historyMember}
         onOpenChange={(o) => !o && setHistoryMember(null)}
       />
+
+      {onUpdateMember && (
+        <EditMemberDialog
+          member={editingMember}
+          open={!!editingMember}
+          onOpenChange={(open) => !open && setEditingMember(null)}
+          onSave={onUpdateMember}
+        />
+      )}
     </div>
   );
 }

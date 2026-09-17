@@ -123,6 +123,7 @@ export default function MemberTable({
             isAdmin={isAdmin}
             isCoach={isCoach}
             currentUserId={currentUserId ?? null}
+            onUpdateMember={onUpdateMember}
             isRegistered={isRegistered}
             onToggleEntry={onToggleEntry}
             onDeleteCompetition={onDeleteCompetition}
@@ -175,14 +176,14 @@ export default function MemberTable({
                    <TableHead className="font-display font-semibold text-foreground text-center">🥈</TableHead>
                    <TableHead className="font-display font-semibold text-foreground text-center">🥉</TableHead>
                    <TableHead className="font-display font-semibold text-foreground">Disciplíny</TableHead>
-                   {(isAdmin || isCoach) && <TableHead className="w-10" />}
+                   <TableHead className="w-10" />
                 </TableRow>
               </TableHeader>
               <TableBody>
                 <AnimatePresence>
                   {registeredMembers.length === 0 ? (
                    <TableRow>
-                       <TableCell colSpan={(isAdmin || isCoach) ? 8 : 7} className="text-center text-muted-foreground py-12">
+                       <TableCell colSpan={8} className="text-center text-muted-foreground py-12">
                          Žiadni registrovaní členovia na túto súťaž.
                        </TableCell>
                     </TableRow>
@@ -250,19 +251,32 @@ export default function MemberTable({
                               );
                             })()}
                           </TableCell>
-                          {(isAdmin || isCoach) && (
-                            <TableCell className="text-center">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                                title="Odstrániť zo súťaže"
-                                onClick={() => setMemberToRemove(member)}
-                              >
-                                <UserMinus className="h-3.5 w-3.5" />
-                              </Button>
-                            </TableCell>
-                          )}
+                          <TableCell className="text-center">
+                            <div className="flex items-center gap-1 justify-center">
+                              {(isAdmin || isCoach || (currentUserId != null && member.userId === currentUserId)) && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7 text-muted-foreground hover:text-primary"
+                                  title="Upraviť údaje (stupeň, výška, váha)"
+                                  onClick={() => setEditingMember(member)}
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </Button>
+                              )}
+                              {(isAdmin || isCoach) && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                                  title="Odstrániť zo súťaže"
+                                  onClick={() => setMemberToRemove(member)}
+                                >
+                                  <UserMinus className="h-3.5 w-3.5" />
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
                         </motion.tr>
                       );
                     })
@@ -285,7 +299,7 @@ export default function MemberTable({
                       {registeredMembers.reduce((s, m) => s + getMemberMedals(m.id).bronz, 0)}
                     </TableCell>
                     <TableCell />
-                    {(isAdmin || isCoach) && <TableCell />}
+                    <TableCell />
                   </tr>
                 </tfoot>
               )}
@@ -348,6 +362,13 @@ export default function MemberTable({
           competitions={competitions}
           open={!!historyMember}
           onOpenChange={(o) => !o && setHistoryMember(null)}
+        />
+
+        <EditMemberDialog
+          member={editingMember}
+          open={!!editingMember}
+          onOpenChange={(open) => !open && setEditingMember(null)}
+          onSave={onUpdateMember}
         />
       </div>
 

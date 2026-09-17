@@ -171,20 +171,6 @@ export default function MobileCompetitionView({
                     </div>
                   )}
                 </div>
-                {onUpdateMember && (isAdmin || isCoach || (currentUserId != null && member.userId === currentUserId)) && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-muted-foreground hover:text-primary shrink-0"
-                    title="Upraviť údaje"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditingMember(member);
-                    }}
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Button>
-                )}
                 {(isAdmin || isCoach) && (
                   <Button
                     variant="ghost"
@@ -299,14 +285,6 @@ export default function MobileCompetitionView({
         onOpenChange={(o) => !o && setHistoryMember(null)}
       />
 
-      {onUpdateMember && (
-        <EditMemberDialog
-          member={editingMember}
-          open={!!editingMember}
-          onOpenChange={(open) => !open && setEditingMember(null)}
-          onSave={onUpdateMember}
-        />
-      )}
     </div>
   );
 }

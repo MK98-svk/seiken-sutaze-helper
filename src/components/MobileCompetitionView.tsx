@@ -1,7 +1,6 @@
 import { Member, Competition } from "@/types/member";
 import { Button } from "@/components/ui/button";
-import { Trash2, X, ChevronDown, ChevronUp, UserMinus, Pencil } from "lucide-react";
-import EditMemberDialog from "./EditMemberDialog";
+import { Trash2, X, ChevronDown, ChevronUp, UserMinus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ImportResultsDialog from "./ImportResultsDialog";
 import ImportStartlistDialog from "./ImportStartlistDialog";
@@ -34,7 +33,6 @@ interface MobileCompetitionViewProps {
   onToggleEntry: (memberId: string, competitionId: string) => void;
   onDeleteCompetition: (id: string) => void;
   invalidateResults: () => void;
-  onUpdateMember?: (id: string, updates: Partial<Member>) => void;
 }
 
 export default function MobileCompetitionView({
@@ -46,7 +44,6 @@ export default function MobileCompetitionView({
   isRegistered,
   onToggleEntry,
   onDeleteCompetition,
-  onUpdateMember,
 }: MobileCompetitionViewProps) {
   const isRegisteredMember = currentUserId ? members.some(m => m.userId === currentUserId) : false;
   const canManageResults = isAdmin || isCoach;
@@ -57,7 +54,6 @@ export default function MobileCompetitionView({
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
   const [historyMember, setHistoryMember] = useState<Member | null>(null);
   const [memberToRemove, setMemberToRemove] = useState<Member | null>(null);
-  const [editingMember, setEditingMember] = useState<Member | null>(null);
 
   const totalMedals = members.reduce((acc, m) => {
     const medals = getMemberMedals(m.id);

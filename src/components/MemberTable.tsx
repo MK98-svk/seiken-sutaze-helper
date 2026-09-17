@@ -123,7 +123,6 @@ export default function MemberTable({
             isAdmin={isAdmin}
             isCoach={isCoach}
             currentUserId={currentUserId ?? null}
-            onUpdateMember={onUpdateMember}
             isRegistered={isRegistered}
             onToggleEntry={onToggleEntry}
             onDeleteCompetition={onDeleteCompetition}
@@ -176,14 +175,14 @@ export default function MemberTable({
                    <TableHead className="font-display font-semibold text-foreground text-center">🥈</TableHead>
                    <TableHead className="font-display font-semibold text-foreground text-center">🥉</TableHead>
                    <TableHead className="font-display font-semibold text-foreground">Disciplíny</TableHead>
-                   <TableHead className="w-10" />
+                   {(isAdmin || isCoach) && <TableHead className="w-10" />}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 <AnimatePresence>
                   {registeredMembers.length === 0 ? (
                    <TableRow>
-                       <TableCell colSpan={8} className="text-center text-muted-foreground py-12">
+                       <TableCell colSpan={(isAdmin || isCoach) ? 8 : 7} className="text-center text-muted-foreground py-12">
                          Žiadni registrovaní členovia na túto súťaž.
                        </TableCell>
                     </TableRow>
@@ -286,7 +285,7 @@ export default function MemberTable({
                       {registeredMembers.reduce((s, m) => s + getMemberMedals(m.id).bronz, 0)}
                     </TableCell>
                     <TableCell />
-                    <TableCell />
+                    {(isAdmin || isCoach) && <TableCell />}
                   </tr>
                 </tfoot>
               )}

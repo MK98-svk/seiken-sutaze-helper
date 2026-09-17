@@ -1,6 +1,7 @@
 import { Member, Competition } from "@/types/member";
 import { Button } from "@/components/ui/button";
-import { Trash2, X, ChevronDown, ChevronUp, UserMinus } from "lucide-react";
+import { Trash2, X, ChevronDown, ChevronUp, UserMinus, Pencil } from "lucide-react";
+import EditMemberDialog from "./EditMemberDialog";
 import { motion, AnimatePresence } from "framer-motion";
 import ImportResultsDialog from "./ImportResultsDialog";
 import ImportStartlistDialog from "./ImportStartlistDialog";
@@ -45,6 +46,7 @@ export default function MobileCompetitionView({
   isRegistered,
   onToggleEntry,
   onDeleteCompetition,
+  onUpdateMember,
 }: MobileCompetitionViewProps) {
   const isRegisteredMember = currentUserId ? members.some(m => m.userId === currentUserId) : false;
   const canManageResults = isAdmin || isCoach;

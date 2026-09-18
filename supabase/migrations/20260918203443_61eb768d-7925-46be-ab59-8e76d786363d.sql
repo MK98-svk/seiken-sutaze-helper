@@ -1,0 +1,2 @@
+INSERT INTO public.members (meno, priezvisko, stupen, pohlavie, datum_narodenia, vyska, vaha, kata, kobudo, kumite, user_id, is_competitor, is_trainee, email)
+VALUES ('Dida', 'Krammerová', '', 'D', '2005-09-14', 165, 70, false, false, false, '6e7d4cbe-c324-4331-932e-85bfdbc82490', false, true, 'dida.krammerova@gmail.com');

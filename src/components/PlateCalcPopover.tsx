@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const BAR_KEY = "seiken_bar_weight";
-const PLATES = [25, 20, 15, 10, 5, 2.5, 1.25];
+const PLATES = [25, 20, 15, 10, 5, 2.5, 1.25, 1, 0.5];
 
 interface Props {
   onApply: (total: number) => void;
@@ -24,7 +24,7 @@ export default function PlateCalcPopover({ onApply }: Props) {
 
   const total = useMemo(() => {
     const perSide = PLATES.reduce((sum, p) => sum + p * (counts[p] ?? 0), 0);
-    return (Number(bar) || 0) + perSide * 2;
+    return Math.round(((Number(bar) || 0) + perSide * 2) * 100) / 100;
   }, [bar, counts]);
 
   const bump = (p: number, delta: number) =>
@@ -56,7 +56,7 @@ export default function PlateCalcPopover({ onApply }: Props) {
           <div className="space-y-1">
             {PLATES.map((p) => (
               <div key={p} className="flex items-center gap-2">
-                <span className="w-14 text-sm tabular-nums">{p} kg</span>
+                <span className="w-14 text-sm tabular-nums">{String(p).replace(".", ",")} kg</span>
                 <Button type="button" size="icon" variant="outline" className="h-8 w-8" onClick={() => bump(p, -1)}>
                   −
                 </Button>

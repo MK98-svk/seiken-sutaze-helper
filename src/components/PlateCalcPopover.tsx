@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const BAR_KEY = "seiken_bar_weight";
-const PLATES = [25, 20, 15, 10, 5, 2.5, 1.25];
+const PLATES = [25, 20, 15, 10, 5, 2.5, 1.25, 1, 0.5];
 
 interface Props {
   onApply: (total: number) => void;

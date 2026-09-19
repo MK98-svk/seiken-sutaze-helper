@@ -56,7 +56,7 @@ export default function PlateCalcPopover({ onApply }: Props) {
           <div className="space-y-1">
             {PLATES.map((p) => (
               <div key={p} className="flex items-center gap-2">
-                <span className="w-14 text-sm tabular-nums">{p} kg</span>
+                <span className="w-14 text-sm tabular-nums">{String(p).replace(".", ",")} kg</span>
                 <Button type="button" size="icon" variant="outline" className="h-8 w-8" onClick={() => bump(p, -1)}>
                   −
                 </Button>

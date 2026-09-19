@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      club_trainings: {
+        Row: {
+          cas_do: string
+          cas_od: string
+          created_at: string
+          datum: string
+          id: string
+          odcvicene: boolean
+          odcvicene_at: string | null
+          odcvicene_by: string | null
+          poznamka: string | null
+          trenujeme: boolean
+          typ: string
+          updated_at: string
+        }
+        Insert: {
+          cas_do: string
+          cas_od: string
+          created_at?: string
+          datum: string
+          id?: string
+          odcvicene?: boolean
+          odcvicene_at?: string | null
+          odcvicene_by?: string | null
+          poznamka?: string | null
+          trenujeme?: boolean
+          typ: string
+          updated_at?: string
+        }
+        Update: {
+          cas_do?: string
+          cas_od?: string
+          created_at?: string
+          datum?: string
+          id?: string
+          odcvicene?: boolean
+          odcvicene_at?: string | null
+          odcvicene_by?: string | null
+          poznamka?: string | null
+          trenujeme?: boolean
+          typ?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       competition_entries: {
         Row: {
           competition_id: string

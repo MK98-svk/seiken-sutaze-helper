@@ -16,6 +16,7 @@ import WorkoutProgress from "./pages/WorkoutProgress";
 import CoachMembers from "./pages/CoachMembers";
 import CoachMemberDetail from "./pages/CoachMemberDetail";
 import Supplements from "./pages/Supplements";
+import Trainings from "./pages/Trainings";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
@@ -36,6 +37,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/sutaze" element={<Index />} />
+          <Route path="/treningy" element={<Trainings />} />
           <Route path="/posilnovanie" element={<Strength />} />
           <Route path="/posilnovanie/ai" element={<WorkoutAI />} />
           <Route path="/posilnovanie/plany" element={<WorkoutPlans />} />

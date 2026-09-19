@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Navigate, useNavigate } from "react-router-dom";
-import { LogOut, Trophy, Dumbbell, RefreshCw, ShoppingCart } from "lucide-react";
+import { LogOut, Trophy, Dumbbell, RefreshCw, ShoppingCart, CalendarCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useMembers } from "@/hooks/useClubData";
@@ -22,6 +22,13 @@ const tiles = [
     label: "Posilňovanie",
     desc: "Fitko, doma s pomôckami aj bez nich + AI tréning",
     icon: Dumbbell,
+    ready: true,
+  },
+  {
+    to: "/treningy",
+    label: "Tréningy",
+    desc: "Kalendár tréningov, sviatky a mesačný prehľad",
+    icon: CalendarCheck,
     ready: true,
   },
   ...(showSupplements

@@ -24,7 +24,7 @@ export default function PlateCalcPopover({ onApply }: Props) {
 
   const total = useMemo(() => {
     const perSide = PLATES.reduce((sum, p) => sum + p * (counts[p] ?? 0), 0);
-    return (Number(bar) || 0) + perSide * 2;
+    return Math.round(((Number(bar) || 0) + perSide * 2) * 100) / 100;
   }, [bar, counts]);
 
   const bump = (p: number, delta: number) =>

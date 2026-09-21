@@ -34,6 +34,7 @@ import TeamAnalytics from "./TeamAnalytics";
 import { useCompetitionIntents } from "@/hooks/useCompetitionIntents";
 import { formatIntentLabel } from "./SelfRegisterDialog";
 import MemberResultsDialog from "./MemberResultsDialog";
+import AttendanceDialog from "./AttendanceDialog";
 
 
 interface MemberTableProps {

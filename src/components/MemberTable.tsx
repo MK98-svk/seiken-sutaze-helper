@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, Pencil, X, UserMinus } from "lucide-react";
+import { Trash2, Pencil, X, UserMinus, Search } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -66,7 +66,13 @@ export default function MemberTable({
   const [historyMember, setHistoryMember] = useState<Member | null>(null);
   const [memberToRemove, setMemberToRemove] = useState<Member | null>(null);
   const [selectedCompId, setSelectedCompId] = useState<string>("all");
+  const [memberSearch, setMemberSearch] = useState("");
   const isMobile = useIsMobile();
+
+  const searchLower = memberSearch.trim().toLowerCase();
+  const filteredMembers = searchLower
+    ? members.filter((m) => `${m.meno} ${m.priezvisko}`.toLowerCase().includes(searchLower))
+    : members;
 
   const handleSelectComp = (value: string) => {
     setSelectedCompId(value);
@@ -368,9 +374,19 @@ export default function MemberTable({
         <CompetitionPicker competitions={competitions} value={selectedCompId} onChange={handleSelectComp} />
       </div>
 
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Input
+          placeholder="Hľadať meno…"
+          value={memberSearch}
+          onChange={(e) => setMemberSearch(e.target.value)}
+          className="pl-9 h-9"
+        />
+      </div>
+
       {isMobile ? (
         <MobileMemberList
-          members={members}
+          members={filteredMembers}
           competitions={competitions}
           isAdmin={isAdmin}
           currentUserId={currentUserId}
@@ -401,14 +417,14 @@ export default function MemberTable({
           </TableHeader>
           <TableBody>
             <AnimatePresence>
-              {members.length === 0 ? (
+              {filteredMembers.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={99} className="text-center text-muted-foreground py-12">
-                    Zatiaľ žiadni členovia. Pridajte prvého člena klubu.
+                    {memberSearch ? "Nikto nenájdený." : "Zatiaľ žiadni členovia. Pridajte prvého člena klubu."}
                   </TableCell>
                 </TableRow>
               ) : (
-                members.map((member) => {
+                filteredMembers.map((member) => {
                   const canEditSelf = !isAdmin && currentUserId != null && member.userId === currentUserId;
                   return (
                     <motion.tr
@@ -490,7 +506,7 @@ export default function MemberTable({
               )}
             </AnimatePresence>
           </TableBody>
-          {members.length > 0 && (
+          {filteredMembers.length > 0 && (
             <tfoot>
               <tr className="border-t-2 border-border bg-secondary/60 font-semibold">
                 <TableCell colSpan={6} className="text-right text-xs uppercase tracking-wider text-muted-foreground">
@@ -498,17 +514,17 @@ export default function MemberTable({
                 </TableCell>
                 {(["kata", "kobudo", "kumite"] as const).map((d) => (
                   <TableCell key={d} className="text-center text-sm font-bold text-foreground">
-                    {members.filter((m) => m[d]).length}
+                    {filteredMembers.filter((m) => m[d]).length}
                   </TableCell>
                 ))}
                 <TableCell className="text-center text-sm font-bold text-foreground">
-                  {members.reduce((s, m) => s + (m.zlato ?? 0), 0)}
+                  {filteredMembers.reduce((s, m) => s + (m.zlato ?? 0), 0)}
                 </TableCell>
                 <TableCell className="text-center text-sm font-bold text-foreground">
-                  {members.reduce((s, m) => s + (m.striebro ?? 0), 0)}
+                  {filteredMembers.reduce((s, m) => s + (m.striebro ?? 0), 0)}
                 </TableCell>
                 <TableCell className="text-center text-sm font-bold text-foreground">
-                  {members.reduce((s, m) => s + (m.bronz ?? 0), 0)}
+                  {filteredMembers.reduce((s, m) => s + (m.bronz ?? 0), 0)}
                 </TableCell>
                 {(isAdmin || currentUserId) && <TableCell />}
               </tr>

@@ -58,7 +58,7 @@ export default function MemberResultsDialog({ member, competitions, open, onOpen
 
   // vek clena v den sutaze
   const ageAt = (compDatum?: string) => {
-    if (!member?.datum_narodenia || !compDatum) return null;
+    if (!member?.datumNarodenia || !compDatum) return null;
     const b = new Date(member.datumNarodenia);
     const d = new Date(compDatum);
     let a = d.getFullYear() - b.getFullYear();

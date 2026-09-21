@@ -237,6 +237,33 @@ export function useCompetitionEntries() {
     [toggleMutation]
   );
 
+  const setMutation = useMutation({
+    mutationFn: async ({ memberId, competitionId, registered }: { memberId: string; competitionId: string; registered: boolean }) => {
+      const existing = entries.find((e) => e.memberId === memberId && e.competitionId === competitionId);
+      if (existing) {
+        const { error } = await (supabase as any)
+          .from("member_competition_entries")
+          .update({ registered })
+          .eq("member_id", memberId)
+          .eq("competition_id", competitionId);
+        if (error) throw error;
+      } else {
+        const { error } = await (supabase as any)
+          .from("member_competition_entries")
+          .insert({ member_id: memberId, competition_id: competitionId, registered });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["member_competition_entries"] }),
+    onError: (e: any) => toast.error("Chyba: " + e.message),
+  });
+
+  const setEntry = useCallback(
+    (memberId: string, competitionId: string, registered: boolean) =>
+      setMutation.mutateAsync({ memberId, competitionId, registered }),
+    [setMutation]
+  );
+
   const isRegistered = useCallback(
     (memberId: string, competitionId: string) =>
       entries.some((e) => e.memberId === memberId && e.competitionId === competitionId && e.registered),

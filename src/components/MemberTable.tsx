@@ -417,14 +417,14 @@ export default function MemberTable({
           </TableHeader>
           <TableBody>
             <AnimatePresence>
-              {members.length === 0 ? (
+              {filteredMembers.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={99} className="text-center text-muted-foreground py-12">
-                    Zatiaľ žiadni členovia. Pridajte prvého člena klubu.
+                    {memberSearch ? "Nikto nenájdený." : "Zatiaľ žiadni členovia. Pridajte prvého člena klubu."}
                   </TableCell>
                 </TableRow>
               ) : (
-                members.map((member) => {
+                filteredMembers.map((member) => {
                   const canEditSelf = !isAdmin && currentUserId != null && member.userId === currentUserId;
                   return (
                     <motion.tr

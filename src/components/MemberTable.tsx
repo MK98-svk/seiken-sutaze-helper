@@ -514,17 +514,17 @@ export default function MemberTable({
                 </TableCell>
                 {(["kata", "kobudo", "kumite"] as const).map((d) => (
                   <TableCell key={d} className="text-center text-sm font-bold text-foreground">
-                    {members.filter((m) => m[d]).length}
+                    {filteredMembers.filter((m) => m[d]).length}
                   </TableCell>
                 ))}
                 <TableCell className="text-center text-sm font-bold text-foreground">
-                  {members.reduce((s, m) => s + (m.zlato ?? 0), 0)}
+                  {filteredMembers.reduce((s, m) => s + (m.zlato ?? 0), 0)}
                 </TableCell>
                 <TableCell className="text-center text-sm font-bold text-foreground">
-                  {members.reduce((s, m) => s + (m.striebro ?? 0), 0)}
+                  {filteredMembers.reduce((s, m) => s + (m.striebro ?? 0), 0)}
                 </TableCell>
                 <TableCell className="text-center text-sm font-bold text-foreground">
-                  {members.reduce((s, m) => s + (m.bronz ?? 0), 0)}
+                  {filteredMembers.reduce((s, m) => s + (m.bronz ?? 0), 0)}
                 </TableCell>
                 {(isAdmin || currentUserId) && <TableCell />}
               </tr>

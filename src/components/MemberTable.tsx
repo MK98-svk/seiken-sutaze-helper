@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, Pencil, X, UserMinus } from "lucide-react";
+import { Trash2, Pencil, X, UserMinus, Search } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -66,7 +66,13 @@ export default function MemberTable({
   const [historyMember, setHistoryMember] = useState<Member | null>(null);
   const [memberToRemove, setMemberToRemove] = useState<Member | null>(null);
   const [selectedCompId, setSelectedCompId] = useState<string>("all");
+  const [memberSearch, setMemberSearch] = useState("");
   const isMobile = useIsMobile();
+
+  const searchLower = memberSearch.trim().toLowerCase();
+  const filteredMembers = searchLower
+    ? members.filter((m) => `${m.meno} ${m.priezvisko}`.toLowerCase().includes(searchLower))
+    : members;
 
   const handleSelectComp = (value: string) => {
     setSelectedCompId(value);

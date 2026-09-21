@@ -270,5 +270,11 @@ export function useCompetitionEntries() {
     [entries]
   );
 
-  return { entries, toggleEntry, isRegistered };
+  const getEntry = useCallback(
+    (memberId: string, competitionId: string) =>
+      entries.find((e) => e.memberId === memberId && e.competitionId === competitionId),
+    [entries]
+  );
+
+  return { entries, toggleEntry, setEntry, isRegistered, getEntry };
 }

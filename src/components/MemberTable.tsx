@@ -374,9 +374,19 @@ export default function MemberTable({
         <CompetitionPicker competitions={competitions} value={selectedCompId} onChange={handleSelectComp} />
       </div>
 
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Input
+          placeholder="Hľadať meno…"
+          value={memberSearch}
+          onChange={(e) => setMemberSearch(e.target.value)}
+          className="pl-9 h-9"
+        />
+      </div>
+
       {isMobile ? (
         <MobileMemberList
-          members={members}
+          members={filteredMembers}
           competitions={competitions}
           isAdmin={isAdmin}
           currentUserId={currentUserId}

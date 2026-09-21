@@ -53,13 +53,50 @@ export default function MemberResultsDialog({ member, competitions, open, onOpen
   );
 
 
-  const surname = member ? norm(member.priezvisko) : "";
-  const firstName = member ? norm(member.meno) : "";
+  const surname = member ? norm(member.priezvisko.trim()) : "";
+  const firstName = member ? norm(member.meno.trim()) : "";
+
+  // vek clena v den sutaze
+  const ageAt = (compDatum?: string) => {
+    if (!member?.datum_narodenia || !compDatum) return null;
+    const b = new Date(member.datum_narodenia);
+    const d = new Date(compDatum);
+    let a = d.getFullYear() - b.getFullYear();
+    const m = d.getMonth() - b.getMonth();
+    if (m < 0 || (m === 0 && d.getDate() < b.getDate())) a -= 1;
+    return a;
+  };
+
+  // vekovy rozsah z nazvu kategorie: "13 years", "14-15 years", "21 years & Above", "9 years & Under"
+  const ageRange = (category?: string | null): [number, number] | null => {
+    if (!category) return null;
+    const c = category.toLowerCase();
+    if (c.includes("parent")) return null;
+    let m = c.match(/(\d+)\s*-\s*(\d+)\s*years/);
+    if (m) return [Number(m[1]), Number(m[2])];
+    m = c.match(/(\d+)\s*years?\s*(&|and)\s*above/);
+    if (m) return [Number(m[1]), 120];
+    m = c.match(/(\d+)\s*years?\s*(&|and)\s*under/);
+    if (m) return [0, Number(m[1])];
+    m = c.match(/(\d+)\s*years/);
+    if (m) return [Number(m[1]), Number(m[1])];
+    return null;
+  };
 
   const teamRows = (data?.teams ?? []).filter((t: any) => {
     const txt = norm(`${t.members_text ?? ""} ${t.team_name ?? ""}`);
     if (!surname) return false;
-    return txt.includes(surname) || (firstName && txt.includes(`${firstName} ${surname}`));
+    const nameHit =
+      txt.includes(surname) || (firstName && txt.includes(`${firstName} ${surname}`));
+    if (!nameHit) return false;
+    // ak sedi cele meno, ber to ako isty zasah
+    if (firstName && txt.includes(`${firstName} ${surname}`)) return true;
+    // inak over vek voci kategorii (rozlisi menovcov v rodine)
+    const comp = compById.get(t.competition_id);
+    const age = ageAt(comp?.datum);
+    const range = ageRange(t.category);
+    if (age == null || !range) return true;
+    return age >= range[0] && age <= range[1];
   });
 
   type Row = {

@@ -92,9 +92,16 @@ export default function MemberTable({
   if (selectedComp) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
           <span className="text-sm text-muted-foreground font-medium">Súťaž:</span>
           <CompetitionPicker competitions={competitions} value={selectedCompId} onChange={handleSelectComp} />
+          <AttendanceDialog
+            competition={selectedComp}
+            members={members}
+            currentUserId={currentUserId ?? null}
+            isAdmin={isAdmin}
+            isCoach={isCoach}
+          />
         </div>
 
         {(() => {

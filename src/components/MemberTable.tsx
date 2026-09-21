@@ -506,7 +506,7 @@ export default function MemberTable({
               )}
             </AnimatePresence>
           </TableBody>
-          {members.length > 0 && (
+          {filteredMembers.length > 0 && (
             <tfoot>
               <tr className="border-t-2 border-border bg-secondary/60 font-semibold">
                 <TableCell colSpan={6} className="text-right text-xs uppercase tracking-wider text-muted-foreground">

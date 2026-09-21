@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import CompetitionPicker from "./CompetitionPicker";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import { motion, AnimatePresence } from "framer-motion";
@@ -97,21 +97,7 @@ export default function MemberTable({
       <div className="space-y-4">
         <div className="flex items-center gap-3 flex-wrap">
           <span className="text-sm text-muted-foreground font-medium">Súťaž:</span>
-          <Select value={selectedCompId} onValueChange={handleSelectComp}>
-            <SelectTrigger className="w-full sm:w-[320px]">
-              <SelectValue placeholder="Vybrať súťaž" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Všetky (prehľad členov)</SelectItem>
-              <SelectItem value="stats">📊 Úspešnosť pretekárov</SelectItem>
-              <SelectItem value="team-stats">👥 Úspešnosť tímov</SelectItem>
-              {competitions.map((comp) => (
-                <SelectItem key={comp.id} value={comp.id}>
-                  {comp.nazov} — {formatDate(comp.datum)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <CompetitionPicker competitions={competitions} value={selectedCompId} onChange={handleSelectComp} />
         </div>
 
         {(() => {
@@ -360,21 +346,7 @@ export default function MemberTable({
       <div className="space-y-4">
         <div className="flex items-center gap-3 flex-wrap">
           <span className="text-sm text-muted-foreground font-medium">Súťaž:</span>
-          <Select value={selectedCompId} onValueChange={handleSelectComp}>
-            <SelectTrigger className="w-full sm:w-[320px]">
-              <SelectValue placeholder="Vybrať súťaž" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Všetky (prehľad členov)</SelectItem>
-              <SelectItem value="stats">📊 Úspešnosť pretekárov</SelectItem>
-              <SelectItem value="team-stats">👥 Úspešnosť tímov</SelectItem>
-              {competitions.map((comp) => (
-                <SelectItem key={comp.id} value={comp.id}>
-                  {comp.nazov} — {formatDate(comp.datum)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <CompetitionPicker competitions={competitions} value={selectedCompId} onChange={handleSelectComp} />
         </div>
         {showStats
           ? <CompetitorAnalytics members={members} competitions={competitions} />
@@ -388,21 +360,7 @@ export default function MemberTable({
     <div className="space-y-4">
       <div className="flex items-center gap-3 flex-wrap">
         <span className="text-sm text-muted-foreground font-medium">Súťaž:</span>
-        <Select value={selectedCompId} onValueChange={handleSelectComp}>
-          <SelectTrigger className="w-full sm:w-[320px]">
-            <SelectValue placeholder="Vybrať súťaž" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Všetky (prehľad členov)</SelectItem>
-            <SelectItem value="stats">📊 Úspešnosť pretekárov</SelectItem>
-            <SelectItem value="team-stats">👥 Úspešnosť tímov</SelectItem>
-            {competitions.map((comp) => (
-              <SelectItem key={comp.id} value={comp.id}>
-                {comp.nazov} — {formatDate(comp.datum)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <CompetitionPicker competitions={competitions} value={selectedCompId} onChange={handleSelectComp} />
       </div>
 
       {isMobile ? (

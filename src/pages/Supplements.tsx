@@ -42,8 +42,8 @@ const Supplements = () => {
       if (!q) return true;
       return `${p.name} ${p.subtitle}`.toLowerCase().includes(q);
     });
-    if (sort === "price-asc") list = [...list].sort((a, b) => (a.price ?? 1e9) - (b.price ?? 1e9));
-    if (sort === "price-desc") list = [...list].sort((a, b) => (b.price ?? -1) - (a.price ?? -1));
+    if (sort === "price-asc") list = [...list].sort((a, b) => (discountedPrice(a.price, a.discounted) ?? 1e9) - (discountedPrice(b.price, b.discounted) ?? 1e9));
+    if (sort === "price-desc") list = [...list].sort((a, b) => (discountedPrice(b.price, b.discounted) ?? -1) - (discountedPrice(a.price, a.discounted) ?? -1));
     if (sort === "name") list = [...list].sort((a, b) => a.name.localeCompare(b.name, "sk"));
     return list;
   }, [products, query, cat, sort]);

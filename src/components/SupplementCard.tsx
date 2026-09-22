@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Supplement } from "@/hooks/useSupplements";
+import { Supplement, discountedPrice } from "@/hooks/useSupplements";
 
 interface Props {
   product: Supplement;

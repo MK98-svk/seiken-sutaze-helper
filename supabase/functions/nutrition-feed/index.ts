@@ -16,7 +16,15 @@ type Product = {
   manufacturer: string;
   ean: string;
   category: string;
+  discounted: boolean;
 };
+
+// Produkty, na ktoré sa zľavový kód nevzťahuje
+const NO_DISCOUNT = [/krill/i, /forever\s*mind/i, /sulforaphane|longevity\s*booster/i];
+
+function isDiscounted(name: string): boolean {
+  return !NO_DISCOUNT.some((re) => re.test(name));
+}
 
 let cache: { at: number; data: Product[] } | null = null;
 
@@ -109,6 +117,7 @@ function parseFeed(xml: string): Product[] {
       manufacturer: tag(raw, "MANUFACTURER"),
       ean: tag(raw, "EAN"),
       category: categorize(name, subtitle, description),
+      discounted: isDiscounted(name),
     });
   }
   return products;

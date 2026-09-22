@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Supplement } from "@/hooks/useSupplements";
+import { Supplement, discountedPrice } from "@/hooks/useSupplements";
 
 interface Props {
   product: Supplement;
@@ -33,8 +33,21 @@ const SupplementCard = ({ product, onOpen, eager }: Props) => (
       {product.subtitle && (
         <div className="text-[10px] sm:text-xs text-muted-foreground line-clamp-2 break-words">{product.subtitle}</div>
       )}
-      <div className="mt-auto pt-1 font-display text-base sm:text-lg text-primary">
-        {product.price !== null ? `${product.price.toFixed(2)} €` : "—"}
+      <div className="mt-auto pt-1">
+        {product.discounted && product.price !== null ? (
+          <div className="flex items-baseline gap-1.5 flex-wrap">
+            <span className="font-display text-base sm:text-lg text-primary">
+              {discountedPrice(product.price, true).toFixed(2)} €
+            </span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground line-through">
+              {product.price.toFixed(2)} €
+            </span>
+          </div>
+        ) : (
+          <div className="font-display text-base sm:text-lg text-primary">
+            {product.price !== null ? `${product.price.toFixed(2)} €` : "—"}
+          </div>
+        )}
       </div>
     </div>
   </button>

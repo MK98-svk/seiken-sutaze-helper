@@ -5,7 +5,7 @@ import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
-import { useSupplements, Supplement } from "@/hooks/useSupplements";
+import { useSupplements, Supplement, discountedPrice, DISCOUNT_CODE, DISCOUNT_PERCENT } from "@/hooks/useSupplements";
 import SupplementCard from "@/components/SupplementCard";
 import SupplementDetailDialog from "@/components/SupplementDetailDialog";
 
@@ -42,8 +42,8 @@ const Supplements = () => {
       if (!q) return true;
       return `${p.name} ${p.subtitle}`.toLowerCase().includes(q);
     });
-    if (sort === "price-asc") list = [...list].sort((a, b) => (a.price ?? 1e9) - (b.price ?? 1e9));
-    if (sort === "price-desc") list = [...list].sort((a, b) => (b.price ?? -1) - (a.price ?? -1));
+    if (sort === "price-asc") list = [...list].sort((a, b) => (discountedPrice(a.price, a.discounted) ?? 1e9) - (discountedPrice(b.price, b.discounted) ?? 1e9));
+    if (sort === "price-desc") list = [...list].sort((a, b) => (discountedPrice(b.price, b.discounted) ?? -1) - (discountedPrice(a.price, a.discounted) ?? -1));
     if (sort === "name") list = [...list].sort((a, b) => a.name.localeCompare(b.name, "sk"));
     return list;
   }, [products, query, cat, sort]);
@@ -73,6 +73,20 @@ const Supplements = () => {
       />
 
       <main className="max-w-5xl mx-auto px-2 sm:px-4 py-3 sm:py-5 space-y-3">
+        <div className="rounded-xl border border-primary/40 bg-primary/10 p-3 space-y-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-medium">Zľavový kód</span>
+            <span className="rounded-md bg-primary px-2 py-0.5 font-display text-sm tracking-widest text-primary-foreground">
+              {DISCOUNT_CODE}
+            </span>
+            <span className="text-sm text-primary font-medium">– {DISCOUNT_PERCENT}% zľava</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Zľavu uplatníš pri objednávke na zdravysvet.sk. Bez zľavy: <span className="text-foreground/80">Krill olej</span>,{" "}
+            <span className="text-foreground/80">Forever Mind</span> a <span className="text-foreground/80">Longevity Booster (sulforaphane)</span>.
+          </p>
+        </div>
+
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input

@@ -93,6 +93,10 @@ const EXCLUDED = [
   /balíček/i,
   /shotbox/i,
   /zdarma/i,
+  /3x\s*vesantech\s*medicinálne\s*huby/i,
+  /3x\s*vesantech\s*vegan\s*kolagén/i,
+  /keltská\s*soľ\s*\+?\s*magnézium\s*\+?\s*draslík/i,
+  /forever\s*young\s*anti\s*age\s*complex/i,
 ];
 
 function parseFeed(xml: string): Product[] {

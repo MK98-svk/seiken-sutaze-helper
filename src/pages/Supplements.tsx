@@ -73,6 +73,20 @@ const Supplements = () => {
       />
 
       <main className="max-w-5xl mx-auto px-2 sm:px-4 py-3 sm:py-5 space-y-3">
+        <div className="rounded-xl border border-primary/40 bg-primary/10 p-3 space-y-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-medium">Zľavový kód</span>
+            <span className="rounded-md bg-primary px-2 py-0.5 font-display text-sm tracking-widest text-primary-foreground">
+              {DISCOUNT_CODE}
+            </span>
+            <span className="text-sm text-primary font-medium">– {DISCOUNT_PERCENT}% zľava</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Zľavu uplatníš pri objednávke na zdravysvet.sk. Bez zľavy: <span className="text-foreground/80">Krill olej</span>,{" "}
+            <span className="text-foreground/80">Forever Mind</span> a <span className="text-foreground/80">Longevity Booster (sulforaphane)</span>.
+          </p>
+        </div>
+
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input

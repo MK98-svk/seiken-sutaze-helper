@@ -1,6 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+export const DISCOUNT_CODE = "SEIKEN15";
+export const DISCOUNT_PERCENT = 15;
+
+export function discountedPrice(price: number | null, discounted: boolean): number | null {
+  if (price === null) return null;
+  return discounted ? Math.round(price * (1 - DISCOUNT_PERCENT / 100) * 100) / 100 : price;
+}
+
 export type Supplement = {
   id: string;
   name: string;
@@ -12,13 +20,14 @@ export type Supplement = {
   manufacturer: string;
   ean: string;
   category: string;
+  discounted: boolean;
 };
 
 export type SupplementCategory = { id: string; label: string };
 
 type FeedResponse = { products: Supplement[]; categories: SupplementCategory[] };
 
-const LS_KEY = "supplements-feed-v2";
+const LS_KEY = "supplements-feed-v3";
 const LS_TTL = 24 * 60 * 60 * 1000;
 
 function readCache(): FeedResponse | undefined {

@@ -27,7 +27,7 @@ export type SupplementCategory = { id: string; label: string };
 
 type FeedResponse = { products: Supplement[]; categories: SupplementCategory[] };
 
-const LS_KEY = "supplements-feed-v3";
+const LS_KEY = "supplements-feed-v4";
 const LS_TTL = 24 * 60 * 60 * 1000;
 
 function readCache(): FeedResponse | undefined {

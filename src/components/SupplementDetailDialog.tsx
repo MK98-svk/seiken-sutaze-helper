@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
-import { Supplement } from "@/hooks/useSupplements";
+import { Supplement, discountedPrice, DISCOUNT_CODE, DISCOUNT_PERCENT } from "@/hooks/useSupplements";
 import { openExternal } from "@/lib/openExternal";
 
 interface Props {

@@ -5,7 +5,7 @@ import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
-import { useSupplements, Supplement } from "@/hooks/useSupplements";
+import { useSupplements, Supplement, discountedPrice, DISCOUNT_CODE, DISCOUNT_PERCENT } from "@/hooks/useSupplements";
 import SupplementCard from "@/components/SupplementCard";
 import SupplementDetailDialog from "@/components/SupplementDetailDialog";
 

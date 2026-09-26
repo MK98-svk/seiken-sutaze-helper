@@ -122,14 +122,14 @@ export default function AddResultDialog({ competitionId, competitionDate, member
       const categoryName = hasImportedCategories ? categoryCode : (selectedCategory?.name || categoryCode || null);
       const { error } = await (supabase as any)
         .from("competition_results")
-        .insert({
+        .upsert({
           competition_id: competitionId,
           member_id: member.id,
           discipline,
           category: categoryName,
           placement: Number(placement),
           num_competitors: numCompetitors ? Number(numCompetitors) : null,
-        });
+        }, { onConflict: "competition_id,member_id,discipline,category" });
       if (error) throw error;
       toast.success(`Výsledok pridaný pre ${member.meno} ${member.priezvisko}`);
       onAdded();

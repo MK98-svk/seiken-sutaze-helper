@@ -66,3 +66,13 @@
     letter-spacing: 0.05em;
   }
 }
+
+.activity-marker {
+  transition: transform 700ms ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .activity-marker {
+    transition: none;
+  }
+}

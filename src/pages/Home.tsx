@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Navigate, useNavigate } from "react-router-dom";
-import { LogOut, Trophy, Dumbbell, RefreshCw, ShoppingCart, CalendarCheck } from "lucide-react";
+import { LogOut, Trophy, Dumbbell, RefreshCw, ShoppingCart, CalendarCheck, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useMembers } from "@/hooks/useClubData";
@@ -8,6 +8,7 @@ import AddSelfDialog from "@/components/AddSelfDialog";
 import { hardRefreshApp, APP_VERSION } from "@/lib/appUpdate";
 import { showSupplements } from "@/config/features";
 import seikenLogo from "@/assets/seiken-logo.jpg";
+import { canAccessActivities } from "@/lib/activityAccess";
 
 const tiles = [
   {
@@ -48,6 +49,9 @@ const Home = () => {
   const { user, loading, isAdmin, isCoach, signOut } = useAuth();
   const { members, isLoading: membersLoading, addMember } = useMembers();
   const navigate = useNavigate();
+  const visibleTiles = canAccessActivities(isAdmin, isCoach)
+    ? [...tiles, { to: "/aktivity", label: "Aktivity", desc: "Karate drill, rýchlosť, precíznosť a reflex", icon: Target, ready: true }]
+    : tiles;
 
   const myMembers = members.filter((m) => m.userId && m.userId === user?.id);
   const needsProfile = !!user && !membersLoading && myMembers.length === 0 && !isAdmin && !isCoach;
@@ -89,7 +93,7 @@ const Home = () => {
             </p>
             <AddSelfDialog
               onAdd={addMember}
-              userId={user!.id}
+              userId={user.id}
               linkedMembersCount={0}
               title="Môj profil"
               defaultCompetitor={meta.is_competitor ?? true}
@@ -101,7 +105,7 @@ const Home = () => {
 
         <p className="text-xs uppercase tracking-widest text-muted-foreground">Vyber si sekciu</p>
         <div className="grid gap-3 sm:grid-cols-2">
-          {tiles.map((t, i) => (
+          {visibleTiles.map((t, i) => (
             <motion.button
               key={t.label}
               initial={{ opacity: 0, y: 16 }}

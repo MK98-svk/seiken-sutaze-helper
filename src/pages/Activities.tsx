@@ -35,7 +35,7 @@ export default function Activities() {
           <div className="text-xs text-primary flex items-center gap-1.5"><ShieldCheck className="h-4 w-4" /> KK SEIKEN · tréneri</div>
           <h2 className="font-display text-2xl sm:text-3xl">Karate aktivity</h2>
           <p className="text-sm text-muted-foreground">Reflex. Rýchlosť. Precíznosť. Technika.</p>
-          <p className="text-xs text-muted-foreground">{karateActivities.length} aktivít · {ACTIVITY_CATEGORIES.length - 1} oblastí</p>
+          <p className="text-xs text-muted-foreground">{karateActivities.length} aktivít · {ACTIVITY_CATEGORIES.length - 1} oblastí · pohyb pri každej aktivite</p>
         </div>
         <img src={activitiesImage} alt="Ilustračná scéna karate tréningu na lapu" width={1536} height={1024} className="w-full aspect-square sm:aspect-[3/2] object-cover rounded-md" />
       </section>

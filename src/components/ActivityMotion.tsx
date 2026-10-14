@@ -42,7 +42,7 @@ function Figure({ x, pose, partner = false, lane = 0, duration, facing = 1, fron
   const p = front && pose === "guard" ? frontGuard : poses[pose];
   const transition = { duration, ease: "easeInOut" as const };
   const bear = pose === "bear";
-  return <motion.g animate={{ x, y: 32 + lane }} transition={transition}>
+  return <motion.g animate={{ x, y: (miniature ? 107 : 32) + lane }} transition={transition}>
     <g transform={`scale(${(partner ? -1 : facing) * (miniature ? 0.65 : 1)} ${miniature ? 0.65 : 1})`} stroke={partner ? "hsl(var(--foreground))" : "hsl(var(--primary))"} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" fill="none">
       <motion.circle animate={{ cx: bear ? -38 : 0, cy: bear ? 153 : 72 }} r="15" fill="hsl(var(--card))" strokeWidth="3" transition={transition} />
       <motion.path animate={{ d: p.torso ?? "M0 88 L0 156" }} transition={transition} />
@@ -94,7 +94,7 @@ export default function ActivityMotion({ data, name, compact = false }: { data: 
       <path d="M20 248 H440 M20 278 H440" stroke="hsl(var(--border))" strokeWidth="2" />
       {!data.solo && <Figure x={frame.b} pose={frame.partnerPose ?? (frame.target || props.some((p) => p.kind === "pad" || p.kind === "block") ? "catch" : "guard")} partner lane={frame.partnerLane ?? 0} duration={duration} front={data.view === "front"} />}
       {frame.target && <Prop item={{ kind: frame.pose === "kick" || frame.pose === "chamber" ? "block" : "pad", x: frame.b - (frame.pose === "kick" || frame.pose === "chamber" ? 70 : 63), y: frame.pose === "kick" || frame.pose === "chamber" ? 178 : 138 }} duration={duration} />}
-      <Figure x={frame.a} pose={pose} lane={frame.lane ?? 0} duration={duration} facing={frame.facing ?? 1} front={data.view === "front"} />
+      {data.groupCount === 3 ? [0, 1, 2].map((i) => <Figure key={i} x={75 + i * 135 + (frame.a - 140) * 0.3} pose={pose} miniature duration={duration} facing={frame.facing ?? 1} />) : <Figure x={frame.a} pose={pose} lane={frame.lane ?? 0} duration={duration} facing={frame.facing ?? 1} front={data.view === "front"} />}
       {props.map((item, i) => <Prop key={`${item.kind}-${i}`} item={item} duration={duration} />)}
       {frame.cue && <text x="230" y="49" textAnchor="middle" fill="hsl(var(--primary))" fontSize="13" fontWeight="600">{frame.cue}</text>}
       <text x="18" y="300" fill="hsl(var(--primary))" fontSize="12">CVIČENEC</text>

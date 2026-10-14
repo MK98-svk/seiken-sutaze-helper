@@ -19,7 +19,15 @@ const kick: ActivityMotion = { note, frames: [
 ] };
 
 export const activityMotions: Record<string, ActivityMotion> = {
-  "kizami-navrat": punch("Predná ruka na stabilnú lapu"),
+  "kizami-navrat": { note, frames: [
+    { label: "Dosah bez nástupu, pripravená stabilná lapa", a: 165, b: 330, pose: "guard", target: true },
+    { label: "Prvý samostatný kizami-zuki", a: 165, b: 330, pose: "punch", target: true },
+    { label: "Úplný návrat prednej ruky", a: 165, b: 330, pose: "guard", target: true },
+    { label: "Druhý samostatný kizami-zuki", a: 165, b: 330, pose: "punch", target: true },
+    { label: "Opäť úplný návrat", a: 165, b: 330, pose: "guard", target: true },
+    { label: "Tretí samostatný kizami-zuki", a: 165, b: 330, pose: "punch", target: true },
+    { label: "Kryt, oddych a spätná väzba partnera", a: 165, b: 330, pose: "guard", target: true, hold: 2 },
+  ] },
   "gyaku-zuki-na-jeden-signal": { note, frames: [
     { label: "Pripravená lapa, dosah bez nástupu", a: 165, b: 330, pose: "guard", target: true },
     { label: "Pomalý kontrolný úder zadnou rukou", a: 165, b: 330, pose: "reversePunch", target: true, hold: 2 },

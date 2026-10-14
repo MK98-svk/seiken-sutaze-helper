@@ -27,5 +27,6 @@ export interface ActivityMotion {
   view?: "side" | "front";
   solo?: boolean;
   coachSequence?: boolean;
+  groupCount?: number;
 }
 export const MOTION_NOTE = "Metodická animácia, nie biomechanický návod. Tréner overí postoj, chodidlá, rotáciu a dosah podľa školy a schopností dieťaťa. Kontakt iba ľahko na pripravenú pomôcku, nikdy do partnera.";

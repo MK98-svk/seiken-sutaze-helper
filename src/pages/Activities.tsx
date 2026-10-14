@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import PageHeader from "@/components/PageHeader";
 import ActivityDiagram from "@/components/ActivityDiagram";
+import ActivityMotion from "@/components/ActivityMotion";
+import { activityMotions } from "@/data/activityMotion";
 import activitiesImage from "@/assets/karate-activities.jpg";
 
 export default function Activities() {
@@ -18,6 +20,7 @@ export default function Activities() {
   const [category, setCategory] = useState("Všetky");
   const [level, setLevel] = useState("Všetky úrovne");
   const [selected, setSelected] = useState<KarateActivity | null>(null);
+  const [showFloorPlan, setShowFloorPlan] = useState(false);
   const list = useMemo(() => filterActivities(query, category, level), [query, category, level]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Načítavam…</div>;
@@ -32,7 +35,7 @@ export default function Activities() {
           <div className="text-xs text-primary flex items-center gap-1.5"><ShieldCheck className="h-4 w-4" /> KK SEIKEN · tréneri</div>
           <h2 className="font-display text-2xl sm:text-3xl">Karate aktivity</h2>
           <p className="text-sm text-muted-foreground">Reflex. Rýchlosť. Precíznosť. Technika.</p>
-          <p className="text-xs text-muted-foreground">{karateActivities.length} aktivít · 6 oblastí</p>
+          <p className="text-xs text-muted-foreground">{karateActivities.length} aktivít · {ACTIVITY_CATEGORIES.length - 1} oblastí</p>
         </div>
         <img src={activitiesImage} alt="Ilustračná scéna karate tréningu na lapu" width={1536} height={1024} className="w-full aspect-square sm:aspect-[3/2] object-cover rounded-md" />
       </section>
@@ -48,13 +51,13 @@ export default function Activities() {
       <p className="text-xs text-muted-foreground" aria-live="polite">Zobrazené aktivity: {list.length} / {karateActivities.length}</p>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {list.map((a) => <article key={a.id} className="rounded-lg border border-border bg-card overflow-hidden flex flex-col">
-          <ActivityDiagram activity={a} compact />
+          {activityMotions[a.id] ? <ActivityMotion data={activityMotions[a.id]} name={a.name} compact /> : <ActivityDiagram activity={a} compact />}
           <div className="p-4 flex flex-col flex-1 gap-3">
             <div className="flex flex-wrap gap-1.5"><Badge variant="secondary" className="text-primary">{a.category}</Badge><Badge variant="outline">{a.age}</Badge></div>
             <h3 className="font-display text-lg leading-snug tracking-normal normal-case">{a.name}</h3>
             <p className="text-xs text-muted-foreground leading-relaxed flex-1">{a.summary}</p>
             <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground"><span className="inline-flex gap-1 items-center"><Clock className="h-3.5 w-3.5" />{a.duration} min</span><span className="inline-flex gap-1 items-center"><Users className="h-3.5 w-3.5" />{a.people}</span></div>
-            <Button variant="outline" className="w-full justify-between" onClick={() => setSelected(a)}>Otvoriť aktivitu <ArrowUpRight /></Button>
+            <Button variant="outline" className="w-full justify-between" onClick={() => { setSelected(a); setShowFloorPlan(false); }}>Otvoriť aktivitu <ArrowUpRight /></Button>
           </div>
         </article>)}
       </div>
@@ -69,7 +72,10 @@ export default function Activities() {
           <div className="flex flex-wrap gap-1.5"><Badge>{selected.category}</Badge><Badge variant="outline">{selected.level}</Badge><Badge variant="outline">{selected.age}</Badge><Badge variant="outline">{selected.duration} min</Badge><Badge variant="outline">{selected.people}</Badge></div>
           <div className="grid md:grid-cols-2 gap-5 items-start">
             <div className="space-y-4">
-              <section className="border border-border rounded-md overflow-hidden"><ActivityDiagram activity={selected} /></section>
+              <section className="border border-border rounded-md overflow-hidden">
+                {activityMotions[selected.id] && <div className="flex gap-1 p-2 border-b border-border" role="group" aria-label="Zobrazenie ukážky"><Button size="sm" variant={!showFloorPlan ? "default" : "secondary"} aria-pressed={!showFloorPlan} onClick={() => setShowFloorPlan(false)}>Pohyb</Button><Button size="sm" variant={showFloorPlan ? "default" : "secondary"} aria-pressed={showFloorPlan} onClick={() => setShowFloorPlan(true)}>Rozmiestnenie</Button></div>}
+                {activityMotions[selected.id] && !showFloorPlan ? <ActivityMotion data={activityMotions[selected.id]} name={selected.name} /> : <ActivityDiagram activity={selected} />}
+              </section>
               <section className="text-sm space-y-1"><h4 className="text-xs text-muted-foreground tracking-normal">Pomôcky</h4><p>{selected.equipment.join(" · ")}</p></section>
               <section className="text-sm space-y-1"><h4 className="text-xs text-muted-foreground tracking-normal">Dávkovanie</h4><p>{selected.dose}</p></section>
               <section className="text-sm space-y-1"><h4 className="text-xs text-muted-foreground tracking-normal">Čo sledovať</h4><p>{selected.measure}</p></section>

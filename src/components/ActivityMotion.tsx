@@ -32,6 +32,9 @@ const poses: Record<MotionPose, Limbs> = {
   block: { ...guard, frontArm: "M4 105 L35 115 L40 75", backArm: "M-4 105 L-12 133 L-8 146" },
 };
 const frontGuard: Limbs = { frontArm: "M4 105 L32 124 L24 93", backArm: "M-4 105 L-32 124 L-24 93", frontLeg: "M0 156 L30 185 L43 216", backLeg: "M0 156 L-30 185 L-43 216" };
+function isMotionPose(value: unknown): value is MotionPose {
+  return typeof value === "string" && Object.prototype.hasOwnProperty.call(poses, value);
+}
 const options: { value: MotionPose; label: string }[] = [
   { value: "guard", label: "Bojový postoj / kryt" }, { value: "punch", label: "Priamy úder prednou rukou" },
   { value: "reversePunch", label: "Priamy úder zadnou rukou" }, { value: "block", label: "Blok · orientačná poloha" },
@@ -39,7 +42,9 @@ const options: { value: MotionPose; label: string }[] = [
 ];
 
 function Figure({ x, pose, partner = false, lane = 0, duration, facing = 1, front = false, miniature = false }: { x: number; pose: MotionPose; partner?: boolean; lane?: number; duration: number; facing?: number; front?: boolean; miniature?: boolean }) {
-  const p = front && pose === "guard" ? frontGuard : poses[pose];
+  // Old preview state or a partially refreshed catalog can contain an unknown pose.
+  // Keep the figure neutral instead of dereferencing an absent limb definition.
+  const p = front && pose === "guard" ? frontGuard : isMotionPose(pose) ? poses[pose] : neutral;
   const transition = { duration, ease: "easeInOut" as const };
   const bear = pose === "bear";
   return <motion.g animate={{ x, y: (miniature ? 107 : 32) + lane }} transition={transition}>
@@ -75,7 +80,7 @@ export default function ActivityMotion({ data, name, compact = false }: { data: 
   const reduced = useReducedMotion();
   const total = data.frames.length;
   const slots = [...new Set(data.frames.flatMap((frame) => frame.technique === undefined ? [] : [frame.technique]))].sort();
-  const ready = !data.coachSequence || slots.every((slot) => Boolean(techniques[slot]));
+  const ready = !data.coachSequence || slots.every((slot) => isMotionPose(techniques[slot]));
   useEffect(() => { setStep(0); setPlaying(false); setTechniques(["", "", ""]); }, [data]);
   useEffect(() => {
     if (!playing || compact || !ready) return;
@@ -86,6 +91,7 @@ export default function ActivityMotion({ data, name, compact = false }: { data: 
   const frame = data.frames[compact ? Math.min(2, total - 1) : step];
   if (!frame) return null;
   const pose = frame.technique === undefined ? frame.pose : techniques[frame.technique] || "neutral";
+  const unavailablePose = !isMotionPose(pose) || (frame.partnerPose !== undefined && !isMotionPose(frame.partnerPose));
   const duration = reduced || compact ? 0 : slow ? 0.9 : 0.45;
   const props = frame.props ?? [];
   return <div className="min-w-0">
@@ -105,7 +111,7 @@ export default function ActivityMotion({ data, name, compact = false }: { data: 
       <div className="flex justify-between items-center gap-2">
         <div className="flex gap-1">
           <Button size="icon" variant="outline" aria-label="Predchádzajúca fáza" title="Predchádzajúca fáza" onClick={() => { setPlaying(false); setStep((s) => (s + total - 1) % total); }}><ChevronLeft /></Button>
-          <Button size="icon" disabled={!ready} aria-label={playing ? "Pozastaviť pohyb" : "Spustiť pohyb"} title={ready ? "Prehrať / pozastaviť" : "Najprv vyberte techniky"} onClick={() => setPlaying((p) => !p)}>{playing ? <Pause /> : <Play />}</Button>
+          <Button size="icon" disabled={!ready || unavailablePose} aria-label={playing ? "Pozastaviť pohyb" : "Spustiť pohyb"} title={ready ? "Prehrať / pozastaviť" : "Najprv vyberte techniky"} onClick={() => setPlaying((p) => !p)}>{playing ? <Pause /> : <Play />}</Button>
           <Button size="icon" variant="outline" aria-label="Nasledujúca fáza" title="Nasledujúca fáza" onClick={() => { setPlaying(false); setStep((s) => (s + 1) % total); }}><ChevronRight /></Button>
           <Button size="icon" variant="ghost" aria-label="Ukážka od začiatku" title="Od začiatku" onClick={() => { setPlaying(false); setStep(0); }}><RotateCcw /></Button>
         </div>
@@ -114,6 +120,7 @@ export default function ActivityMotion({ data, name, compact = false }: { data: 
       <div className="flex gap-1" aria-hidden="true">{data.frames.map((_, index) => <span key={index} className={`h-1 flex-1 rounded-sm ${index === step ? "bg-primary" : "bg-muted"}`} />)}</div>
       <p className="text-sm min-h-10 break-words" aria-live={playing ? "off" : "polite"}><span className="text-primary font-medium">{step + 1}/{total}</span> · {frame.label}</p>
       <p className="text-xs text-muted-foreground leading-relaxed">{data.note}</p>
+      {unavailablePose && <p role="alert" className="text-xs text-primary">Táto poloha ukážky nie je dostupná. Zobrazený je neutrálny stoj; obnovte stránku.</p>}
     </div>}
   </div>;
 }

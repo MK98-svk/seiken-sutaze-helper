@@ -17,6 +17,7 @@ import CoachMembers from "./pages/CoachMembers";
 import CoachMemberDetail from "./pages/CoachMemberDetail";
 import Supplements from "./pages/Supplements";
 import Trainings from "./pages/Trainings";
+import Activities from "./pages/Activities";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/" element={<Home />} />
           <Route path="/sutaze" element={<Index />} />
           <Route path="/treningy" element={<Trainings />} />
+          <Route path="/aktivity" element={<Activities />} />
           <Route path="/posilnovanie" element={<Strength />} />
           <Route path="/posilnovanie/ai" element={<WorkoutAI />} />
           <Route path="/posilnovanie/plany" element={<WorkoutPlans />} />

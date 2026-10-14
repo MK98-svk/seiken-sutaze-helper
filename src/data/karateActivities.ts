@@ -1,6 +1,7 @@
 import { additionalKarateActivities } from "./karateActivityExpansion";
+import { kumiteActivities } from "./kumiteActivities";
 
-export const ACTIVITY_CATEGORIES = ["Všetky", "Reflex", "Rýchlosť", "Precíznosť", "Práca nôh", "Kata", "Rozcvička"] as const;
+export const ACTIVITY_CATEGORIES = ["Všetky", "Kumite", "Reflex", "Rýchlosť", "Precíznosť", "Práca nôh", "Kata", "Rozcvička"] as const;
 export type ActivityCategory = Exclude<typeof ACTIVITY_CATEGORIES[number], "Všetky">;
 export type DiagramKind = "signal" | "targets" | "mirror" | "cones" | "line" | "sequence" | "ball" | "warmup";
 export interface KarateActivity {
@@ -80,6 +81,7 @@ export const karateActivities: KarateActivity[] = [
     id: "mobilita-postoj", name: "Mobilita pred karate", category: "Rozcvička", level: "Všetky úrovne", age: "7+ rokov", duration: 7, people: "Skupina", equipment: ["Bez pomôcok"], summary: "Postupné rozhýbanie členkov, bedier a ramien pred technikou.", goal: "Pripraviť telo na postoje a kopy bez násilného strečingu.", setup: "Každý má vlastný priestor na tatami. Pohyby sa vykonávajú v pohodlnom rozsahu. Tréner predvedie každý pohyb a sleduje kvalitu, nie hĺbku.", steps: ["1 minúta ľahkej chôdze s postupným zapojením rúk.", "8 kontrolovaných prenesení váhy dopredu a dozadu na každú stranu s pätou na zemi.", "8 pomalých zdvihov kolena a malých otvorení bedra na každú stranu bez švihu.", "8 krúžení ramien a 6 pomalých prechodov medzi prirodzeným a bojovým postojom."], dose: "1–2 pokojné kolá · bez zadržiavania dychu", cues: ["Rozsah pohybu bez bolesti.", "Päta a koleno zostávajú pod kontrolou.", "Postupné tempo, žiadne prudké švihy."], easier: "Menší rozsah a opora pri zdvíhaní kolena.", harder: "Pridať pomalý kontrolovaný mae-geri bez kontaktu po rozohriatí.", safety: "Žiadne násilné naťahovanie partnerom. Bolesť nie je cieľ rozcvičky; pri bolesti pohyb vynechať.", measure: "Plynulé prevedenie a stabilita na oboch stranách bez bolesti.", diagram: "sequence", beats: ["Ľahká chôdza", "Členky", "Bedrá", "Ramená a postoje"],
   },
   ...additionalKarateActivities,
+  ...kumiteActivities,
 ];
 
 const normalize = (value: string) => value.toLocaleLowerCase("sk").normalize("NFD").replace(/[\u0300-\u036f]/g, "");

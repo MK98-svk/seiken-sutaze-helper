@@ -1,5 +1,4 @@
 import type { KarateActivity } from "./karateActivities";
-import { activityMotions } from "./activityMotion";
 
 type Drill = [id: string, name: string, goal: string, setup: string, actions: string[], cues: string[], easier: string, harder: string, measure: string];
 const drills: Drill[] = [
@@ -24,5 +23,5 @@ export const kumiteActivities: KarateActivity[] = drills.map(([id, name, goal, s
   dose: "3 × 6 pokusov na stranu · 40 s prestávka medzi kolami · po kole výmena úloh. Najprv pomalý nácvik, tempo podľa kvality.",
   safety: "Cvičenie pod dohľadom trénera, nie voľný sparing. Bez úderov a kopov do partnera či do hlavy; kontakt iba ľahko na stabilnú lapu alebo veľký kopací blok. Držiaci musí byť pripravený a mať pevný postoj. Voľný priestor na ústup, kĺby neprepínať, pri bolesti či strate kontroly zastaviť.",
   diagram: id === "kumite-dvojita-vzdialenost" ? "mirror" : id === "kumite-hranica" || id === "kumite-unik-uhol" ? "cones" : "signal",
-  beats: activityMotions[id]?.frames.map((frame) => frame.label) ?? [],
+  beats: steps,
 }));

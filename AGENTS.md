@@ -2,3 +2,4 @@
 
 - Keep the original karate activity catalog in typed local data modules (a core composing expansion and kumite catalogs). Keep floor diagrams and explicit per-activity motion frames in separate reusable components/data; this supports coach-reviewed demonstrations without a paid dependency. Subcatalogs import core types only to avoid runtime circular dependencies. Never infer technique demonstrations from activity names or reuse generic poses for an unspecified kata.
 - Show the Activities entry and guard its route using roles read by useAuth from user_roles; never use browser storage or user-editable metadata for role decisions. The bundled instructional catalog is not confidential data.
+- Motion primitives and explicit scenario catalogs must remain independent of the activity catalog; coach-selected technique slots stay blank until chosen and must never be labelled as an exact kata demonstration. This prevents circular imports and invented technique sequences.

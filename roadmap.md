@@ -1,5 +1,5 @@
 # Roadmap
 
-- [ ] Pridať Aktivity pre trénerov: karate knižnica, filtre, podrobnosti a animované ukážky
-- [ ] Dohľadať verejný zdroj z obrázka a preveriť novú sekciu na mobile aj počítači
+- [x] Pridať Aktivity pre trénerov: karate knižnica, filtre, podrobnosti a animované schémy
+- [x] Preveriť sekciu na mobile aj počítači a vyhľadať zdroj z obrázka (presná adresa neoverená; vlastné metodické texty)
 - [x] Komplexne preveriť a opraviť push notifikácie na telefóne

@@ -11,6 +11,8 @@ const paths: Record<DiagramKind, Point[]> = {
   cones: [[90, 240], [220, 120], [310, 240], [90, 240]],
   line: [[75, 170], [75, 170], [260, 170], [335, 170]],
   sequence: [[100, 240], [100, 150], [235, 150], [235, 75]],
+  ball: [[100, 170], [100, 170], [190, 170], [100, 170]],
+  warmup: [[100, 170], [180, 170], [180, 170], [180, 240]],
 };
 
 export default function ActivityDiagram({ activity, compact = false }: { activity: KarateActivity; compact?: boolean }) {
@@ -30,7 +32,7 @@ export default function ActivityDiagram({ activity, compact = false }: { activit
   const route = paths[activity.diagram];
   const [x, y] = route[compact ? 2 : step];
   const partner: Point = activity.diagram === "mirror" ? [280, y] : [300, 170];
-  const showPartner = ["signal", "targets", "mirror"].includes(activity.diagram);
+  const showPartner = ["signal", "targets", "mirror", "ball"].includes(activity.diagram);
   const hasTarget = ["signal", "targets"].includes(activity.diagram);
   const points = route.map((p) => p.join(",")).join(" ");
 
@@ -43,6 +45,8 @@ export default function ActivityDiagram({ activity, compact = false }: { activit
         <polyline points={points} fill="none" stroke="hsl(var(--primary))" strokeWidth="2" strokeDasharray="7 6" opacity="0.6" />
         {activity.diagram === "cones" && [[75, 250], [220, 90], [325, 250]].map(([cx, cy], i) => <path key={i} d={`M${cx} ${cy - 12} l-10 22 h20 Z`} fill="hsl(var(--primary))" />)}
         {activity.diagram === "line" && <><path d="M75 80 V260 M260 80 V260" stroke="hsl(var(--muted-foreground))" strokeWidth="2" strokeDasharray="5 5" /><text x="75" y="65" textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize="12">ŠTART</text><text x="260" y="65" textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize="12">CIEĽ</text></>}
+        {activity.diagram === "ball" && <><circle cx={step === 0 ? 265 : 225} cy="170" r="9" fill="hsl(var(--foreground))" /><text x="220" y="115" textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize="12">LOPTIČKA</text></>}
+        {activity.diagram === "warmup" && <text x="200" y="65" textAnchor="middle" fill="hsl(var(--foreground))" fontSize="14">{["ZELENÁ · POHYB", "ORANŽOVÁ · POMALY", "ČERVENÁ · STOP", "ZMENA SMERU"][compact ? 2 : step]}</text>}
         {showPartner && <g className="activity-marker" transform={`translate(${partner[0]} ${partner[1]})`}><circle r="23" fill="hsl(var(--secondary))" stroke="hsl(var(--foreground))" strokeWidth="2" /><text textAnchor="middle" y="5" fontSize="15" fill="hsl(var(--foreground))">B</text></g>}
         {hasTarget && <><rect x="248" y={activity.diagram === "targets" ? 90 : 149} width="14" height="40" rx="4" fill="hsl(var(--primary))" />{activity.diagram === "targets" && <rect x="248" y="200" width="14" height="40" rx="4" fill="hsl(var(--primary))" />}<path d={`M${x + 24} ${y} L245 ${activity.diagram === "targets" ? (step === 3 || compact ? 220 : 110) : 170}`} stroke="hsl(var(--primary))" strokeWidth="3" strokeDasharray="4 5" opacity={step === 2 || step === 3 || compact ? 1 : 0.2} /></>}
         <g className="activity-marker" transform={`translate(${x} ${y})`}><circle r="23" fill="hsl(var(--primary))" /><text textAnchor="middle" y="5" fontSize="15" fill="hsl(var(--primary-foreground))">A</text></g>

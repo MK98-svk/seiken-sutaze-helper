@@ -7,7 +7,7 @@ describe("karate activity catalog", () => {
     const kumite = filterActivities("", "Kumite", "Všetky úrovne");
     expect(kumite.length).toBeGreaterThan(0);
     expect(kumite.every((a) => a.category === "Kumite" && activityMotions[a.id]?.frames.length >= 4)).toBe(true);
-    expect(filterActivities("hranica", "Kumite", "Všetky úrovne").map((a) => a.id)).toEqual(["kumite-hranica"]);
+    expect(filterActivities("hranic", "Kumite", "Všetky úrovne").map((a) => a.id)).toEqual(["kumite-hranica"]);
   });
   it("offers at least 100 distinct activities", () => {
     expect(karateActivities.length).toBeGreaterThanOrEqual(100);

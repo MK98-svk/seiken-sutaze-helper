@@ -15,8 +15,8 @@ describe("karate activity catalog", () => {
     expect(new Set(karateActivities.map((a) => a.name)).size).toBe(karateActivities.length);
   });
 
-  it("provides an explicit motion scenario for every one of the 112 activities", () => {
-    expect(karateActivities).toHaveLength(112);
+  it("provides an explicit motion scenario for every one of the 124 activities", () => {
+    expect(karateActivities).toHaveLength(124);
     expect(Object.keys(activityMotions).sort()).toEqual(karateActivities.map((a) => a.id).sort());
     for (const activity of karateActivities) {
       const demonstration = activityMotions[activity.id];

@@ -1,6 +1,7 @@
 import type { ActivityMotion } from "./motionTypes";
 import { MOTION_NOTE } from "./motionTypes";
 import { expandedActivityMotions, coachActivityMotions } from "./activityMotionExpansion";
+import { strengthActivityMotions } from "./strengthActivityMotions";
 export type { ActivityMotion, MotionFrame, MotionPose } from "./motionTypes";
 
 const note = MOTION_NOTE;
@@ -110,4 +111,5 @@ export const activityMotions: Record<string, ActivityMotion> = {
   ] },
   ...expandedActivityMotions,
   ...coachActivityMotions,
+  ...strengthActivityMotions,
 };

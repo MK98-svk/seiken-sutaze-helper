@@ -8,6 +8,7 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isCoach, setIsCoach] = useState(false);
+  const [isTrainer, setIsTrainer] = useState(false);
 
   useEffect(() => {
     // Get initial session
@@ -25,6 +26,7 @@ export function useAuth() {
       else {
         setIsAdmin(false);
         setIsCoach(false);
+        setIsTrainer(false);
         setLoading(false);
       }
     });
@@ -40,6 +42,7 @@ export function useAuth() {
     const roles = error ? [] : (data ?? []).map((entry) => entry.role);
     setIsAdmin(roles.includes("admin"));
     setIsCoach(roles.includes("coach"));
+    setIsTrainer(roles.includes("trainer"));
     setLoading(false);
   }
 
@@ -61,5 +64,5 @@ export function useAuth() {
     await supabase.auth.signOut();
   }
 
-  return { user, session, loading, isAdmin, isCoach, signIn, signUp, signOut };
+  return { user, session, loading, isAdmin, isCoach, isTrainer, signIn, signUp, signOut };
 }

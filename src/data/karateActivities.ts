@@ -1,7 +1,8 @@
 import { additionalKarateActivities } from "./karateActivityExpansion";
 import { kumiteActivities } from "./kumiteActivities";
+import { strengthActivities } from "./strengthActivities";
 
-export const ACTIVITY_CATEGORIES = ["Všetky", "Kumite", "Reflex", "Rýchlosť", "Precíznosť", "Práca nôh", "Kata", "Rozcvička"] as const;
+export const ACTIVITY_CATEGORIES = ["Všetky", "Kumite", "Posilňovanie", "Reflex", "Rýchlosť", "Precíznosť", "Práca nôh", "Kata", "Rozcvička"] as const;
 export type ActivityCategory = Exclude<typeof ACTIVITY_CATEGORIES[number], "Všetky">;
 export type DiagramKind = "signal" | "targets" | "mirror" | "cones" | "line" | "sequence" | "ball" | "warmup";
 export interface KarateActivity {
@@ -82,6 +83,7 @@ export const karateActivities: KarateActivity[] = [
   },
   ...additionalKarateActivities,
   ...kumiteActivities,
+  ...strengthActivities,
 ];
 
 const normalize = (value: string) => value.toLocaleLowerCase("sk").normalize("NFD").replace(/[\u0300-\u036f]/g, "");

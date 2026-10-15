@@ -15,7 +15,7 @@ import { activityMotions } from "@/data/activityMotion";
 import activitiesImage from "@/assets/karate-activities.jpg";
 
 export default function Activities() {
-  const { user, loading, isAdmin, isCoach } = useAuth();
+  const { user, loading, isAdmin, isTrainer } = useAuth();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("Všetky");
   const [level, setLevel] = useState("Všetky úrovne");
@@ -25,7 +25,7 @@ export default function Activities() {
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Načítavam…</div>;
   if (!user) return <Navigate to="/auth" replace />;
-  if (!canAccessActivities(isAdmin, isCoach)) return <Navigate to="/" replace />;
+  if (!canAccessActivities(isAdmin, isTrainer)) return <Navigate to="/" replace />;
 
   return <div className="min-h-screen bg-background pb-10">
     <PageHeader title="Aktivity" subtitle="Karate · knižnica trénera" />

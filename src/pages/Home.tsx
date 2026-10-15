@@ -46,10 +46,10 @@ const tiles = [
 ];
 
 const Home = () => {
-  const { user, loading, isAdmin, isCoach, signOut } = useAuth();
+  const { user, loading, isAdmin, isCoach, isTrainer, signOut } = useAuth();
   const { members, isLoading: membersLoading, addMember } = useMembers();
   const navigate = useNavigate();
-  const visibleTiles = canAccessActivities(isAdmin, isCoach)
+  const visibleTiles = canAccessActivities(isAdmin, isTrainer)
     ? [...tiles, { to: "/aktivity", label: "Aktivity", desc: "Karate drill, rýchlosť, precíznosť a reflex", icon: Target, ready: true }]
     : tiles;
 

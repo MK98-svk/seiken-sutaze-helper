@@ -1,3 +1,3 @@
-export function canAccessActivities(isAdmin: boolean, isCoach: boolean) {
-  return isAdmin || isCoach;
+export function canAccessActivities(isAdmin: boolean, isTrainer: boolean) {
+  return isAdmin || isTrainer;
 }

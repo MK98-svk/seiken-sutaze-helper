@@ -7,6 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import AddTeamResultDialog from "./AddTeamResultDialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface TeamResultsSectionProps {
   competitionId: string;
@@ -127,6 +131,7 @@ export default function TeamResultsSection({
   invalidate,
   isLoading = false,
 }: TeamResultsSectionProps) {
+  const [toDelete, setToDelete] = useState<TeamResult | null>(null);
   const filtered = teamResults.filter((r) => {
     const d = (r.discipline || "").toLowerCase();
     if (discipline === "kata") {
@@ -190,10 +195,8 @@ export default function TeamResultsSection({
                     )}
                     {canDelete && (
                       <button
-                        onClick={async () => {
-                          try { await deleteTeamResult(r.id); toast.success("Tímový výsledok zmazaný"); }
-                          catch { toast.error("Chyba pri mazaní"); }
-                        }}
+                        onClick={() => setToDelete(r)}
+                        aria-label="Zmazať družstvo"
                         className="text-muted-foreground hover:text-destructive p-1"
                       >
                         <X className="h-3.5 w-3.5" />
@@ -208,6 +211,32 @@ export default function TeamResultsSection({
       ) : (
         <p className="text-xs text-muted-foreground">Žiadne tímové výsledky</p>
       )}
+      <AlertDialog open={!!toDelete} onOpenChange={(o) => { if (!o) setToDelete(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Naozaj zrušiť družstvo?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {toDelete?.teamName || "Družstvo"} – {toDelete?.category || ""}
+              {toDelete?.membersText ? ` (${toDelete.membersText})` : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-white text-foreground border border-border hover:bg-secondary">Nie</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={async () => {
+                const r = toDelete;
+                setToDelete(null);
+                if (!r) return;
+                try { await deleteTeamResult(r.id); toast.success("Družstvo zmazané"); }
+                catch { toast.error("Chyba pri mazaní"); }
+              }}
+            >
+              Áno, zmazať
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

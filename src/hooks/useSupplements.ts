@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export const DISCOUNT_CODE = "SEIKEN15";
+export const DISCOUNT_CODE = "KARATE15";
 export const DISCOUNT_PERCENT = 15;
 
 export function discountedPrice(price: number | null, discounted: boolean): number | null {

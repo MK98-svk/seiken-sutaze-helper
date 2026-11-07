@@ -13,6 +13,7 @@ import ActivityDiagram from "@/components/ActivityDiagram";
 import ActivityMotion from "@/components/ActivityMotion";
 import { activityMotions } from "@/data/activityMotion";
 import activitiesImage from "@/assets/karate-activities.jpg";
+import CircuitBuilder from "@/components/CircuitBuilder";
 
 export default function Activities() {
   const { user, loading, isAdmin, isTrainer } = useAuth();
@@ -21,6 +22,7 @@ export default function Activities() {
   const [level, setLevel] = useState("Všetky úrovne");
   const [selected, setSelected] = useState<KarateActivity | null>(null);
   const [showFloorPlan, setShowFloorPlan] = useState(false);
+  const [view, setView] = useState<'library' | 'circuit'>('library');
   const list = useMemo(() => filterActivities(query, category, level), [query, category, level]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Načítavam…</div>;
@@ -40,6 +42,9 @@ export default function Activities() {
         <img src={activitiesImage} alt="Ilustračná scéna karate tréningu na lapu" width={1536} height={1024} className="w-full aspect-square sm:aspect-[3/2] object-cover rounded-md" />
       </section>
 
+      <div className="flex gap-2 border-b border-border pb-3" role="group" aria-label="Zobrazenie aktivít"><Button variant={view === 'library' ? 'default' : 'outline'} aria-pressed={view === 'library'} onClick={() => setView('library')}>Knižnica aktivít</Button><Button variant={view === 'circuit' ? 'default' : 'outline'} aria-pressed={view === 'circuit'} onClick={() => setView('circuit')}>Kruhový tréning</Button></div>
+      <div hidden={view !== 'circuit'}><CircuitBuilder onOpenActivity={a => { setSelected(a); setShowFloorPlan(false); }} /></div>
+      {view === 'library' && <>
       <div className="space-y-3">
         <div className="flex flex-col sm:flex-row gap-2">
           <div className="relative flex-1 min-w-0"><Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" /><Input aria-label="Hľadať aktivity" placeholder="Hľadať aktivitu, cieľ alebo pomôcku…" className="pl-9 pr-10" value={query} onChange={(e) => setQuery(e.target.value)} />{query && <Button size="icon" variant="ghost" className="absolute right-0 top-0" aria-label="Vymazať hľadanie" onClick={() => setQuery("")}><X /></Button>}</div>
@@ -63,6 +68,7 @@ export default function Activities() {
       </div>
       {list.length === 0 && <div className="py-10 text-center space-y-3"><p className="text-muted-foreground">Žiadna aktivita nezodpovedá výberu.</p><Button variant="outline" onClick={() => { setQuery(""); setCategory("Všetky"); setLevel("Všetky úrovne"); }}>Zrušiť filtre</Button></div>}
       <p className="text-xs text-muted-foreground border-t border-border pt-4">Vlastná metodická knižnica KK SEIKEN. Vek a dávkovanie sú orientačné; tréner ich prispôsobí schopnostiam a zdravotnému stavu skupiny.</p>
+      </>}
     </main>
 
     <Dialog open={!!selected} onOpenChange={(open) => { if (!open) setSelected(null); }}>

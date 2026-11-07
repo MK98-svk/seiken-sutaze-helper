@@ -4,3 +4,4 @@
 - Show the Activities entry and guard its route using roles read by useAuth from user_roles; never use browser storage or user-editable metadata for role decisions. The bundled instructional catalog is not confidential data.
 - Motion primitives and explicit scenario catalogs must remain independent of the activity catalog; coach-selected technique slots stay blank until chosen and must never be labelled as an exact kata demonstration. This prevents circular imports and invented technique sequences.
 - Administrative password resets use the server-side Auth Admin API after JWT validation and a protected user_roles admin check; never edit auth tables directly or return credentials.
+- Circuit training uses a typed, goal-tagged bodyweight allowlist referencing existing activity/catalog IDs and pure timing/group allocation helpers; timed group circuits must not overwrite member strength-workout drafts or infer equipment-free suitability from the assisted-equipment label.

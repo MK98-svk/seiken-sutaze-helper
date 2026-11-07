@@ -1,8 +1,8 @@
 # Roadmap
 
-- [ ] Pridať skladanie kruhového tréningu v Aktivitách podľa cieľa, počtu ľudí a stanovíšť; cviky bez pomôcok aj z Posilňovania
-- [ ] Vypočítať celé kolá podľa dostupného času, práce a prestávok; umožniť výmenu cvikov a ukážky
-- [ ] Overiť výpočty, rozdelenie skupín a zostavenie na mobile aj počítači
+- [x] Pridať skladanie kruhového tréningu v Aktivitách podľa cieľa, počtu ľudí a stanovíšť; cviky bez pomôcok aj z Posilňovania
+- [x] Vypočítať celé kolá podľa dostupného času, práce a prestávok; umožniť výmenu cvikov a ukážky
+- [x] Overiť výpočty, rozdelenie skupín a zostavenie na mobile aj počítači
 
 - [x] Doplniť individuálne metodické pohybové scenáre pri všetkých 112 aktivitách; pri neurčenej kata trénerský výber namiesto vymyslenej techniky (presná technika a dráha vyžadujú kontrolu trénera)
 - [x] Overiť kompletné pokrytie a pravidlá 10 testami; pod prihláseným účtom otvoriť a krokovať všetkých 112 ukážok, preveriť prehrávanie, spomalenie a úzky displej bez vodorovného posunu

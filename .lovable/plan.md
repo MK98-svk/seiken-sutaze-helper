@@ -1,15 +1,19 @@
-# Zoznam švihadiel (aktualizovaný)
+# Návrh: 25 švihadiel
 
-Bez zmien v appke – iba zoznam. Výška zaokrúhlená nahor na 10 cm, vyradení pretekári už nie sú zahrnutí, pridané +1 ks 170 a +1 ks 190.
+Bez zmien v appke – iba návrh nákupu. Vychádza z 38 pretekárov so známou výškou + 1 navyše 170 a 1 navyše 190 (spolu 40 ľudí), rozdelených pomerne na 25 ks. Dĺžky sú skôr dlhšie, lebo švihadlo sa dá skrátiť, predĺžiť nie.
 
-- **130 cm (1):** Jakub Goldschmidt
-- **140 cm (6):** Jakub Chvostaľ, Jakub Markovič, Denisa Oračková, Maxim Gajdošík, Barbora Kadlicová, Tomáš Turinič
-- **150 cm (2):** Barbora Balážová, Ema Pihuličová
-- **160 cm (4):** Samuel Markovič, Tomáš Heriban, Stela Juríková, Nikita Alexandra Vyskočilová
-- **170 cm (12 + 1 navyše = 13):** Ela Janečková, Margaréta Maur, Tamara Turčanová, Polina Vasilieva, Adela Kralikova, Svetlana Pániková, Alexandra Hargašová, Terézia Anettová, Nina Artnerová, Ela Kadlicová, Ema Janáková, Petra Šulková + 1 navyše
-- **180 cm (7):** Jakub Artner, Dávid Mifkovič, Michal Gajdošík, Matej Kadlic, Michal Horňák, Marek Fornadeľ, Gregor Hurban
-- **190 cm (6 + 1 navyše = 7):** Vladimír Goldschmidt, Teo Hurban, Ondrej Kollár, Andrej Mifkovič, Tomáš Tettinger, Peter Herman + 1 navyše
+| Dĺžka | Ľudí | Návrh ks |
+|---|---|---|
+| 140 cm (aj pre 130 cm – skrátiť) | 7 | 4 |
+| 150 cm | 2 | 2 |
+| 160 cm | 4 | 3 |
+| 170 cm | 13 | 8 |
+| 180 cm | 7 | 4 |
+| 190 cm | 7 | 4 |
+| **Spolu** | **40** | **25** |
 
-**Spolu: 40 švihadiel**
-
-Bez výšky v appke (9): Jakub Anetta, Júlia Anettová, Lukáš Glevický, Andrej Hargaš, Tatiana Hargašová, Michaela Mentelová, Lia Pizano, Jakub Šamudovský, Jana Vanová.
+Prečo takto:
+- 130 cm nekupujeme samostatne – jediné dieťa (128 cm) dostane skrátené 140 cm.
+- 150 cm ponechané na 2 ks – poslúžia aj menším deťom, ktoré rastú.
+- Najviac kusov (8) ide na 170 cm, kde je najviac ľudí.
+- 9 pretekárov bez výšky v appke tu nie je zahrnutých.

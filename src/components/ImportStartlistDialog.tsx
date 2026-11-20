@@ -132,6 +132,7 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
 
       // Process unmatched: either assigned to existing or creating new
       const newMembersToCreate: { index: number; data: NewMemberData }[] = [];
+      const unmatchedIdByIndex = new Map<number, string>();
       for (const [idxStr, isCreate] of Object.entries(unmatchedCreateMode)) {
         const idx = Number(idxStr);
         if (isCreate) {
@@ -145,12 +146,13 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
         const idx = Number(idxStr);
         if (memberId && !unmatchedCreateMode[idx]) {
           memberIds.push(memberId);
+          unmatchedIdByIndex.set(idx, memberId);
         }
       }
 
       // Create new members first - but check if they already exist (by meno+priezvisko+datum_narodenia)
       // to prevent creating duplicates if the import is run twice
-      for (const { data } of newMembersToCreate) {
+      for (const { index, data } of newMembersToCreate) {
         const trimmedMeno = (data.meno || "").trim();
         const trimmedPriezvisko = (data.priezvisko || "").trim();
         const dob = data.datumNarodenia || null;
@@ -178,6 +180,7 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
 
         if (existingId) {
           memberIds.push(existingId);
+          unmatchedIdByIndex.set(index, existingId);
           continue;
         }
 
@@ -194,6 +197,7 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
           .single();
         if (error) throw error;
         memberIds.push(inserted.id);
+        unmatchedIdByIndex.set(index, inserted.id);
       }
 
       const uniqueIds = [...new Set(memberIds)];
@@ -224,6 +228,14 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
           }
         }
       }
+      // Also save categories for unmatched entries the user assigned or created
+      unmatched.forEach((u, idx) => {
+        const memberId = unmatchedIdByIndex.get(idx);
+        if (!memberId) return;
+        for (const cat of u.categories || []) {
+          categoryRows.push({ member_id: memberId, competition_id: competitionId, discipline: cat.discipline, category: cat.category });
+        }
+      });
       // Deduplicate to avoid "ON CONFLICT DO UPDATE command cannot affect row a second time"
       const dedupedCategoryRows = Array.from(
         new Map(
@@ -260,7 +272,7 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
         const existingByMemKey = new Map<string, { id: string; team_name: string | null }>();
         for (const r of (existingTeams || [])) {
           const tn = (r.team_name || "").trim().toLowerCase();
-          if (tn) existingNameKeys.add(tn);
+          if (tn) existingNameKeys.add(`${(r.category || "").trim().toLowerCase()}|${tn}|${(r.members_text || "").trim().toLowerCase()}`);
           const memKey = `${(r.category || "").trim().toLowerCase()}|${(r.members_text || "").trim().toLowerCase()}`;
           existingByMemKey.set(memKey, { id: r.id, team_name: r.team_name });
         }
@@ -277,14 +289,15 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
           const memKey = `${category.trim().toLowerCase()}|${(membersText || "").trim().toLowerCase()}`;
 
           // Already exists by team_name → skip
-          if (tn && existingNameKeys.has(tn)) continue;
+          const nameKey = `${category.trim().toLowerCase()}|${tn}|${(membersText || "").trim().toLowerCase()}`;
+          if (tn && existingNameKeys.has(nameKey)) continue;
 
           // Already exists by members → backfill team_name if missing, then skip insert
           const existingMem = existingByMemKey.get(memKey);
           if (existingMem) {
             if (tnRaw && !existingMem.team_name) {
               backfillUpdates.push({ id: existingMem.id, team_name: tnRaw });
-              if (tn) existingNameKeys.add(tn);
+              if (tn) existingNameKeys.add(nameKey);
             }
             continue;
           }
@@ -297,7 +310,7 @@ export default function ImportStartlistDialog({ competitionId, competitionName, 
             category,
             members_text: membersText,
           });
-          if (tn) existingNameKeys.add(tn);
+          if (tn) existingNameKeys.add(nameKey);
           existingByMemKey.set(memKey, { id: "pending", team_name: tnRaw || null });
         }
 

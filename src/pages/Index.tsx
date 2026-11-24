@@ -5,6 +5,7 @@ import AddSelfDialog from "@/components/AddSelfDialog";
 import SelfRegisterDialog from "@/components/SelfRegisterDialog";
 import AddCompetitionDialog from "@/components/AddCompetitionDialog";
 import CompetitionNotifyDialog from "@/components/CompetitionNotifyDialog";
+import SocialPostDialog from "@/components/SocialPostDialog";
 import MemberTable from "@/components/MemberTable";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -72,6 +73,7 @@ const Index = () => {
               </>
             )}
             {isAdmin && <CompetitionNotifyDialog competitions={competitions} />}
+            {(isAdmin || isCoach) && <SocialPostDialog competitions={competitions} />}
             {user && <AddSelfDialog onAdd={addMember} userId={user.id} linkedMembersCount={linkedMembersCount} />}
             {user && (linkedMembersCount > 0 || isAdmin || isCoach) && (
               <SelfRegisterDialog

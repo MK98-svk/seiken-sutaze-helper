@@ -36,7 +36,7 @@ const Index = () => {
     <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-2 sm:px-4 py-2 sm:py-4 flex items-center justify-between gap-1 sm:gap-2">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 py-2 sm:py-4 flex flex-wrap items-center justify-between gap-1 sm:gap-2">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -64,7 +64,7 @@ const Index = () => {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex gap-1 items-center shrink-0"
+            className="flex flex-wrap justify-end gap-1 items-center ml-auto"
           >
             {isAdmin && (
               <>
